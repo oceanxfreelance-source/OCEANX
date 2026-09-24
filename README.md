@@ -62,11 +62,11 @@ npm run test:e2e  # 19-step browser test: sign-up/OTP, listing, slip payment, ad
 
 ## Deploying to Vercel
 
-1. Create a PostgreSQL database (Neon, Supabase, Vercel Postgres…). Use the pooled URL for `DATABASE_URL` and the direct URL for `DIRECT_URL`.
-2. Import the GitHub repo in Vercel. `vercel.json` sets the build command to `npm run vercel-build` (`prisma generate && prisma migrate deploy && next build`).
-3. Add environment variables from `.env.example` — at minimum `DATABASE_URL`, `DIRECT_URL`, `APP_URL`, `AUTH_SECRET` (`openssl rand -base64 48`), `CRON_SECRET`, `RESEND_API_KEY`, `EMAIL_FROM`. Optional: `ANTHROPIC_API_KEY` (AI slip reading), S3 variables for object storage, SMS provider.
-4. Deploy, then seed once from your machine against the production DB: `DATABASE_URL=... ADMIN_EMAIL=... ADMIN_PASSWORD=... npm run db:seed` (idempotent).
-5. Sign in with the admin account (you'll receive an email code) and configure bank details, fees and rules in **Admin → Settings**.
+1. Create a PostgreSQL database (e.g. Neon). Copy its connection string.
+2. In Vercel: **Add New → Project → import this GitHub repo**.
+3. Add environment variables (see `.env.example`): `DATABASE_URL`, `AUTH_SECRET` (32+ random characters), `CRON_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_NAME`, `RESEND_API_KEY`, `EMAIL_FROM`, and after the first deploy `APP_URL`. Optional: `DIRECT_URL` (non-pooled URL; defaults to `DATABASE_URL`), `ANTHROPIC_API_KEY`, S3 and SMS variables.
+4. Deploy. The build (`scripts/vercel-build.sh`) applies database migrations and loads starter data automatically (idempotent — it never overwrites admin edits), and creates the super admin from `ADMIN_EMAIL` / `ADMIN_PASSWORD` if it doesn't exist.
+5. Sign in with the admin account (an email code is required) and configure bank details, fees and rules in **Admin → Settings**.
 
 The daily Vercel Cron (`/api/cron/daily`, 01:00 Maldives time) handles VIP expiry/renewal, deal auto-confirmation, subscription expiry and cleanup. Admins can also run the VIP check manually from **Admin → VIP**.
 
