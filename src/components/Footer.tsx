@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getSiteSettings } from "@/lib/site";
 import { Logo } from "./Logo";
+import { FooterSwitch } from "./FooterSwitch";
 
 export async function Footer() {
   const s = await getSiteSettings();
@@ -9,7 +10,19 @@ export async function Footer() {
     { title: "Programs", links: [["/vip", "Stars & VIP"], ["/business", "Business accounts"], ["/account/referrals", "Invite friends"]] },
     { title: "Company", links: [["/#about", "About us"], ["/terms", "Terms of use"], ["/privacy", "Privacy policy"]] },
   ];
-  return (
+  const year = new Date().getFullYear();
+  const compact = (
+    <footer className="border-t border-slate-200/80 bg-surface pb-24 text-xs text-slate-500">
+      <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 px-4 py-4">
+        <Link href="/#about" className="hover:text-slate-900">About</Link>
+        <Link href="/terms" className="hover:text-slate-900">Terms</Link>
+        <Link href="/privacy" className="hover:text-slate-900">Privacy</Link>
+        {s.general.supportEmail && <a href={`mailto:${s.general.supportEmail}`} className="hover:text-slate-900">Contact</a>}
+        <span className="w-full text-center text-slate-400">© {year} OceanX</span>
+      </div>
+    </footer>
+  );
+  const full = (
     <footer className="bg-slate-950 pb-24 text-slate-400 md:pb-0">
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 md:grid-cols-[1.4fr_repeat(3,1fr)]">
         <div className="space-y-4">
@@ -32,8 +45,9 @@ export async function Footer() {
         ))}
       </div>
       <div className="border-t border-white/10">
-        <p className="mx-auto max-w-6xl px-4 py-5 text-xs text-slate-500">© {new Date().getFullYear()} OceanX. All rights reserved.</p>
+        <p className="mx-auto max-w-6xl px-4 py-5 text-xs text-slate-500">© {year} OceanX. All rights reserved.</p>
       </div>
     </footer>
   );
+  return <FooterSwitch full={full} compact={compact} />;
 }
