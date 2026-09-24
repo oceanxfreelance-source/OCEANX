@@ -31,7 +31,7 @@ export function ListingCard({ l, vipLabel = "VIP" }: { l: ListingCardData; vipLa
           </div>
         )}
       </div>
-      <div className="space-y-1 p-3">
+      <div className="space-y-1 px-3 pb-3 pt-2.5">
         <p className="line-clamp-1 text-sm font-medium text-slate-800">{l.title}</p>
         <p className="text-[15px] font-semibold tracking-tight text-slate-900">{formatMVR(l.price, { free: "Free" })}</p>
         <p className="flex items-center gap-1 truncate text-xs text-slate-500">
@@ -45,7 +45,7 @@ export function ListingCard({ l, vipLabel = "VIP" }: { l: ListingCardData; vipLa
 
 export function ListingGrid({ items, vipLabel }: { items: ListingCardData[]; vipLabel?: string }) {
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-x-3 gap-y-5 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
       {items.map((l) => (
         <ListingCard key={l.id} l={l} vipLabel={vipLabel} />
       ))}
