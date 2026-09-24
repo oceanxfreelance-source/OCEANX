@@ -52,6 +52,7 @@ export default async function HomePage() {
             {
               "@type": "WebSite",
               name: settings.general.marketplaceName,
+              alternateName: ["MV Markets", "MVMarkets", "mvmarkets", "MV Markets Maldives", `${settings.general.marketplaceName} ${settings.general.tagline}`],
               url: env.appUrl,
               potentialAction: { "@type": "SearchAction", target: `${env.appUrl}/search?q={search_term_string}`, "query-input": "required name=search_term_string" },
             },

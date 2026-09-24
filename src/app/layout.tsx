@@ -20,7 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title: { default: title, template: `%s · ${name}` },
     description: s.general.seoDescription,
     applicationName: name,
-    keywords: ["Maldives marketplace", "buy and sell Maldives", "Malé classifieds", "Hulhumalé", "used phones Maldives", "cars for sale Maldives", "property Maldives", "MV Markets", "OceanX"],
+    keywords: ["mvmarkets", "MV Markets", "Maldives marketplace", "buy and sell Maldives", "Malé classifieds", "Hulhumalé", "used phones Maldives", "cars for sale Maldives", "property Maldives", "MV Markets", "OceanX"],
     openGraph: { type: "website", siteName: name, title, description: s.general.seoDescription, locale: "en_MV" },
     twitter: { card: "summary_large_image", title, description: s.general.seoDescription },
     robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large" } },
