@@ -182,8 +182,13 @@ export const SETTINGS_FORMS: { group: SettingsGroup; title: string; description:
   {
     group: "homepage",
     title: "Homepage",
-    description: "Hero text and sections.",
+    description: "Hero text, sections, the opening animation and the About us section.",
     fields: [
+      { key: "introAnimation", label: "Play the logo animation when the site opens", type: "bool", help: "Plays on first open and on every refresh. Visitors can tap to skip." },
+      { key: "showAbout", label: "Show About us on the home page", type: "bool" },
+      { key: "aboutTitle", label: "About us — heading", type: "text" },
+      { key: "aboutText", label: "About us — who we are", type: "textarea" },
+      { key: "aboutAim", label: "About us — our aim", type: "textarea" },
       { key: "heroTitle", label: "Hero title", type: "text" },
       { key: "heroSubtitle", label: "Hero subtitle", type: "textarea" },
       { key: "announcement", label: "Announcement bar", type: "text" },

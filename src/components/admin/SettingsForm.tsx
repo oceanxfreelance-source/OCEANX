@@ -32,7 +32,7 @@ export function SettingsForm({ group, settings }: { group: keyof Settings; setti
                     {f.options!.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                   </select>
                 ) : f.type === "textarea" ? (
-                  <textarea id={id} name={f.key} defaultValue={String(v ?? "")} rows={3} className="input" />
+                  <textarea id={id} name={f.key} defaultValue={String(v ?? "")} rows={4} className="input" />
                 ) : f.type === "list" ? (
                   <textarea id={id} name={f.key} defaultValue={Array.isArray(v) ? v.join("\n") : ""} rows={4} className="input" />
                 ) : (

@@ -128,3 +128,183 @@ h3 {
     linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
   background-size: 32px 32px;
 }
+
+/* ─────────── Opening logo animation (IntroSplash) ─────────── */
+.intro-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #03060d;
+  cursor: pointer;
+  animation: intro-out 0.5s ease-in 2.8s forwards;
+}
+.intro-splash.intro-leaving {
+  animation: intro-out 0.35s ease-in forwards;
+}
+.intro-glow {
+  position: absolute;
+  width: 60vmax;
+  height: 60vmax;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(45, 116, 169, 0.28), transparent 60%);
+  animation: intro-glow 2.8s ease-out both;
+}
+.intro-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.intro-mark {
+  position: relative;
+  width: clamp(64px, 18vw, 96px);
+  aspect-ratio: 1;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 22%;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 20px 60px -10px rgba(45, 116, 169, 0.55);
+  animation:
+    intro-flip 0.9s cubic-bezier(0.2, 0.9, 0.25, 1) both,
+    intro-pulse 0.45s ease-in-out 0.95s both;
+}
+.intro-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+.intro-draw-mv {
+  animation: intro-draw 0.65s ease-out 0.35s forwards;
+}
+.intro-draw-wave {
+  animation: intro-draw 0.6s ease-out 0.6s forwards;
+}
+.intro-shine {
+  position: absolute;
+  inset: -20%;
+  background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, 0.85) 50%, transparent 65%);
+  transform: translateX(-120%);
+  animation: intro-shine 0.7s ease-in-out 0.7s forwards;
+}
+.intro-word {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 0;
+  margin-left: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  animation: intro-word 0.6s cubic-bezier(0.65, 0, 0.35, 1) 1.4s forwards;
+}
+.intro-name {
+  color: #fff;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  font-size: clamp(28px, 8.5vw, 48px);
+  clip-path: inset(0 100% 0 0);
+  animation: intro-wipe 0.6s cubic-bezier(0.65, 0, 0.35, 1) 1.45s forwards;
+}
+.intro-tag {
+  margin-top: 0.5em;
+  color: #86b7db;
+  font-size: clamp(10px, 2.6vw, 13px);
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  opacity: 0;
+  animation: intro-tag 0.45s ease-out 1.95s forwards;
+}
+@keyframes intro-flip {
+  from {
+    opacity: 0;
+    transform: perspective(600px) rotateY(-160deg) rotate(-25deg) scale(0.4);
+    filter: blur(6px) brightness(0.3);
+  }
+  60% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+    transform: perspective(600px) rotateY(0) rotate(0) scale(1);
+    filter: blur(0) brightness(1);
+  }
+}
+@keyframes intro-pulse {
+  50% {
+    scale: 1.12;
+  }
+}
+@keyframes intro-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes intro-shine {
+  to {
+    transform: translateX(120%);
+  }
+}
+@keyframes intro-word {
+  to {
+    max-width: 80vw;
+    margin-left: clamp(14px, 4vw, 22px);
+  }
+}
+@keyframes intro-wipe {
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes intro-tag {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes intro-glow {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes intro-out {
+  to {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .intro-splash {
+    animation: intro-out 0.3s ease-in 0.6s forwards;
+  }
+  .intro-mark,
+  .intro-glow,
+  .intro-shine {
+    animation: none;
+  }
+  .intro-draw {
+    stroke-dashoffset: 0;
+    animation: none;
+  }
+  .intro-word {
+    max-width: 80vw;
+    margin-left: 16px;
+    animation: none;
+  }
+  .intro-name,
+  .intro-tag {
+    clip-path: none;
+    opacity: 1;
+    animation: none;
+  }
+}

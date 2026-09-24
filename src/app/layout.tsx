@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { IntroSplash } from "@/components/IntroSplash";
+import { fileUrl } from "@/lib/storage";
 import { getSiteSettings } from "@/lib/site";
 import { env } from "@/lib/env";
 
@@ -35,10 +37,14 @@ export const viewport: Viewport = {
   themeColor: "#0e7490",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const s = await getSiteSettings();
   return (
     <html lang="en">
       <body className="min-h-screen antialiased">
+        {s.homepage.introAnimation && (
+          <IntroSplash name={s.general.marketplaceName} tagline={s.general.tagline} logoUrl={s.general.logoFileId ? fileUrl(s.general.logoFileId) : null} />
+        )}
         <Header />
         <main className="mx-auto min-h-[70vh] max-w-6xl px-4 pb-28 pt-4 md:pb-12">{children}</main>
         <Footer />

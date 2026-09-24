@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, BadgePercent, Crown, ShieldCheck, Star } from "lucide-react";
+import { ArrowRight, BadgePercent, Crown, ShieldCheck, Star, Target } from "lucide-react";
 import { BannerCarousel } from "@/components/BannerCarousel";
 import { prisma } from "@/lib/db";
 import { getActiveCategories, getSiteSettings } from "@/lib/site";
@@ -127,6 +127,30 @@ export default async function HomePage() {
                 <span className="line-clamp-2 text-xs font-medium leading-tight text-slate-700">{c.name}</span>
               </Link>
             ))}
+          </div>
+        </section>
+      )}
+
+      {settings.homepage.showAbout && (settings.homepage.aboutText || settings.homepage.aboutAim) && (
+        <section id="about" className="scroll-mt-24 overflow-hidden rounded-2xl border border-slate-200/80 bg-white">
+          <div className="grid gap-0 lg:grid-cols-[1.2fr_1fr]">
+            <div className="p-6 sm:p-10">
+              <p className="eyebrow text-ocean-700">About us</p>
+              {settings.homepage.aboutTitle && <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">{settings.homepage.aboutTitle}</h2>}
+              {settings.homepage.aboutText && <p className="mt-4 whitespace-pre-line leading-relaxed text-slate-600">{settings.homepage.aboutText}</p>}
+            </div>
+            {settings.homepage.aboutAim && (
+              <div className="bg-grid relative bg-slate-950 p-6 text-white sm:p-10">
+                <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-ocean-500/25 blur-3xl" />
+                <div className="relative">
+                  <span className="grid h-10 w-10 place-items-center rounded-lg bg-white/10 text-ocean-200">
+                    <Target className="h-5 w-5" strokeWidth={1.75} />
+                  </span>
+                  <p className="mt-4 text-sm font-semibold uppercase tracking-[0.12em] text-ocean-200">Our aim</p>
+                  <p className="mt-2 whitespace-pre-line leading-relaxed text-slate-200">{settings.homepage.aboutAim}</p>
+                </div>
+              </div>
+            )}
           </div>
         </section>
       )}

@@ -125,6 +125,17 @@ const homepage = z.object({
   showCategories: z.boolean().default(true),
   showFeatured: z.boolean().default(true),
   recentCount: z.number().int().min(4).max(48).default(12),
+  introAnimation: z.boolean().default(true),
+  showAbout: z.boolean().default(true),
+  aboutTitle: z.string().max(120).default("Made in the Maldives, for the Maldives"),
+  aboutText: z
+    .string()
+    .max(2000)
+    .default("MV MARKETS is an online marketplace built by OceanX, a Maldivian team. We bring buyers and sellers from Malé to Addu together in one simple place, so anyone on any island can sell what they no longer need and find what they are looking for."),
+  aboutAim: z
+    .string()
+    .max(2000)
+    .default("Our aim is to make buying and selling across every atoll easy, fair and safe: no commission on your sale, every payment checked by our team, and seller reputation that is earned only from genuine, buyer-confirmed deals."),
 });
 
 const notifications = z.object({

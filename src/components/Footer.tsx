@@ -7,7 +7,7 @@ export async function Footer() {
   const cols: { title: string; links: [string, string][] }[] = [
     { title: "Marketplace", links: [["/search", "Browse listings"], ["/categories", "Categories"], ["/sell", "Post a listing"], ["/giveaways", "Giveaways"]] },
     { title: "Programs", links: [["/vip", "Stars & VIP"], ["/business", "Business accounts"], ["/account/referrals", "Invite friends"]] },
-    { title: "Legal", links: [["/terms", "Terms of use"], ["/privacy", "Privacy policy"]] },
+    { title: "Company", links: [["/#about", "About us"], ["/terms", "Terms of use"], ["/privacy", "Privacy policy"]] },
   ];
   return (
     <footer className="bg-slate-950 pb-24 text-slate-400 md:pb-0">
