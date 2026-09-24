@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { placeLabel } from "@/lib/place";
 import { ImageOff, MapPin } from "lucide-react";
 import type { ListingCardData } from "@/lib/services/listings";
 import { formatMVR } from "@/lib/money";
@@ -34,7 +35,7 @@ export function ListingCard({ l, vipLabel = "VIP" }: { l: ListingCardData; vipLa
         <p className="line-clamp-1 text-sm font-medium text-slate-800">{l.title}</p>
         <p className="text-[15px] font-semibold tracking-tight text-slate-900">{formatMVR(l.price, { free: "Free" })}</p>
         <p className="flex items-center gap-1 truncate text-xs text-slate-500">
-          <MapPin className="h-3 w-3 shrink-0" /> {l.island.name}, {l.atoll.code}
+          <MapPin className="h-3 w-3 shrink-0" /> {placeLabel(l, { short: true })}
           <span className="text-slate-300">·</span> {l.publishedAt ? timeAgo(l.publishedAt) : ""}
         </p>
       </div>

@@ -30,6 +30,10 @@ export async function quotePostingFee(userId: string, opts: { businessId?: strin
   const vipFee = settings.fees.vipPostingFee;
   const discountPercent = normalFee > 0 ? Math.round(((normalFee - vipFee) / normalFee) * 100) : 0;
 
+  // OceanX admins post for free (e.g. official or promotional listings).
+  const poster = await prisma.user.findUnique({ where: { id: userId }, select: { adminRoleId: true } });
+  if (poster?.adminRoleId) return { amount: 0, isVipRate: false, normalFee, vipFee, waivedReason: "admin", discountPercent };
+
   if (opts.businessId) {
     const sub = await activeSubscription(opts.businessId);
     if (sub && sub.plan.freeListingsPerPeriod > 0) {

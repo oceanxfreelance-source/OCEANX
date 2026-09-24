@@ -42,7 +42,7 @@ export function LocationPicker({ atolls, defaults, withLocation = true, required
       <div>
         <label className="label" htmlFor="atollId">Atoll</label>
         <select id="atollId" name="atollId" required={required} className="input" value={atoll} onChange={(e) => { setAtoll(e.target.value); setIsland(""); }}>
-          <option value="">Choose…</option>
+          <option value="">{required ? "Choose…" : "Any / not specified"}</option>
           {atolls.map((a) => (
             <option key={a.id} value={a.id}>{a.name}</option>
           ))}
@@ -51,7 +51,7 @@ export function LocationPicker({ atolls, defaults, withLocation = true, required
       <div>
         <label className="label" htmlFor="islandId">Island</label>
         <select id="islandId" name="islandId" required={required} className="input" value={island} onChange={(e) => setIsland(e.target.value)} disabled={!islands.length}>
-          <option value="">Choose…</option>
+          <option value="">{required ? "Choose…" : "Not specified"}</option>
           {islands.map((i) => (
             <option key={i.id} value={i.id}>{i.name}</option>
           ))}

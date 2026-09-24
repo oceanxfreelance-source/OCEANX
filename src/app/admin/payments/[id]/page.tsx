@@ -71,7 +71,7 @@ export default async function AdminPaymentPage({ params }: { params: Promise<{ i
               <dt className="text-slate-500">Expected amount</dt>
               <dd className="font-semibold">{formatMVR(p.amount)} {p.isVipRate && "(VIP rate)"}</dd>
               <dt className="text-slate-500">Reference</dt>
-              <dd className="font-mono">{p.referenceNumber}</dd>
+              <dd className="font-mono">{p.referenceNumber ?? "— (read from slip if AI is enabled)"}</dd>
               <dt className="text-slate-500">Payment date</dt>
               <dd>{formatDate(p.paidAt)}</dd>
               <dt className="text-slate-500">Payer</dt>

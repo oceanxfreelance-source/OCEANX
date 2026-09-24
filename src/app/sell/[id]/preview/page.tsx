@@ -1,5 +1,6 @@
 import { Pencil } from "lucide-react";
 import Link from "next/link";
+import { placeLabel } from "@/lib/place";
 import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { requireVerifiedUser } from "@/lib/auth/guards";
@@ -36,7 +37,7 @@ export default async function PreviewPage({ params }: { params: Promise<{ id: st
           <h2 className="text-xl font-semibold">{l.title}</h2>
           <p className="text-2xl font-semibold tracking-tight text-ocean-800">{formatMVR(l.price, { free: "Free" })} {l.negotiable && <span className="text-sm font-medium text-slate-500">· Negotiable</span>}</p>
           <p className="text-sm">Condition: {CONDITIONS.find((c) => c.value === l.condition)?.label}</p>
-          <p className="text-sm">Location: {l.location ? `${l.location.name}, ` : ""}{l.island.name}, {l.atoll.name}{l.locationDetail ? ` — ${l.locationDetail}` : ""}</p>
+          <p className="text-sm">Location: {placeLabel(l)}</p>
           {l.contactPhone && <p className="text-sm">Phone: {l.contactPhone} {l.showPhone ? "" : "(hidden)"}</p>}
           {l.business && <p className="text-sm">Posted as {l.business.name}</p>}
           <p className="whitespace-pre-line pt-2 text-sm text-slate-700">{l.description}</p>

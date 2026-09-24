@@ -40,7 +40,7 @@ type Props = {
 const STEPS = [
   { key: "photos", title: "Photos", hint: "Clear photos sell faster. The first photo is the cover.", Icon: Camera, fields: ["imageIds"] },
   { key: "details", title: "Details", hint: "Tell buyers what you're selling.", Icon: FileText, fields: ["title", "categoryId", "subcategoryId", "price", "condition", "description"] },
-  { key: "location", title: "Location", hint: "Where can buyers see or collect it?", Icon: MapPin, fields: ["atollId", "islandId", "locationId", "locationDetail"] },
+  { key: "location", title: "Location", hint: "Optional — where can buyers see or collect it? You can skip this step.", Icon: MapPin, fields: ["atollId", "islandId", "locationId", "locationDetail"] },
   { key: "contact", title: "Contact", hint: "Buyers can always message you in the app.", Icon: Phone, fields: ["contactPhone", "contactWhatsapp", "contactEmail", "businessId"] },
 ];
 
@@ -158,7 +158,7 @@ export function ListingForm({ action, categories, atolls, businesses, conditions
         </section>
 
         <section ref={(el) => { panels.current[2] = el; }} className={clsx("space-y-4", step !== 2 && "hidden")}>
-          <LocationPicker atolls={atolls} defaults={defaults} />
+          <LocationPicker atolls={atolls} defaults={defaults} required={false} />
           <div>
             <label className="label" htmlFor="locationDetail">Location details <span className="font-normal text-slate-400">(optional)</span></label>
             <input id="locationDetail" name="locationDetail" maxLength={120} defaultValue={defaults.locationDetail ?? ""} className="input" placeholder="e.g. Near Hulhumalé ferry terminal" />

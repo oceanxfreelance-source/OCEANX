@@ -352,8 +352,8 @@ model Listing {
   condition       ItemCondition
   categoryId      String
   subcategoryId   String?
-  atollId         String
-  islandId        String
+  atollId         String?
+  islandId        String?
   locationId      String?
   locationDetail  String?
   contactPhone    String?
@@ -380,8 +380,8 @@ model Listing {
   business      Business?            @relation(fields: [businessId], references: [id], onDelete: SetNull)
   category      Category             @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   subcategory   Subcategory?         @relation(fields: [subcategoryId], references: [id], onDelete: SetNull)
-  atoll         Atoll                @relation(fields: [atollId], references: [id], onDelete: Restrict)
-  island        Island               @relation(fields: [islandId], references: [id], onDelete: Restrict)
+  atoll         Atoll?               @relation(fields: [atollId], references: [id], onDelete: SetNull)
+  island        Island?              @relation(fields: [islandId], references: [id], onDelete: SetNull)
   location      Location?            @relation(fields: [locationId], references: [id], onDelete: SetNull)
   images        ListingImage[]
   savedBy       SavedListing[]

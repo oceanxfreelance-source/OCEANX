@@ -39,7 +39,7 @@ export default async function PaymentsPage({ searchParams }: { searchParams: Pro
               <StatusBadge status={p.status === "NEEDS_REVIEW" ? "PENDING" : p.status} labels={userStatus} />
             </div>
             {p.listing && <Link href={`/listing/${p.listing.id}`} className="text-sm text-ocean-700">{p.listing.title}</Link>}
-            <p className="text-xs text-slate-500">Ref {p.referenceNumber} · submitted {formatDateTime(p.createdAt)}</p>
+            <p className="text-xs text-slate-500">{p.referenceNumber ? `Ref ${p.referenceNumber} · ` : ""}Submitted {formatDateTime(p.createdAt)}</p>
             {p.status === "REJECTED" && p.rejectionReason && <p className="mt-1 text-sm text-red-700">Reason: {p.rejectionReason}</p>}
             {p.status === "REFUNDED" && p.refundNote && <p className="mt-1 text-sm text-slate-600">{p.refundNote}</p>}
             <div className="mt-2 flex flex-wrap gap-2">

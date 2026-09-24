@@ -11,7 +11,7 @@ import { evaluateVip } from "./vip";
 
 export type CancellationQuote = {
   fine: number;
-  reason: "fine" | "grace" | "disabled";
+  reason: "fine" | "grace" | "disabled" | "admin";
   graceEndsAt: Date | null;
   cancellationsInPeriod: number;
   maxPerPeriod: number;
@@ -39,7 +39,8 @@ export async function quoteCancellation(listingId: string, sellerId: string): Pr
   const graceEndsAt = c.graceHours > 0 && listing.publishedAt ? new Date(listing.publishedAt.getTime() + c.graceHours * 3600_000) : null;
   const inGrace = !!graceEndsAt && graceEndsAt > new Date();
   const count = await prisma.cancellationRecord.count({ where: { sellerId, countsAgainstSeller: true, createdAt: { gte: daysAgo(c.periodDays) } } });
-  const reason: CancellationQuote["reason"] = !c.enabled || c.fineAmount === 0 ? "disabled" : inGrace ? "grace" : "fine";
+  const seller = await prisma.user.findUnique({ where: { id: sellerId }, select: { adminRoleId: true } });
+  const reason: CancellationQuote["reason"] = seller?.adminRoleId ? "admin" : !c.enabled || c.fineAmount === 0 ? "disabled" : inGrace ? "grace" : "fine";
   const consequences = consequencesText(settings);
   const wouldExceed = count + 1 > c.maxPerPeriod;
   if (wouldExceed) {
@@ -78,13 +79,16 @@ export async function withdrawListing(
   const listing = await prisma.listing.findUniqueOrThrow({ where: { id: listingId } });
   const exceptionText = (opts.exceptionRequest ?? "").trim().slice(0, 1000);
   const requestingException = quote.fine > 0 && settings.cancellation.allowExceptionRequests && exceptionText.length > 0;
-  const outcome: CancellationOutcome = quote.reason === "disabled" ? "NO_FINE_DISABLED" : quote.reason === "grace" ? "NO_FINE_GRACE" : requestingException ? "EXCEPTION_REQUESTED" : "FINED";
-  const countsAgainst = quote.reason !== "grace";
+  const outcome: CancellationOutcome = quote.reason === "disabled" || quote.reason === "admin" ? "NO_FINE_DISABLED" : quote.reason === "grace" ? "NO_FINE_GRACE" : requestingException ? "EXCEPTION_REQUESTED" : "FINED";
+  // Grace-period and admin withdrawals never count against the seller.
+  const countsAgainst = quote.reason !== "grace" && quote.reason !== "admin";
   const statsEffect = countsAgainst
     ? settings.cancellation.reduceStars
       ? `Counts as a voluntary cancellation (−${settings.cancellation.starPenalty} Star)`
       : "Counts as a voluntary cancellation"
-    : "No effect (within grace period)";
+    : quote.reason === "admin"
+      ? "No effect (OceanX admin listing)"
+      : "No effect (within grace period)";
   const vipEffect = countsAgainst && settings.cancellation.affectsVipEligibility ? "Counts toward VIP cancellation limit" : "No effect";
 
   const record = await prisma.$transaction(async (tx) => {

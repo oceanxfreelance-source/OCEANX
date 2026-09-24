@@ -26,38 +26,14 @@ export function BankDetails({ payment, amount }: { payment: Settings["payment"];
 }
 
 export function PaymentForm({ purpose, targetId }: { purpose: "LISTING_FEE" | "CANCELLATION_FINE" | "BUSINESS_SUBSCRIPTION"; targetId: string }) {
-  const today = new Date(Date.now() + 5 * 3600000).toISOString().slice(0, 10);
   return (
     <ActionForm action={submitSlipAction}>
       <input type="hidden" name="purpose" value={purpose} />
       <input type="hidden" name="targetId" value={targetId} />
-      <Field label="Payment slip (screenshot or PDF)" name="slip" hint="Max 4 MB. Make sure the amount, date and reference number are readable.">
+      <Field label="Upload your payment slip" name="slip" hint="A screenshot or PDF of the transfer receipt (max 4 MB). Make sure the amount and reference are readable.">
         <SlipInput />
       </Field>
-      <div className="grid gap-3 sm:grid-cols-2">
-        <Field label="Transaction reference number" name="referenceNumber">
-          <input id="referenceNumber" name="referenceNumber" required minLength={3} maxLength={64} className="input font-mono" placeholder="e.g. BLAZ123456789" />
-        </Field>
-        <Field label="Payment date" name="paidAt">
-          <input id="paidAt" name="paidAt" type="date" required defaultValue={today} max={today} className="input" />
-        </Field>
-        <Field label="Amount paid (MVR)" name="amountPaid">
-          <input id="amountPaid" name="amountPaid" inputMode="decimal" className="input" />
-        </Field>
-        <Field label="Paid from (account name)" name="payerName">
-          <input id="payerName" name="payerName" maxLength={100} className="input" />
-        </Field>
-        <Field label="Your bank / wallet" name="bankName">
-          <input id="bankName" name="bankName" maxLength={60} className="input" placeholder="BML, MIB, mFaisaa…" />
-        </Field>
-        <Field label="Account number (optional)" name="payerAccount">
-          <input id="payerAccount" name="payerAccount" maxLength={40} className="input" />
-        </Field>
-      </div>
-      <Field label="Note (optional)" name="note">
-        <textarea id="note" name="note" rows={2} maxLength={500} className="input" />
-      </Field>
-      <SubmitButton className="btn-primary w-full" pendingText="Uploading & checking…">Submit payment for verification</SubmitButton>
+      <SubmitButton className="btn-accent w-full" pendingText="Uploading…">Submit payment</SubmitButton>
       <p className="text-center text-xs text-slate-500">Slips are stored privately and only seen by you and the OceanX payments team.</p>
     </ActionForm>
   );

@@ -14,6 +14,7 @@ import { isVipActiveRecord } from "@/lib/services/vip";
 import { rateLimit } from "@/lib/rate-limit";
 import { Gallery } from "@/components/Gallery";
 import { JsonLd } from "@/components/JsonLd";
+import { placeLabel } from "@/lib/place";
 import { env } from "@/lib/env";
 import { ActionForm, SubmitButton } from "@/components/ui/form";
 import { LevelBadge, SoldBadge, StarsBadge, VipBadge, VerifiedBadge, StatusBadge } from "@/components/ui/badges";
@@ -42,7 +43,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     select: { title: true, price: true, status: true, description: true, island: { select: { name: true } }, images: { take: 1, orderBy: { sortOrder: "asc" }, select: { fileId: true } } },
   });
   if (!l || !["PUBLISHED", "SOLD"].includes(l.status)) return { title: "Listing", robots: { index: false, follow: false } };
-  const title = `${l.title} — ${formatMVR(l.price)} in ${l.island.name}`;
+  const title = `${l.title} — ${formatMVR(l.price)}${l.island ? ` in ${l.island.name}` : ""}`;
   const description = l.description.replace(/\s+/g, " ").slice(0, 155);
   const image = l.images[0] ? fileUrl(l.images[0].fileId)! : undefined;
   return {
@@ -94,7 +95,7 @@ export default async function ListingPage({ params }: { params: Promise<{ id: st
               priceCurrency: "MVR",
               availability: sold ? "https://schema.org/SoldOut" : "https://schema.org/InStock",
               url: `${env.appUrl}/listing/${l.id}`,
-              areaServed: { "@type": "Place", name: `${l.island.name}, ${l.atoll.name}, Maldives` },
+              areaServed: { "@type": "Place", name: `${placeLabel({ island: l.island, atoll: l.atoll })}${l.island || l.atoll ? ", Maldives" : ""}` },
               seller: { "@type": l.business ? "Organization" : "Person", name: l.business?.name ?? l.seller.name },
             },
           }}
@@ -123,9 +124,7 @@ export default async function ListingPage({ params }: { params: Promise<{ id: st
             {formatMVR(l.price, { free: "Free" })} {l.negotiable && <span className="text-sm font-medium text-slate-500">· Negotiable</span>}
           </p>
           <p className="mt-2 text-sm text-slate-600">
-            <MapPin className="mr-1 inline h-4 w-4 -translate-y-px text-slate-400" />{l.location ? `${l.location.name}, ` : ""}
-            {l.island.name}, {l.atoll.name}
-            {l.locationDetail ? ` — ${l.locationDetail}` : ""}
+            <MapPin className="mr-1 inline h-4 w-4 -translate-y-px text-slate-400" />{placeLabel(l)}
           </p>
           <p className="text-xs text-slate-500">
             {l.publishedAt ? `Posted ${timeAgo(l.publishedAt)}` : "Not yet published"} · {l.viewCount} views

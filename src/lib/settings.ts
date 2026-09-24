@@ -38,7 +38,7 @@ const payment = z.object({
   secondaryAccountNumber: z.string().default(""),
   instructions: z
     .string()
-    .default("Transfer the exact amount and enter the transaction reference number shown on your receipt. Upload a clear screenshot or PDF of the transfer slip."),
+    .default("Transfer the exact amount to the account above, then upload a clear screenshot or PDF of the transfer slip."),
   aiScreeningEnabled: z.boolean().default(true),
   aiAutoApprove: z.boolean().default(false),
   aiConfidenceThreshold: z.number().min(0).max(1).default(0.9),

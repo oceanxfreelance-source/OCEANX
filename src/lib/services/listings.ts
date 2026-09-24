@@ -43,8 +43,8 @@ export const listingInputSchema = z.object({
   condition: z.enum(["NEW", "LIKE_NEW", "GOOD", "FAIR", "FOR_PARTS", "NOT_APPLICABLE"]),
   categoryId: z.string().min(1, "Choose a category."),
   subcategoryId: z.string().optional().nullable().transform((v) => v || null),
-  atollId: z.string().min(1, "Choose an atoll."),
-  islandId: z.string().min(1, "Choose an island."),
+  atollId: z.string().optional().nullable().transform((v) => v || null),
+  islandId: z.string().optional().nullable().transform((v) => v || null),
   locationId: z.string().optional().nullable().transform((v) => v || null),
   locationDetail: z.string().max(120).optional().nullable().transform((v) => (v ? cleanText(v, 120) : null)),
   contactPhone: optionalPhone,
@@ -78,13 +78,20 @@ async function validateRelations(userId: string, d: z.output<typeof listingInput
   const [category, sub, island, location] = await Promise.all([
     prisma.category.findUnique({ where: { id: d.categoryId } }),
     d.subcategoryId ? prisma.subcategory.findUnique({ where: { id: d.subcategoryId } }) : null,
-    prisma.island.findUnique({ where: { id: d.islandId }, include: { atoll: true } }),
+    d.islandId ? prisma.island.findUnique({ where: { id: d.islandId }, include: { atoll: true } }) : null,
     d.locationId ? prisma.location.findUnique({ where: { id: d.locationId } }) : null,
   ]);
   if (!category || !category.isActive) throw new UserError("Choose a valid category.");
   if (d.subcategoryId && (!sub || sub.categoryId !== category.id || !sub.isActive)) throw new UserError("Choose a valid subcategory.");
-  if (!island || island.atollId !== d.atollId || !island.isActive || !island.atoll.isActive) throw new UserError("Choose a valid island for the selected atoll.");
-  if (d.locationId && (!location || location.islandId !== island.id || !location.isActive)) throw new UserError("Choose a valid location for the selected island.");
+  // Location is optional, but whatever is chosen must be consistent.
+  if (d.islandId) {
+    if (!island || !island.isActive || !island.atoll.isActive || (d.atollId && island.atollId !== d.atollId)) throw new UserError("Choose a valid island for the selected atoll.");
+    d.atollId = island.atollId;
+  } else if (d.atollId) {
+    const atoll = await prisma.atoll.findUnique({ where: { id: d.atollId } });
+    if (!atoll || !atoll.isActive) throw new UserError("Choose a valid atoll.");
+  }
+  if (d.locationId && (!location || !island || location.islandId !== island.id || !location.isActive)) throw new UserError("Choose a valid area for the selected island.");
   if (!d.contactPhone && !d.contactWhatsapp && !d.contactEmail) {
     // Buyers can always use in-app messaging; phone is optional.
   }

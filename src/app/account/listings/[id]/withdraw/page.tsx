@@ -29,6 +29,7 @@ export default async function WithdrawPage({ params }: { params: Promise<{ id: s
           <p className={`text-3xl font-semibold tracking-tight ${q.fine > 0 ? "text-red-700" : "text-emerald-700"}`}>{formatMVR(q.fine)}</p>
           {q.reason === "grace" && q.graceEndsAt && <p className="text-xs text-emerald-800">Free — you&apos;re within the grace period (until {formatDateTime(q.graceEndsAt)}).</p>}
           {q.reason === "disabled" && <p className="text-xs text-emerald-800">No cancellation fee currently applies.</p>}
+          {q.reason === "admin" && <p className="text-xs text-emerald-800">Admin listings have no cancellation fee.</p>}
         </div>
         <p className="text-sm text-slate-600">
           Did the item sell? <Link href={`/account/listings/${id}/sold`} className="font-semibold text-ocean-700 underline">Mark it as sold instead</Link> — that&apos;s always free and counts toward your Stars.

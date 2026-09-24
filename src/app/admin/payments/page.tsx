@@ -53,7 +53,7 @@ export default async function AdminPaymentsPage({ searchParams }: { searchParams
                   <td>{p.user.name}<span className="block text-xs text-slate-500">{p.user.email}</span></td>
                   <td className="max-w-48 truncate">{p.purpose === "LISTING_FEE" ? p.listing?.title ?? "Listing" : p.purpose === "CANCELLATION_FINE" ? "Cancellation fine" : "Business plan"}</td>
                   <td className="whitespace-nowrap font-semibold">{formatMVR(p.amount)}{p.isVipRate && <span className="block text-xs text-amber-700">VIP rate</span>}</td>
-                  <td className="font-mono text-xs">{p.referenceNumber}</td>
+                  <td className="font-mono text-xs">{p.referenceNumber ?? "—"}</td>
                   <td><StatusBadge status={p.status} /></td>
                   <td className="text-xs text-amber-800">{p.flags.length ? p.flags.join(", ") : "—"}</td>
                   <td><Link href={`/admin/payments/${p.id}`} className="btn-primary btn-sm">Review</Link></td>

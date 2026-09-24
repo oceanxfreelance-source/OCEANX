@@ -139,8 +139,8 @@ async function continueToPay(page: Page) {
 
 async function paySlip(page: Page, listingId: string, slip: string, ref: string) {
   await page.goto(`${BASE}/sell/${listingId}/pay`);
+  void ref;
   await page.setInputFiles("#slip", slip);
-  await page.fill("#referenceNumber", ref);
   await page.click('button:has-text("Submit payment")');
   await page.waitForURL(/\/account\/payments/);
 }

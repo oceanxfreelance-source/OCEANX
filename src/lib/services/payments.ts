@@ -38,13 +38,15 @@ export function normalizeReference(ref: string) {
   return ref.toUpperCase().replace(/[^A-Z0-9]/g, "");
 }
 
+/** Only the slip is required from customers; reference and date are read from the slip when AI is enabled. */
 export const slipDetailsSchema = z.object({
-  referenceNumber: z.string().trim().min(3, "Enter the transaction reference number.").max(64),
+  referenceNumber: z.string().trim().max(64).optional().default(""),
   paidAt: z
     .string()
     .trim()
-    .refine((v) => /^\d{4}-\d{2}-\d{2}$/.test(v) && !Number.isNaN(Date.parse(v)), "Enter the payment date.")
-    .transform((v) => new Date(`${v}T12:00:00+05:00`)),
+    .optional()
+    .default("")
+    .transform((v) => (/^\d{4}-\d{2}-\d{2}$/.test(v) && !Number.isNaN(Date.parse(v)) ? new Date(`${v}T12:00:00+05:00`) : null)),
   amountPaid: z.string().trim().optional().default(""),
   payerName: z.string().trim().max(100).optional().default(""),
   payerAccount: z.string().trim().max(40).optional().default(""),
@@ -136,8 +138,8 @@ export async function submitPayment(
         listingId: target.listingId ?? null,
         cancellationFineId: target.cancellationFineId ?? null,
         subscriptionId: target.subscriptionId ?? null,
-        referenceNumber: cleanText(d.referenceNumber, 64),
-        referenceNormalized: normalizeReference(d.referenceNumber),
+        referenceNumber: d.referenceNumber ? cleanText(d.referenceNumber, 64) : null,
+        referenceNormalized: d.referenceNumber ? normalizeReference(d.referenceNumber) || null : null,
         paidAt: d.paidAt,
         payerName: d.payerName || null,
         payerAccount: d.payerAccount || null,
@@ -221,6 +223,26 @@ export async function screenPayment(paymentId: string, fileIn?: { buffer: Buffer
       const aiFlags: string[] = [];
       const aiChecks: Record<string, { ok: boolean; detail: string }> = {};
       if (!x.is_payment_receipt) aiFlags.push("NOT_A_RECEIPT");
+      // The customer only uploads the slip: fill reference/date from what AI read, then run the same duplicate/date checks.
+      const aiRef = x.reference_number ? normalizeReference(x.reference_number) : "";
+      if (!payment.referenceNormalized && aiRef) {
+        await prisma.payment.update({ where: { id: paymentId }, data: { referenceNumber: x.reference_number!.slice(0, 64), referenceNormalized: aiRef } });
+        const dupRef = await prisma.payment.findFirst({
+          where: { referenceNormalized: aiRef, id: { not: paymentId }, status: { notIn: ["CANCELLED"] }, NOT: { userId: payment.userId, status: "REJECTED" } },
+          select: { id: true },
+        });
+        aiChecks.duplicateReference = { ok: !dupRef, detail: dupRef ? `Reference ${x.reference_number} also used on payment ${dupRef.id}` : `Reference ${x.reference_number} not seen before` };
+        if (dupRef) flags.add("DUPLICATE_REFERENCE");
+      }
+      if (!payment.paidAt && x.transaction_date && /^\d{4}-\d{2}-\d{2}$/.test(x.transaction_date)) {
+        const paidAt = new Date(`${x.transaction_date}T12:00:00+05:00`);
+        if (!Number.isNaN(paidAt.getTime())) {
+          await prisma.payment.update({ where: { id: paymentId }, data: { paidAt } });
+          const outOfRange = paidAt > addDays(new Date(), 1) || paidAt < daysAgo(settings.payment.maxSlipAgeDays + 1);
+          aiChecks.date = { ok: !outOfRange, detail: `Slip date ${x.transaction_date}` };
+          if (outOfRange) flags.add("DATE_OUT_OF_RANGE");
+        }
+      }
       const amountLaari = x.amount !== null ? Math.round(x.amount * 100) : null;
       aiChecks.amount = { ok: amountLaari === payment.amount, detail: `Slip: ${amountLaari !== null ? formatMVR(amountLaari) : "unreadable"} · expected ${formatMVR(payment.amount)}` };
       if (amountLaari !== payment.amount) aiFlags.push("AMOUNT_MISMATCH");
