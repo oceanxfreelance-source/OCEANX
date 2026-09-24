@@ -12,7 +12,7 @@ const QUIET_DAYS = 14;
 /** A small "Get the app" card above the bottom bar on phones. Dismissing hides it for two weeks. */
 export function InstallPrompt() {
   const path = usePathname();
-  const { ready, platform, canPrompt, installed, install } = useInstall();
+  const { ready, platform, installed } = useInstall();
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -41,13 +41,9 @@ export function InstallPrompt() {
         <img src="/icon-192.png" alt="" className="h-11 w-11 shrink-0 rounded-xl" />
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold text-slate-900">Get the MV Markets app</p>
-          <p className="truncate text-xs text-slate-500">Full screen, faster — free, no app store.</p>
+          <p className="truncate text-xs text-slate-500">Free · no app store needed</p>
         </div>
-        {platform === "android" && canPrompt ? (
-          <button type="button" onClick={async () => { if (await install()) setShow(false); }} className="btn-accent btn-sm shrink-0">Install</button>
-        ) : (
-          <Link href="/app" onClick={() => setShow(false)} className="btn-accent btn-sm shrink-0">Get app</Link>
-        )}
+        <Link href="/app" onClick={() => setShow(false)} className="btn-accent btn-sm shrink-0">Get app</Link>
         <button type="button" onClick={dismiss} className="-mr-1 grid h-8 w-8 shrink-0 place-items-center rounded-lg text-slate-400 hover:bg-slate-100" aria-label="Not now">
           <X className="h-4 w-4" />
         </button>

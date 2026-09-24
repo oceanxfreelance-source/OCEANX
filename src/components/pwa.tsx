@@ -7,6 +7,9 @@ type W = Window & { __mvmInstall?: BIPEvent | null };
 
 export type Platform = "ios" | "android" | "desktop";
 
+/** The Android app file hosted on this site (built from /android). */
+export const ANDROID_APK = { url: "/downloads/mv-markets.apk", version: "1.0", sizeKb: 88 };
+
 export function detectPlatform(): Platform {
   const ua = navigator.userAgent;
   if (/iPhone|iPad|iPod/i.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)) return "ios";
@@ -15,6 +18,7 @@ export function detectPlatform(): Platform {
 }
 
 export function isStandalone() {
+  if (/MVMarketsApp/.test(navigator.userAgent)) return true;
   return window.matchMedia("(display-mode: standalone)").matches || (navigator as Navigator & { standalone?: boolean }).standalone === true;
 }
 

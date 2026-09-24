@@ -164,7 +164,7 @@ try {
   const b = await buyerCtx.newPage();
   const a = await adminCtx.newPage();
   const errors: string[] = [];
-  for (const p of [s, b, a]) p.on("pageerror", (e) => errors.push(e.message));
+  for (const p of [s, b, a]) p.on("pageerror", (e) => errors.push(`${p.url()}: ${e.message.slice(0, 160)}`));
 
   const img = await makePng(path.join(OUT, "item.png"), "#0e7490", "iPhone");
   const slip1 = await makeSlip(path.join(OUT, "slip1.png"));

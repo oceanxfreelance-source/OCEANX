@@ -20,18 +20,18 @@ export default async function GetAppPage() {
           <img src="/icon-192.png" alt="" className="h-16 w-16 rounded-2xl shadow-lg shadow-black/40" />
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">Get the {s.general.marketplaceName} app</h1>
-            <p className="mt-1 text-sm text-white/75">Free · Android & iPhone · no app store needed</p>
+            <p className="mt-1 text-sm text-white/75">Free · Android app & iPhone · no app store</p>
           </div>
         </div>
         <ul className="relative mt-6 grid grid-cols-3 gap-3 text-center text-xs text-white/80">
           <li className="rounded-xl bg-white/5 p-3"><Maximize className="mx-auto mb-1.5 h-5 w-5 text-ocean-200" />Full screen</li>
           <li className="rounded-xl bg-white/5 p-3"><Zap className="mx-auto mb-1.5 h-5 w-5 text-ocean-200" />Opens instantly</li>
-          <li className="rounded-xl bg-white/5 p-3"><Download className="mx-auto mb-1.5 h-5 w-5 text-ocean-200" />Tiny, always up to date</li>
+          <li className="rounded-xl bg-white/5 p-3"><Download className="mx-auto mb-1.5 h-5 w-5 text-ocean-200" />Under 100 KB, updates itself</li>
         </ul>
       </div>
       <InstallGuide />
       <p className="flex items-start gap-2 text-xs leading-relaxed text-slate-500">
-        <Bell className="mt-0.5 h-4 w-4 shrink-0" /> The app is the same MV Markets you use here, so your account, listings and chats are all there. It updates itself — you never need to download a new version.
+        <Bell className="mt-0.5 h-4 w-4 shrink-0" /> The app is the same MV Markets you use here, so your account, listings and chats are all there. New features arrive automatically — you never need to download it again.
       </p>
     </div>
   );

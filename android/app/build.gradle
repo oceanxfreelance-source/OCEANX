@@ -1,0 +1,55 @@
+plugins {
+    id "com.android.application"
+}
+
+// Release signing: keystore path + passwords come from android/keystore.properties or environment variables (never committed).
+def ks = new Properties()
+def ksFile = rootProject.file("keystore.properties")
+if (ksFile.exists()) ksFile.withInputStream { ks.load(it) }
+def prop = { String k -> ks.getProperty(k) ?: System.getenv(k) }
+
+android {
+    namespace "mv.mvmarkets.app"
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "mv.mvmarkets.app"
+        minSdk 24
+        targetSdk 35
+        versionCode 1
+        versionName "1.0"
+        // The site this app opens. Change here if you move to a custom domain.
+        buildConfigField "String", "START_URL", "\"https://mvmarkets.vercel.app/?source=android\""
+        buildConfigField "String", "APP_HOSTS", "\"mvmarkets.vercel.app\""
+    }
+
+    buildFeatures { buildConfig true }
+
+    signingConfigs {
+        release {
+            if (prop("MVM_KEYSTORE")) {
+                storeFile file(prop("MVM_KEYSTORE"))
+                storePassword prop("MVM_KEYSTORE_PASSWORD")
+                keyAlias prop("MVM_KEY_ALIAS") ?: "mvmarkets"
+                keyPassword prop("MVM_KEY_PASSWORD") ?: prop("MVM_KEYSTORE_PASSWORD")
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            if (prop("MVM_KEYSTORE")) signingConfig signingConfigs.release
+        }
+    }
+
+    lint {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}

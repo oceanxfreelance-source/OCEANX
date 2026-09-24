@@ -486,3 +486,6 @@ html.theme-anim * {
 @media (display-mode: standalone) {
   .hide-in-app { display: none !important; }
 }
+.in-app .hide-in-app {
+  display: none !important;
+}

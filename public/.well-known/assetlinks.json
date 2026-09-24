@@ -1,0 +1,10 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "mv.mvmarkets.app",
+      "sha256_cert_fingerprints": ["D0:00:9A:67:0E:95:9A:D7:16:45:9F:9E:8F:E5:7D:D0:20:FE:28:E3:CE:C8:E7:1F:C3:A4:66:12:9E:1F:43:F5"]
+    }
+  }
+]
