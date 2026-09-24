@@ -17,6 +17,11 @@ const general = z.object({
   maxActiveListingsPerUser: z.number().int().min(1).max(10000).default(200),
   maxListingsCreatedPerDay: z.number().int().min(1).max(1000).default(20),
   maintenanceMode: z.boolean().default(false),
+  seoDescription: z
+    .string()
+    .max(300)
+    .default("MV Markets is the Maldives marketplace to buy and sell phones, vehicles, property, furniture and more across every atoll. No commission on your sale."),
+  googleSiteVerification: z.string().max(200).default(""),
 });
 
 const fees = z.object({

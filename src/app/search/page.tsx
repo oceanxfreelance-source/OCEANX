@@ -1,10 +1,26 @@
+import type { Metadata } from "next";
+import { prisma } from "@/lib/db";
 import Link from "next/link";
 import { searchListings, CONDITIONS } from "@/lib/services/listings";
 import { getActiveCategories, getActiveLocations, getSiteSettings } from "@/lib/site";
 import { ListingGrid, EmptyState } from "@/components/ListingCard";
 import { Pagination } from "@/components/Pagination";
 
-export const metadata = { title: "Search listings" };
+export async function generateMetadata({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }): Promise<Metadata> {
+  const sp = await searchParams;
+  const cat = typeof sp.category === "string" ? sp.category : "";
+  const q = typeof sp.q === "string" ? sp.q.trim() : "";
+  const category = cat ? await prisma.category.findUnique({ where: { slug: cat }, select: { name: true } }) : null;
+  const title = q ? `“${q}” for sale in the Maldives` : category ? `${category.name} for sale in the Maldives` : "Browse listings in the Maldives";
+  const onlyCategory = Object.keys(sp).every((k) => k === "category" || k === "sub");
+  return {
+    title,
+    description: category ? `Buy and sell ${category.name.toLowerCase()} across Malé, Hulhumalé, Addu and every atoll on MV Markets.` : undefined,
+    // Free-text and heavily filtered searches are not indexed; plain category pages are.
+    robots: q || !onlyCategory ? { index: false, follow: true } : undefined,
+    alternates: onlyCategory ? { canonical: cat ? `/search?category=${cat}${typeof sp.sub === "string" ? `&sub=${sp.sub}` : ""}` : "/search" } : undefined,
+  };
+}
 
 export default async function SearchPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const raw = await searchParams;

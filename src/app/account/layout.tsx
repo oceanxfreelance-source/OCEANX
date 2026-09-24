@@ -1,7 +1,10 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth/guards";
 import { pendingTermsFor } from "@/lib/services/users";
+
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 const NAV = [
   ["/account", "Dashboard"],

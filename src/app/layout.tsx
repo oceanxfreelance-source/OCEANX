@@ -3,13 +3,28 @@ import "./globals.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { getSiteSettings } from "@/lib/site";
+import { env } from "@/lib/env";
+
+/** Accepts either the bare token or the whole <meta …content="…"> tag pasted from Search Console. */
+function verificationToken(raw: string) {
+  const m = raw.match(/content=["']([^"']+)["']/);
+  return (m ? m[1] : raw).trim() || undefined;
+}
 
 export async function generateMetadata(): Promise<Metadata> {
   const s = await getSiteSettings();
+  const name = s.general.marketplaceName;
+  const title = `${name} — Buy & sell in the Maldives`;
   return {
-    title: { default: `${s.general.marketplaceName} ${s.general.tagline}`, template: `%s · ${s.general.marketplaceName}` },
-    description: "Buy and sell across the Maldives. List items for a small one-time fee — no commission on your sale.",
-    applicationName: s.general.marketplaceName,
+    metadataBase: new URL(env.appUrl),
+    title: { default: title, template: `%s · ${name}` },
+    description: s.general.seoDescription,
+    applicationName: name,
+    keywords: ["Maldives marketplace", "buy and sell Maldives", "Malé classifieds", "Hulhumalé", "used phones Maldives", "cars for sale Maldives", "property Maldives", "MV Markets", "OceanX"],
+    openGraph: { type: "website", siteName: name, title, description: s.general.seoDescription, locale: "en_MV" },
+    twitter: { card: "summary_large_image", title, description: s.general.seoDescription },
+    robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large" } },
+    verification: { google: verificationToken(s.general.googleSiteVerification) },
     formatDetection: { telephone: false },
   };
 }

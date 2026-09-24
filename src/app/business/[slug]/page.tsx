@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Phone, Store } from "lucide-react";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
@@ -7,6 +8,13 @@ import { activeSubscription } from "@/lib/services/fees";
 import { fileUrl } from "@/lib/storage";
 import { ListingGrid, EmptyState } from "@/components/ListingCard";
 import { VerifiedBadge } from "@/components/ui/badges";
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const b = await prisma.business.findUnique({ where: { slug }, select: { name: true, description: true, status: true } });
+  if (!b || b.status !== "ACTIVE") return { robots: { index: false } };
+  return { title: `${b.name} — shop on MV Markets`, description: b.description?.slice(0, 155) || undefined, alternates: { canonical: `/business/${slug}` } };
+}
 
 export default async function BusinessPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;

@@ -13,6 +13,8 @@ import { REPORT_REASONS } from "@/lib/services/reports";
 import { isVipActiveRecord } from "@/lib/services/vip";
 import { rateLimit } from "@/lib/rate-limit";
 import { Gallery } from "@/components/Gallery";
+import { JsonLd } from "@/components/JsonLd";
+import { env } from "@/lib/env";
 import { ActionForm, SubmitButton } from "@/components/ui/form";
 import { LevelBadge, SoldBadge, StarsBadge, VipBadge, VerifiedBadge, StatusBadge } from "@/components/ui/badges";
 import { contactSellerAction, reportAction, toggleSaveAction } from "@/app/actions/marketplace";
@@ -35,9 +37,21 @@ async function load(id: string) {
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
-  const l = await prisma.listing.findUnique({ where: { id }, select: { title: true, price: true, status: true, description: true } });
-  if (!l || !["PUBLISHED", "SOLD"].includes(l.status)) return { title: "Listing" };
-  return { title: `${l.title} — ${formatMVR(l.price)}`, description: l.description.slice(0, 150) };
+  const l = await prisma.listing.findUnique({
+    where: { id },
+    select: { title: true, price: true, status: true, description: true, island: { select: { name: true } }, images: { take: 1, orderBy: { sortOrder: "asc" }, select: { fileId: true } } },
+  });
+  if (!l || !["PUBLISHED", "SOLD"].includes(l.status)) return { title: "Listing", robots: { index: false, follow: false } };
+  const title = `${l.title} — ${formatMVR(l.price)} in ${l.island.name}`;
+  const description = l.description.replace(/\s+/g, " ").slice(0, 155);
+  const image = l.images[0] ? fileUrl(l.images[0].fileId)! : undefined;
+  return {
+    title,
+    description,
+    alternates: { canonical: `/listing/${id}` },
+    openGraph: { type: "website", title, description, url: `/listing/${id}`, images: image ? [{ url: image }] : undefined },
+    twitter: { card: image ? "summary_large_image" : "summary", title, description, images: image ? [image] : undefined },
+  };
 }
 
 export default async function ListingPage({ params }: { params: Promise<{ id: string }> }) {
@@ -61,8 +75,31 @@ export default async function ListingPage({ params }: { params: Promise<{ id: st
   const images = l.images.map((i) => fileUrl(i.fileId)!);
   const sold = l.status === "SOLD";
 
+  const conditionSchema: Record<string, string> = { NEW: "NewCondition", LIKE_NEW: "UsedCondition", GOOD: "UsedCondition", FAIR: "UsedCondition", FOR_PARTS: "DamagedCondition" };
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
+      {publicVisible && (
+        <JsonLd
+          data={{
+            "@context": "https://schema.org",
+            "@type": "Product",
+            name: l.title,
+            description: l.description.slice(0, 500),
+            image: images.map((u) => `${env.appUrl}${u}`),
+            category: l.subcategory ? `${l.category.name} > ${l.subcategory.name}` : l.category.name,
+            ...(conditionSchema[l.condition] ? { itemCondition: `https://schema.org/${conditionSchema[l.condition]}` } : {}),
+            offers: {
+              "@type": "Offer",
+              price: (l.price / 100).toFixed(2),
+              priceCurrency: "MVR",
+              availability: sold ? "https://schema.org/SoldOut" : "https://schema.org/InStock",
+              url: `${env.appUrl}/listing/${l.id}`,
+              areaServed: { "@type": "Place", name: `${l.island.name}, ${l.atoll.name}, Maldives` },
+              seller: { "@type": l.business ? "Organization" : "Person", name: l.business?.name ?? l.seller.name },
+            },
+          }}
+        />
+      )}
       <div className="space-y-4">
         {!publicVisible && (
           <div className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900 ring-1 ring-amber-200">

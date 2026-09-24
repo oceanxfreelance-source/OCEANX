@@ -17,6 +17,8 @@ export const SETTINGS_FORMS: { group: SettingsGroup; title: string; description:
       { key: "maxImagesPerListing", label: "Max photos per listing", type: "int" },
       { key: "maxActiveListingsPerUser", label: "Max active listings per user", type: "int" },
       { key: "maxListingsCreatedPerDay", label: "Max new listings per user per day", type: "int", help: "Stops spam / mass posting." },
+      { key: "seoDescription", label: "Search engine description", type: "textarea", help: "Shown under your site name in Google results." },
+      { key: "googleSiteVerification", label: "Google Search Console verification code", type: "text", help: 'From Search Console → "HTML tag" method: paste only the content="…" value.' },
     ],
   },
   {

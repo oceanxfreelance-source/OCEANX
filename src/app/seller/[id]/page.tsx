@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
@@ -8,6 +9,13 @@ import { fileUrl } from "@/lib/storage";
 import { formatDate } from "@/lib/dates";
 import { ListingGrid, EmptyState } from "@/components/ListingCard";
 import { LevelBadge, StarsBadge, VipBadge } from "@/components/ui/badges";
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  const u = await prisma.user.findUnique({ where: { id }, select: { name: true, status: true } });
+  if (!u || u.status !== "ACTIVE") return { robots: { index: false } };
+  return { title: `${u.name} — seller on MV Markets`, alternates: { canonical: `/seller/${id}` } };
+}
 
 export default async function SellerPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ tab?: string }> }) {
   const { id } = await params;

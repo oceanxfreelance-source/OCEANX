@@ -7,7 +7,11 @@ function required(name: string, fallbackForDev?: string): string {
 
 export const env = {
   get appUrl() {
-    return (process.env.APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000")).replace(/\/$/, "");
+    // Public site address. On Vercel, fall back to the stable production domain (never a per-deployment URL).
+    const vercelProd = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+    const vercelDeploy = process.env.VERCEL_URL;
+    const url = process.env.APP_URL || (vercelProd ? `https://${vercelProd}` : vercelDeploy ? `https://${vercelDeploy}` : "http://localhost:3000");
+    return url.replace(/\/$/, "");
   },
   get authSecret() {
     const s = required("AUTH_SECRET", "dev-only-secret-change-me-0123456789abcdef");

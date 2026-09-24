@@ -6,8 +6,11 @@ import { listingCardSelect } from "@/lib/services/listings";
 import { ListingGrid, EmptyState } from "@/components/ListingCard";
 import { CategoryIcon } from "@/components/icons";
 import { fileUrl } from "@/lib/storage";
+import { env } from "@/lib/env";
+import { JsonLd } from "@/components/JsonLd";
 
 export const dynamic = "force-dynamic";
+export const metadata = { alternates: { canonical: "/" } };
 
 function SectionHeader({ title, href, action }: { title: string; href?: string; action?: string }) {
   return (
@@ -42,6 +45,20 @@ export default async function HomePage() {
 
   return (
     <div className="space-y-12">
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "WebSite",
+              name: settings.general.marketplaceName,
+              url: env.appUrl,
+              potentialAction: { "@type": "SearchAction", target: `${env.appUrl}/search?q={search_term_string}`, "query-input": "required name=search_term_string" },
+            },
+            { "@type": "Organization", name: `${settings.general.marketplaceName} ${settings.general.tagline}`, url: env.appUrl, logo: `${env.appUrl}/icon.svg`, areaServed: "MV" },
+          ],
+        }}
+      />
       {settings.homepage.announcement && (
         <div className="rounded-lg border border-ocean-200 bg-ocean-50 px-4 py-2.5 text-sm text-ocean-900">{settings.homepage.announcement}</div>
       )}
