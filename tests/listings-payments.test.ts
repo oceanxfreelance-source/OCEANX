@@ -88,7 +88,7 @@ describe("payment submission and verification", () => {
     expect((await prisma.listing.findUniqueOrThrow({ where: { id: l.id } })).status).toBe("PAYMENT_REVIEW");
 
     // Not visible in search yet
-    expect((await searchListings({ q: l.title })).total).toBe(0);
+    expect((await searchListings({ q: l.title })).items.map((i) => i.id)).not.toContain(l.id);
 
     await adminVerifyPayment(res.paymentId, admin.id, "");
     const pub = await prisma.listing.findUniqueOrThrow({ where: { id: l.id } });

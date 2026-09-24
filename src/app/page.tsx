@@ -29,7 +29,7 @@ function SectionHeader({ title, href, action }: { title: string; href?: string; 
 export default async function HomePage() {
   const settings = await getSiteSettings();
   const now = new Date();
-  const [categories, banners, featured, recent] = await Promise.all([
+  const [categories, banners, featured, recent, totalListings] = await Promise.all([
     getActiveCategories(),
     prisma.banner.findMany({
       where: { isActive: true, AND: [{ OR: [{ startsAt: null }, { startsAt: { lte: now } }] }, { OR: [{ endsAt: null }, { endsAt: { gt: now } }] }] },
@@ -40,6 +40,7 @@ export default async function HomePage() {
       ? prisma.listing.findMany({ where: { status: "PUBLISHED", featuredUntil: { gt: now }, seller: { status: "ACTIVE" } }, orderBy: { featuredUntil: "desc" }, take: 8, select: listingCardSelect })
       : [],
     prisma.listing.findMany({ where: { status: "PUBLISHED", seller: { status: "ACTIVE" } }, orderBy: { publishedAt: "desc" }, take: settings.homepage.recentCount, select: listingCardSelect }),
+    prisma.listing.count({ where: { status: "PUBLISHED", seller: { status: "ACTIVE" } } }),
   ]);
 
   return (
@@ -89,7 +90,12 @@ export default async function HomePage() {
       <section>
         <SectionHeader title="Latest items" href="/search" action="View all" />
         {recent.length ? (
-          <ListingGrid items={recent} vipLabel={settings.vip.badgeName} />
+          <>
+            <ListingGrid items={recent} vipLabel={settings.vip.badgeName} />
+            <Link href="/search" className="btn-secondary mt-5 w-full">
+              See all listings{totalListings > recent.length ? ` (${totalListings.toLocaleString()})` : ""} <ArrowRight className="h-4 w-4" />
+            </Link>
+          </>
         ) : (
           <EmptyState title="No listings yet">
             Be the first to <Link href="/sell" className="font-medium text-ocean-700 underline">post a listing</Link>.

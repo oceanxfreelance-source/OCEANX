@@ -308,6 +308,33 @@ export const listingCardSelect = {
   business: { select: { name: true, slug: true, verified: true } },
 } satisfies Prisma.ListingSelect;
 
+/** Split a query into words; plurals are reduced so "cars" also finds "car" and "Car" categories. */
+export function searchWords(q: string) {
+  return q
+    .toLowerCase()
+    .split(/[\s,]+/)
+    .map((w) => w.replace(/[^\p{L}\p{N}.+-]/gu, ""))
+    .filter(Boolean)
+    .slice(0, 6)
+    .map((w) => (w.length > 3 && w.endsWith("ies") ? w.slice(0, -3) + "y" : w.length > 3 && w.endsWith("es") && /(ch|sh|x|ss)es$/.test(w) ? w.slice(0, -2) : w.length > 3 && w.endsWith("s") && !w.endsWith("ss") ? w.slice(0, -1) : w));
+}
+
+/** One word matches the title, description, category, subcategory or place. */
+function wordMatch(w: string): Prisma.ListingWhereInput {
+  const c = { contains: w, mode: "insensitive" as const };
+  return {
+    OR: [
+      { title: c },
+      { description: c },
+      { category: { name: c } },
+      { subcategory: { name: c } },
+      { island: { name: c } },
+      { atoll: { name: c } },
+      { location: { name: c } },
+    ],
+  };
+}
+
 export async function searchListings(raw: Record<string, string | string[] | undefined>) {
   const flat: Record<string, string> = {};
   for (const [k, v] of Object.entries(raw)) if (typeof v === "string") flat[k] = v;
@@ -317,10 +344,8 @@ export async function searchListings(raw: Record<string, string | string[] | und
     seller: { status: "ACTIVE" },
   };
   const and: Prisma.ListingWhereInput[] = [];
-  if (p.q) {
-    const words = p.q.split(/\s+/).filter(Boolean).slice(0, 6);
-    for (const w of words) and.push({ OR: [{ title: { contains: w, mode: "insensitive" } }, { description: { contains: w, mode: "insensitive" } }] });
-  }
+  const words = searchWords(p.q);
+  const wordClauses = words.map(wordMatch);
   if (p.category) where.category = { slug: p.category };
   if (p.sub) where.subcategory = { slug: p.sub };
   if (p.atoll) where.atollId = p.atoll;
@@ -331,16 +356,26 @@ export async function searchListings(raw: Record<string, string | string[] | und
   if (p.min && Number.isFinite(min)) and.push({ price: { gte: mvrToLaari(min) } });
   if (p.max && Number.isFinite(max)) and.push({ price: { lte: mvrToLaari(max) } });
   if (p.vip === "1") and.push({ seller: { vipStatus: { state: "ACTIVE", expiresAt: { gt: new Date() } } } });
-  if (and.length) where.AND = and;
+  const build = (mode: "all" | "any"): Prisma.ListingWhereInput => {
+    const extra = mode === "all" ? wordClauses : wordClauses.length ? [{ OR: wordClauses }] : [];
+    const all = [...and, ...extra];
+    return all.length ? { ...where, AND: all } : where;
+  };
 
   const orderBy: Prisma.ListingOrderByWithRelationInput[] =
     p.sort === "price_asc" ? [{ price: "asc" }] : p.sort === "price_desc" ? [{ price: "desc" }] : p.sort === "oldest" ? [{ publishedAt: "asc" }] : [{ publishedAt: "desc" }];
 
-  const [total, items] = await Promise.all([
-    prisma.listing.count({ where }),
-    prisma.listing.findMany({ where, orderBy: [...orderBy, { id: "desc" }], skip: (p.page - 1) * PAGE_SIZE, take: PAGE_SIZE, select: listingCardSelect }),
-  ]);
-  return { params: p, total, items, pages: Math.max(1, Math.ceil(total / PAGE_SIZE)) };
+  // Every word must match somewhere; if nothing does, fall back to listings matching any of the words.
+  let finalWhere = build("all");
+  let total = await prisma.listing.count({ where: finalWhere });
+  let relaxed = false;
+  if (total === 0 && words.length > 1) {
+    finalWhere = build("any");
+    total = await prisma.listing.count({ where: finalWhere });
+    relaxed = total > 0;
+  }
+  const items = await prisma.listing.findMany({ where: finalWhere, orderBy: [...orderBy, { id: "desc" }], skip: (p.page - 1) * PAGE_SIZE, take: PAGE_SIZE, select: listingCardSelect });
+  return { params: p, total, items, relaxed, pages: Math.max(1, Math.ceil(total / PAGE_SIZE)) };
 }
 
 export type ListingCardData = Prisma.ListingGetPayload<{ select: typeof listingCardSelect }>;

@@ -3,14 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
-import { Home, MessageSquare, Plus, Search, User } from "lucide-react";
+import { Home, LayoutGrid, MessageSquare, Plus, User } from "lucide-react";
 
 export function BottomNav({ signedIn, unread }: { signedIn: boolean; unread: number }) {
   const path = usePathname();
   if (path.startsWith("/admin")) return null;
   const items = [
     { href: "/", label: "Home", Icon: Home },
-    { href: "/search", label: "Browse", Icon: Search },
+    { href: "/search", label: "All items", Icon: LayoutGrid },
     { href: "/sell", label: "Sell", Icon: Plus, accent: true },
     { href: "/messages", label: "Chats", Icon: MessageSquare, badge: unread },
     { href: signedIn ? "/account" : "/login", label: "Account", Icon: User },

@@ -254,7 +254,8 @@ try {
   log("Buyer confirmed purchase → seller earned 1 Star and 1 successful deal");
 
   await b.goto(`${BASE}/search?q=${encodeURIComponent(title)}`);
-  await expectText(b, "No listings match");
+  await expectText(b, "found");
+  if ((await b.getByText(title, { exact: true }).count()) > 0) throw new Error("SOLD listing still shown in default search");
   log("SOLD listing no longer in default search");
 
   // Cancellation fine flow
