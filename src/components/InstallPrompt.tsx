@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { X } from "lucide-react";
-import { useInstall } from "./pwa";
+import { pushSupported, useInstall } from "./pwa";
 
 const KEY = "mvm-install-dismissed";
 const QUIET_DAYS = 14;
@@ -21,8 +21,20 @@ export function InstallPrompt() {
       const at = Number(localStorage.getItem(KEY) || 0);
       if (Date.now() - at < QUIET_DAYS * 86400e3) return;
     } catch {}
-    const t = setTimeout(() => setShow(true), 4500);
-    return () => clearTimeout(t);
+    // If the notifications card is about to ask first, wait until it has been answered.
+    let pushPending = false;
+    try {
+      pushPending = pushSupported() && Notification.permission === "default" && Date.now() - Number(localStorage.getItem("mvm-push-asked") || 0) >= 7 * 86400e3;
+    } catch {}
+    let t: ReturnType<typeof setTimeout> | undefined;
+    const start = (ms: number) => (t = setTimeout(() => setShow(true), ms));
+    const onClosed = () => start(1500);
+    if (pushPending) window.addEventListener("mvm-push-prompt-closed", onClosed, { once: true });
+    else start(4500);
+    return () => {
+      if (t) clearTimeout(t);
+      window.removeEventListener("mvm-push-prompt-closed", onClosed);
+    };
   }, [ready, installed, platform]);
 
   if (!show || installed || path.startsWith("/admin") || path === "/app" || path.startsWith("/sell")) return null;

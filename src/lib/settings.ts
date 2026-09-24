@@ -143,6 +143,8 @@ const homepage = z.object({
 
 const notifications = z.object({
   emailEnabled: z.boolean().default(true),
+  /** Phone/browser push: announce every newly published listing to everyone who allowed notifications. */
+  pushNewListings: z.boolean().default(true),
   events: z
     .object({
       paymentVerified: z.boolean().default(true),

@@ -8,7 +8,7 @@ type W = Window & { __mvmInstall?: BIPEvent | null };
 export type Platform = "ios" | "android" | "desktop";
 
 /** The Android app file hosted on this site (built from /android). */
-export const ANDROID_APK = { url: "/downloads/mv-markets.apk", version: "1.0", sizeKb: 88 };
+export const ANDROID_APK = { url: "/downloads/mv-markets.apk", version: "1.1", sizeKb: 92 };
 
 export function detectPlatform(): Platform {
   const ua = navigator.userAgent;
@@ -25,7 +25,9 @@ export function isStandalone() {
 /** Registers the service worker and keeps Android/desktop Chrome's install prompt for later. */
 export function PwaSetup() {
   useEffect(() => {
-    if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) navigator.serviceWorker.register("/sw.js").catch(() => undefined);
+    if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
+      navigator.serviceWorker.register("/sw.js").then(() => resyncPush()).catch(() => undefined);
+    }
     const w = window as W;
     const onPrompt = (e: Event) => {
       e.preventDefault();
@@ -67,4 +69,70 @@ export function useInstall() {
   };
 
   return { ...state, install };
+}
+
+// ─────────── Push notifications ───────────
+
+export function pushSupported() {
+  return typeof window !== "undefined" && "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+}
+
+function b64ToBytes(b64: string) {
+  const pad = "=".repeat((4 - (b64.length % 4)) % 4);
+  const raw = atob((b64 + pad).replace(/-/g, "+").replace(/_/g, "/"));
+  return Uint8Array.from(raw, (c) => c.charCodeAt(0));
+}
+
+async function saveOnServer(sub: PushSubscription) {
+  await fetch("/api/push/subscribe", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ subscription: sub.toJSON() }) });
+}
+
+/** Ask the phone for permission (must be called from a tap) and subscribe. Returns the final permission. */
+export async function enablePush(): Promise<NotificationPermission | "unsupported"> {
+  if (!pushSupported()) return "unsupported";
+  const permission = await Notification.requestPermission();
+  if (permission !== "granted") return permission;
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) {
+      const { publicKey } = await (await fetch("/api/push/key")).json();
+      sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToBytes(publicKey) });
+    }
+    await saveOnServer(sub);
+  } catch (e) {
+    // e.g. the browser's push service is unavailable; notifications simply stay off.
+    console.warn("[push] could not subscribe", e);
+    return "unsupported";
+  }
+  return permission;
+}
+
+export async function disablePush() {
+  if (!pushSupported()) return;
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.getSubscription();
+    if (!sub) return;
+    await fetch("/api/push/subscribe", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ endpoint: sub.endpoint }) });
+    await sub.unsubscribe();
+  } catch (e) {
+    console.warn("[push] could not unsubscribe", e);
+  }
+}
+
+export async function pushEnabled() {
+  if (!pushSupported() || Notification.permission !== "granted") return false;
+  const reg = await navigator.serviceWorker.getRegistration();
+  return !!(await reg?.pushManager.getSubscription());
+}
+
+/** Keep the server copy in sync (e.g. after logging in, so notifications follow the account). */
+async function resyncPush() {
+  if (!pushSupported() || Notification.permission !== "granted") return;
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.getSubscription();
+    if (sub) await saveOnServer(sub);
+  } catch {}
 }

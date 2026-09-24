@@ -152,8 +152,9 @@ export const SETTINGS_FORMS: { group: SettingsGroup; title: string; description:
   {
     group: "notifications",
     title: "Notifications",
-    description: "Email copies of in-app notifications.",
+    description: "Phone notifications and email copies of in-app notifications.",
     fields: [
+      { key: "pushNewListings", label: "Phone notification to everyone when a new item is posted", type: "bool", help: "Sent to all phones and browsers that allowed notifications (not to the seller). Announcements are sent from Admin → Notifications." },
       { key: "emailEnabled", label: "Send notification emails", type: "bool" },
       { key: "events.paymentVerified", label: "Payment verified", type: "bool" },
       { key: "events.paymentRejected", label: "Payment not verified", type: "bool" },

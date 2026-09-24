@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Award, CreditCard, Crown, Flag, FolderTree, Gift, Handshake, KeyRound, LayoutDashboard, Link2, MapPin, Newspaper, Package, PartyPopper, ScrollText, Settings, Store, Undo2, Users, type LucideIcon } from "lucide-react";
+import { Award, BellRing, CreditCard, Crown, Flag, FolderTree, Gift, Handshake, KeyRound, LayoutDashboard, Link2, MapPin, Newspaper, Package, PartyPopper, ScrollText, Settings, Store, Undo2, Users, type LucideIcon } from "lucide-react";
 import type { Metadata } from "next";
 import { requireAdminPage } from "@/lib/auth/guards";
 import { hasPermission, type Permission } from "@/lib/permissions";
@@ -25,6 +25,7 @@ const NAV: { href: string; label: string; Icon: LucideIcon; perm: Permission }[]
   { href: "/admin/businesses", label: "Businesses", Icon: Store, perm: "businesses" },
   { href: "/admin/giveaways", label: "Giveaways", Icon: PartyPopper, perm: "giveaways" },
   { href: "/admin/content", label: "Homepage, ads & terms", Icon: Newspaper, perm: "content" },
+  { href: "/admin/notifications", label: "Notifications", Icon: BellRing, perm: "content" },
   { href: "/admin/settings", label: "Settings", Icon: Settings, perm: "settings" },
   { href: "/admin/audit", label: "Audit log", Icon: ScrollText, perm: "audit" },
   { href: "/admin/admins", label: "Admins & roles", Icon: KeyRound, perm: "admins" },

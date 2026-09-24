@@ -36,6 +36,9 @@ import java.util.Set;
  */
 public class MainActivity extends Activity {
     private static final int FILE_REQUEST = 1001;
+    private static final int NOTIFY_PERMISSION_REQUEST = 1002;
+    /** Site path to open, e.g. "/listing/abc" (set by notifications). */
+    public static final String EXTRA_PATH = "path";
 
     private WebView web;
     private ValueCallback<Uri[]> fileCallback;
@@ -90,9 +93,27 @@ public class MainActivity extends Activity {
 
         if (savedInstanceState != null) web.restoreState(savedInstanceState);
         else web.loadUrl(startUrl(getIntent()));
+
+        setUpNotifications();
+    }
+
+    /** Ask for notification permission (Android 13+), create the pop-up channel and start background checks. */
+    private void setUpNotifications() {
+        FeedChecker.createChannel(this);
+        if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            android.content.SharedPreferences p = getSharedPreferences("app", MODE_PRIVATE);
+            if (!p.getBoolean("askedNotify", false)) {
+                p.edit().putBoolean("askedNotify", true).apply();
+                requestPermissions(new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, NOTIFY_PERMISSION_REQUEST);
+            }
+        }
+        FeedJobService.schedule(this);
+        new Thread(() -> FeedChecker.check(getApplicationContext())).start();
     }
 
     private String startUrl(Intent intent) {
+        String path = intent != null ? intent.getStringExtra(EXTRA_PATH) : null;
+        if (path != null && path.startsWith("/") && !path.startsWith("//")) return BuildConfig.SITE_ORIGIN + path;
         Uri data = intent != null ? intent.getData() : null;
         if (data != null && "https".equals(data.getScheme()) && appHosts.contains(data.getHost())) return data.toString();
         return BuildConfig.START_URL;
@@ -101,7 +122,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        if (intent.getData() != null) web.loadUrl(startUrl(intent));
+        if (intent.getData() != null || intent.getStringExtra(EXTRA_PATH) != null) web.loadUrl(startUrl(intent));
     }
 
     @Override

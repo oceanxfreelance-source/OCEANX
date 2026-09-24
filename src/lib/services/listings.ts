@@ -12,6 +12,8 @@ import { audit } from "../audit";
 import { quotePostingFee } from "./fees";
 import { recomputeSellerStats } from "./reputation";
 import { evaluateReferral } from "./referrals";
+import { runAfterResponse } from "../background";
+import { announceNewListing } from "./push";
 
 export const CONDITIONS: { value: ItemCondition; label: string }[] = [
   { value: "NEW", label: "Brand new" },
@@ -230,6 +232,8 @@ export async function publishListing(listingId: string, actorId: string | null) 
   if (actorId) await audit({ actorId, action: "listing.publish", entityType: "Listing", entityId: listingId, summary: `Published "${listing.title}"` });
   await recomputeSellerStats(listing.sellerId);
   await evaluateReferral(listing.sellerId);
+  // Tell everyone who allowed notifications (phones, browsers, the Android app) about the new item.
+  await runAfterResponse("push:new-listing", () => announceNewListing(listing.id));
   return listing;
 }
 

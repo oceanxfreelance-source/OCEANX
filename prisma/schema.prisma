@@ -81,6 +81,7 @@ model User {
   @@index([status])
   @@index([createdAt])
   @@index([adminRoleId])
+  pushSubscriptions PushSubscription[]
 }
 
 model Profile {
@@ -1136,4 +1137,47 @@ model RevenueEntry {
   createdAt   DateTime @default(now())
 
   @@index([occurredAt])
+}
+
+// ───────────────────────────── Push notifications ─────────────────────────────
+
+/// A browser/phone that allowed notifications (Web Push). userId is null for visitors who are not logged in.
+model PushSubscription {
+  id          String    @id @default(cuid())
+  endpoint    String    @unique
+  p256dh      String
+  auth        String
+  userId      String?
+  userAgent   String?
+  failures    Int       @default(0)
+  lastSentAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+}
+
+enum BroadcastKind {
+  NEW_LISTING
+  ANNOUNCEMENT
+}
+
+/// Every notification sent to everyone. Also the feed the Android app checks in the background.
+model Broadcast {
+  id         String        @id @default(cuid())
+  kind       BroadcastKind
+  title      String
+  body       String
+  url        String
+  imageUrl   String?
+  listingId  String?
+  excludeUserId String?
+  createdById String?
+  sentCount  Int           @default(0)
+  failedCount Int          @default(0)
+  createdAt  DateTime      @default(now())
+
+  @@index([createdAt])
 }

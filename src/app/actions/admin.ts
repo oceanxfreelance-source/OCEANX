@@ -27,6 +27,7 @@ import { createOrUpdatePool, calculatePool, adjustAllocation, approvePool, recor
 import { adminSetBusinessVerified, adminSetBusinessStatus } from "@/lib/services/business";
 import { drawWinners, deleteGiveaway } from "@/lib/services/giveaways";
 import { normalizeAdLink } from "@/lib/ad-link";
+import { sendAnnouncement } from "@/lib/services/push";
 import { adminSetReferralStatus } from "@/lib/services/referrals";
 
 async function uploadAdminImage(fd: FormData, key: string, purpose: string, ownerId: string, maxSize = 1600): Promise<string | undefined> {
@@ -516,6 +517,16 @@ export async function deleteGiveawayAction(_: ActionState, fd: FormData): Promis
     revalidatePath("/giveaways");
     revalidatePath("/");
     return { message: "Giveaway deleted." };
+  });
+}
+
+// ───────────── Push notifications ─────────────
+export async function sendAnnouncementAction(_: ActionState, fd: FormData): Promise<ActionState> {
+  return runAction(async () => {
+    const { user } = await requireAdmin("content");
+    const r = await sendAnnouncement(user.id, { title: str(fd, "title"), body: str(fd, "body"), url: str(fd, "url") });
+    revalidatePath("/admin/notifications");
+    return { message: `Sent to ${r.sent} phone(s)/browser(s)${r.failed ? ` (${r.failed} could not be reached)` : ""}. The Android app shows it within about 15 minutes.` };
   });
 }
 

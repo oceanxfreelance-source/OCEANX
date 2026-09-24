@@ -4,6 +4,7 @@ import { smsConfigured } from "@/lib/messaging-providers";
 import { ActionForm, Field, SubmitButton } from "@/components/ui/form";
 import { LocationPicker } from "@/components/Pickers";
 import { updateProfileAction, changePasswordAction, requestPhoneCodeAction, verifyPhoneAction } from "@/app/actions/auth";
+import { PushToggle } from "@/components/PushToggle";
 
 export const metadata = { title: "Settings" };
 
@@ -29,6 +30,8 @@ export default async function SettingsPage() {
         <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="notifyByEmail" defaultChecked={p?.notifyByEmail ?? true} className="h-5 w-5 accent-ocean-700" /> Email me important notifications</label>
         <SubmitButton>Save profile</SubmitButton>
       </ActionForm>
+
+      <PushToggle />
 
       {user.phone && !user.phoneVerifiedAt && smsConfigured() && (
         <div className="card space-y-3 p-4">
