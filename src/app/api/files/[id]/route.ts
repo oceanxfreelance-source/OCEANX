@@ -11,10 +11,11 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   if (!file) return new NextResponse("Not found", { status: 404 });
 
   if (file.visibility === "PRIVATE") {
-    // Private files (payment slips): only the uploader or an admin with payment/finance access.
+    // Private files: only the uploader, or admins who review them (payment slips → payments/finance, proof of sale → deals).
     const session = await getSession();
     const perms = session?.mfaVerified ? session.user.adminRole?.permissions : null;
-    const allowed = !!session && (session.userId === file.ownerId || hasPermission(perms, "payments") || hasPermission(perms, "finance"));
+    const adminCanView = file.purpose === "sale_proof" ? hasPermission(perms, "vip") : hasPermission(perms, "payments") || hasPermission(perms, "finance");
+    const allowed = !!session && (session.userId === file.ownerId || adminCanView);
     if (!allowed) return new NextResponse("Not found", { status: 404 });
   }
 

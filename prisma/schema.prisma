@@ -225,6 +225,7 @@ model StoredFile {
   businessLogos    Business[]     @relation("BusinessLogo")
   businessBanners  Business[]     @relation("BusinessBanner")
   giveaways        Giveaway[]
+  saleProofs       SaleProof[]
   avatars          Profile[]      @relation("ProfileAvatar")
 
   @@index([sha256])
@@ -656,6 +657,14 @@ enum DealStatus {
   VOIDED
 }
 
+/// Proof that a sale really happened (uploaded by the seller, checked by an admin).
+enum SaleProofStatus {
+  NOT_REQUIRED
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model SuccessfulDeal {
   id            String     @id @default(cuid())
   listingId     String     @unique
@@ -669,9 +678,14 @@ model SuccessfulDeal {
   disputedReason String?
   voidReason    String?
   reviewedById  String?
+  proofStatus     SaleProofStatus @default(NOT_REQUIRED)
+  proofNote       String?
+  proofReviewNote String?
+  proofReviewedAt DateTime?
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
 
+  proofs  SaleProof[]
   listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
   seller  User    @relation("DealSeller", fields: [sellerId], references: [id], onDelete: Cascade)
   buyer   User?   @relation("DealBuyer", fields: [buyerId], references: [id], onDelete: SetNull)
@@ -679,6 +693,19 @@ model SuccessfulDeal {
   @@index([sellerId, status, createdAt])
   @@index([buyerId])
   @@index([status])
+  @@index([proofStatus])
+}
+
+model SaleProof {
+  id        String   @id @default(cuid())
+  dealId    String
+  fileId    String
+  createdAt DateTime @default(now())
+
+  deal SuccessfulDeal @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  file StoredFile     @relation(fields: [fileId], references: [id], onDelete: Cascade)
+
+  @@index([dealId])
 }
 
 model StarAdjustment {

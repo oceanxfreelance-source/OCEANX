@@ -17,7 +17,7 @@ const TABS: { key: string; label: string; statuses: ListingStatus[] }[] = [
   { key: "closed", label: "Withdrawn / removed", statuses: ["WITHDRAWN", "REMOVED"] },
 ];
 
-export default async function MyListingsPage({ searchParams }: { searchParams: Promise<{ tab?: string; sold?: string }> }) {
+export default async function MyListingsPage({ searchParams }: { searchParams: Promise<{ tab?: string; sold?: string; proof?: string }> }) {
   const sp = await searchParams;
   const user = await requireUser("/account/listings");
   const tab = TABS.find((t) => t.key === sp.tab) ?? TABS[0];
@@ -36,7 +36,8 @@ export default async function MyListingsPage({ searchParams }: { searchParams: P
         <h1 className="text-2xl font-semibold tracking-tight">My listings</h1>
         <Link href="/sell" className="btn-accent btn-sm">+ New</Link>
       </div>
-      {sp.sold && <p className="mb-3 rounded-xl bg-emerald-50 p-3 text-sm text-emerald-800">Marked as sold. Congratulations on your sale.</p>}
+      {sp.sold && <p className="mb-3 rounded-xl bg-emerald-50 p-3 text-sm text-emerald-800">Sold request sent. We&apos;ll check your proof and mark the listing as SOLD — you&apos;ll get a notification.</p>}
+      {sp.proof && <p className="mb-3 rounded-xl bg-emerald-50 p-3 text-sm text-emerald-800">New proof sent. We&apos;ll check it soon.</p>}
       <div className="no-scrollbar mb-4 flex gap-2 overflow-x-auto">
         {TABS.map((t) => (
           <Link key={t.key} href={`/account/listings?tab=${t.key}`} className={t.key === tab.key ? "btn-primary btn-sm shrink-0" : "btn-secondary btn-sm shrink-0"}>
@@ -59,7 +60,9 @@ export default async function MyListingsPage({ searchParams }: { searchParams: P
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <StatusBadge status={l.status} />
-                  {l.deal && <StatusBadge status={l.deal.status} labels={{ PENDING_CONFIRMATION: "Buyer to confirm", CONFIRMED: "Deal confirmed", UNCONFIRMED: "No buyer confirmation" }} />}
+                  {l.deal && l.deal.proofStatus === "PENDING" && <span className="chip bg-amber-50 text-amber-800 ring-1 ring-amber-200">Sold request · checking proof</span>}
+                  {l.deal && l.deal.proofStatus === "REJECTED" && <span className="chip bg-red-50 text-red-700 ring-1 ring-red-200">Sold request · proof not accepted</span>}
+                  {l.deal && l.status === "SOLD" && <StatusBadge status={l.deal.status} labels={{ PENDING_CONFIRMATION: "Buyer to confirm", CONFIRMED: "Deal confirmed", UNCONFIRMED: "No buyer confirmation" }} />}
                 </div>
                 <Link href={`/listing/${l.id}`} className="mt-1 block truncate font-semibold">{l.title}</Link>
                 <p className="text-sm text-slate-600">
@@ -67,10 +70,12 @@ export default async function MyListingsPage({ searchParams }: { searchParams: P
                 </p>
                 <p className="text-xs text-slate-400">{l.publishedAt ? `Published ${formatDate(l.publishedAt)}` : `Created ${formatDate(l.createdAt)}`}</p>
                 {l.status === "REMOVED" && l.removedReason && <p className="text-xs text-red-700">Removed: {l.removedReason}</p>}
+                {l.deal?.proofStatus === "REJECTED" && l.deal.proofReviewNote && <p className="text-xs text-red-700">Reason: {l.deal.proofReviewNote}</p>}
                 <div className="mt-2 flex flex-wrap gap-2">
                   {l.status === "PUBLISHED" && (
                     <>
-                      <Link href={`/account/listings/${l.id}/sold`} className="btn-primary btn-sm">Mark as sold</Link>
+                      {!l.deal && <Link href={`/account/listings/${l.id}/sold`} className="btn-primary btn-sm">Mark as sold</Link>}
+                      {l.deal?.proofStatus === "REJECTED" && <Link href={`/account/listings/${l.id}/proof`} className="btn-primary btn-sm">Send new proof</Link>}
                       <Link href={`/account/listings/${l.id}/edit`} className="btn-secondary btn-sm">Edit</Link>
                       <Link href={`/account/listings/${l.id}/withdraw`} className="btn-ghost btn-sm text-red-600">Withdraw</Link>
                     </>

@@ -5,7 +5,7 @@ import { addMonths, daysAgo } from "../dates";
 import { notify } from "../notify";
 import { audit } from "../audit";
 import { UserError } from "../errors";
-import { countedDealStatuses, recomputeSellerStats } from "./reputation";
+import { countedDealWhere, recomputeSellerStats } from "./reputation";
 
 export type VipEligibility = {
   eligible: boolean;
@@ -20,7 +20,7 @@ export async function vipEligibility(userId: string, settingsIn?: Settings): Pro
   const windowStart = daysAgo(settings.vip.windowDays);
   const [dealsInWindow, cancellationsInWindow] = await Promise.all([
     prisma.successfulDeal.count({
-      where: { sellerId: userId, countsTowardStats: true, status: { in: countedDealStatuses(settings) }, createdAt: { gte: windowStart } },
+      where: { sellerId: userId, ...countedDealWhere(settings), createdAt: { gte: windowStart } },
     }),
     prisma.cancellationRecord.count({ where: { sellerId: userId, countsAgainstSeller: true, createdAt: { gte: windowStart } } }),
   ]);

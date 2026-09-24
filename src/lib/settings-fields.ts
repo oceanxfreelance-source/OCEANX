@@ -62,6 +62,7 @@ export const SETTINGS_FORMS: { group: SettingsGroup; title: string; description:
           { value: "include_unconfirmed", label: "Also seller-only SOLD marks" },
         ],
       },
+      { key: "requireSaleProof", label: "Require proof of sale", type: "bool", help: "Sellers upload a transfer screenshot, receipt or handover photo when marking SOLD. The sale counts toward Stars, VIP and rewards only after an admin accepts the proof." },
       { key: "autoConfirmDays", label: "Auto-confirm after (days, 0 = never)", type: "int" },
       { key: "minHoursPublishedBeforeSale", label: "Min hours live before a sale counts", type: "int" },
       { key: "minDealPrice", label: "Min price for a counted deal (MVR)", type: "money" },

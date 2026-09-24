@@ -54,6 +54,8 @@ const deals = z.object({
   maxCountedDealsPerDay: z.number().int().min(1).max(1000).default(5),
   maxDealsSamePairPer30Days: z.number().int().min(1).max(100).default(2),
   buyerMinAccountAgeDays: z.number().int().min(0).max(365).default(2),
+  /** Sellers must upload proof of sale; the deal counts only after an admin accepts it. */
+  requireSaleProof: z.boolean().default(true),
 });
 
 const stars = z.object({

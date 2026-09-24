@@ -1,4 +1,4 @@
-import type { DealStatus, SellerLevel } from "@prisma/client";
+import type { DealStatus, Prisma, SellerLevel } from "@prisma/client";
 import { prisma } from "../db";
 import { getSettings, type Settings } from "../settings";
 import { daysAgo } from "../dates";
@@ -12,6 +12,11 @@ import { notify } from "../notify";
 
 export function countedDealStatuses(settings: Settings): DealStatus[] {
   return settings.deals.countingMode === "include_unconfirmed" ? ["CONFIRMED", "UNCONFIRMED"] : ["CONFIRMED"];
+}
+
+/** The single rule for which deals count toward Stars, levels, VIP and rewards. */
+export function countedDealWhere(settings: Settings): Prisma.SuccessfulDealWhereInput {
+  return { countsTowardStats: true, status: { in: countedDealStatuses(settings) }, proofStatus: { in: ["NOT_REQUIRED", "APPROVED"] } };
 }
 
 export function computeStars(
@@ -37,7 +42,6 @@ export function pickLevel(levels: SellerLevel[], stars: number, deals: number, d
 
 export async function recomputeSellerStats(userId: string, settingsIn?: Settings) {
   const settings = settingsIn ?? (await getSettings());
-  const statuses = countedDealStatuses(settings);
   const vipWindowStart = daysAgo(settings.vip.windowDays);
   const cancelWindowStart = daysAgo(settings.cancellation.periodDays);
 
@@ -46,8 +50,8 @@ export async function recomputeSellerStats(userId: string, settingsIn?: Settings
       prisma.listing.count({ where: { sellerId: userId, publishedAt: { not: null } } }),
       prisma.listing.count({ where: { sellerId: userId, status: "PUBLISHED" } }),
       prisma.listing.count({ where: { sellerId: userId, status: "SOLD" } }),
-      prisma.successfulDeal.count({ where: { sellerId: userId, countsTowardStats: true, status: { in: statuses } } }),
-      prisma.successfulDeal.count({ where: { sellerId: userId, countsTowardStats: true, status: { in: statuses }, createdAt: { gte: vipWindowStart } } }),
+      prisma.successfulDeal.count({ where: { sellerId: userId, ...countedDealWhere(settings) } }),
+      prisma.successfulDeal.count({ where: { sellerId: userId, ...countedDealWhere(settings), createdAt: { gte: vipWindowStart } } }),
       prisma.successfulDeal.count({ where: { sellerId: userId, status: "PENDING_CONFIRMATION" } }),
       prisma.cancellationRecord.count({ where: { sellerId: userId, countsAgainstSeller: true } }),
       prisma.cancellationRecord.count({ where: { sellerId: userId, countsAgainstSeller: true, createdAt: { gte: cancelWindowStart } } }),

@@ -32,11 +32,12 @@ const NAV: { href: string; label: string; Icon: LucideIcon; perm: Permission }[]
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, permissions } = await requireAdminPage();
-  const [pendingPayments, openReports] = await Promise.all([
+  const [pendingPayments, openReports, soldRequests] = await Promise.all([
     hasPermission(permissions, "payments") ? prisma.payment.count({ where: { status: { in: ["PENDING", "NEEDS_REVIEW", "AI_CHECKING"] } } }) : 0,
     hasPermission(permissions, "reports") ? prisma.report.count({ where: { status: { in: ["OPEN", "REVIEWING"] } } }) : 0,
+    hasPermission(permissions, "vip") ? prisma.successfulDeal.count({ where: { proofStatus: "PENDING" } }) : 0,
   ]);
-  const badge: Record<string, number> = { "/admin/payments": pendingPayments, "/admin/reports": openReports };
+  const badge: Record<string, number> = { "/admin/payments": pendingPayments, "/admin/reports": openReports, "/admin/deals": soldRequests };
   return (
     <div className="grid gap-6 lg:grid-cols-[232px_1fr]">
       <aside className="lg:sticky lg:top-20 lg:self-start">

@@ -81,9 +81,10 @@ export async function expectedAmountFor(userId: string, t: Target, settings: Set
   return { amount: sub.price, isVipRate: false, label: `${sub.plan.name} plan for ${sub.business.name}` };
 }
 
-async function processSlipFile(buf: Buffer, declaredType: string) {
-  if (buf.length === 0) throw new UserError("Please attach your payment slip.");
-  if (buf.length > MAX_UPLOAD_BYTES) throw new UserError("Slip file is too large (max 4 MB).");
+/** Validates and normalises an uploaded document (image or PDF). Also used for proof-of-sale files. */
+export async function processSlipFile(buf: Buffer, declaredType: string, what = "payment slip") {
+  if (buf.length === 0) throw new UserError(`Please attach your ${what}.`);
+  if (buf.length > MAX_UPLOAD_BYTES) throw new UserError(`${what.charAt(0).toUpperCase() + what.slice(1)} file is too large (max 4 MB).`);
   const originalHash = sha256(buf);
   if (isPdf(buf) || declaredType === "application/pdf") {
     if (!isPdf(buf)) throw new UserError("This PDF file appears to be invalid.");

@@ -242,16 +242,28 @@ try {
   await prisma.user.update({ where: { email: buyer.email }, data: { createdAt: new Date(Date.now() - 5 * 86400000) } });
   await s.goto(`${BASE}/account/listings/${listingId}/sold`);
   await s.check(`label:has-text("${buyer.name}") input`);
-  await s.click('button:has-text("Confirm sale")');
+  const proofImg = await makePng(path.join(OUT, "proof.png"), "#15803d", "Paid 8500");
+  await s.setInputFiles('input[name="proof"]', proofImg);
+  await s.fill('textarea[name="proofNote"]', "Paid by bank transfer");
+  await shot(s, "09-sold-request-mobile");
+  await s.click('button:has-text("Send sold request")');
   await s.waitForURL(/sold=1/);
-  log("Seller marked item SOLD naming the buyer");
+  if ((await prisma.listing.findUniqueOrThrow({ where: { id: listingId } })).status !== "PUBLISHED") throw new Error("Listing should stay live until the proof is accepted");
+  log("Seller sent a sold request with proof; listing stays live until reviewed");
 
-  await b.goto(`${BASE}/account/purchases`);
-  await b.click('button:has-text("Yes, I bought this")');
-  await expectText(b, "Confirmed");
+  await a.goto(`${BASE}/admin/deals`);
+  await expectText(a, title);
+  const proofSrc = await a.locator('img[alt="Proof of sale"]').first().getAttribute("src");
+  const proofRes = await a.request.get(`${BASE}${proofSrc}`);
+  if (!proofRes.ok()) throw new Error("Admin could not open the proof file");
+  const anonProof = await fetch(`${BASE}${proofSrc}`);
+  if (anonProof.status !== 404) throw new Error("Proof file must be private");
+  await a.click('button:has-text("Accept · mark SOLD")');
+  await expectText(a, "No sold requests waiting");
+  if ((await prisma.listing.findUniqueOrThrow({ where: { id: listingId } })).status !== "SOLD") throw new Error("Accepting proof should mark the listing SOLD");
   const stats = await prisma.sellerStatistics.findFirstOrThrow({ where: { user: { email: seller.email } } });
   if (stats.countedDeals !== 1 || stats.stars !== 1) throw new Error(`Expected 1 deal / 1 star, got ${stats.countedDeals}/${stats.stars}`);
-  log("Buyer confirmed purchase → seller earned 1 Star and 1 successful deal");
+  log("Admin accepted the proof → listing marked SOLD automatically, seller earned 1 Star (proof is private)");
 
   await b.goto(`${BASE}/search?q=${encodeURIComponent(title)}`);
   await expectText(b, "found");

@@ -12,7 +12,8 @@ async function setRules() {
   await resetSettings();
   const s = await getSettings();
   // Small thresholds so tests stay fast; the defaults are larger.
-  await updateSettingsGroup("deals", { ...s.deals, minHoursPublishedBeforeSale: 0, maxCountedDealsPerDay: 50, maxDealsSamePairPer30Days: 50, buyerMinAccountAgeDays: 0 }, null);
+  // These suites cover the buyer-confirmation rules (proof of sale switched off); proof flow is in sale-proof.test.ts.
+  await updateSettingsGroup("deals", { ...s.deals, requireSaleProof: false, minHoursPublishedBeforeSale: 0, maxCountedDealsPerDay: 50, maxDealsSamePairPer30Days: 50, buyerMinAccountAgeDays: 0 }, null);
   await updateSettingsGroup("vip", { ...s.vip, minStars: 3, minDealsTotal: 3, minDealsInWindow: 2, windowDays: 60, maxCancellationsInWindow: 1 }, null);
 }
 
@@ -76,14 +77,16 @@ describe("SOLD system and successful deals", () => {
     expect(deal.countsTowardStats).toBe(false);
     expect(deal.ineligibleReason).toMatch(/within 24 hours/);
 
-    await updateSettingsGroup("deals", { ...s.deals, minHoursPublishedBeforeSale: 0, maxDealsSamePairPer30Days: 1, maxCountedDealsPerDay: 50 }, null);
+    // These suites cover the buyer-confirmation rules (proof of sale switched off); proof flow is in sale-proof.test.ts.
+  await updateSettingsGroup("deals", { ...s.deals, requireSaleProof: false, minHoursPublishedBeforeSale: 0, maxDealsSamePairPer30Days: 1, maxCountedDealsPerDay: 50 }, null);
     const d2 = (await sellTo(seller.id, buyer.id)).deal;
     expect(d2.countsTowardStats).toBe(true);
     const d3 = (await sellTo(seller.id, buyer.id)).deal;
     expect(d3.countsTowardStats).toBe(false);
     expect(d3.ineligibleReason).toMatch(/same buyer/);
 
-    await updateSettingsGroup("deals", { ...s.deals, minHoursPublishedBeforeSale: 0, maxDealsSamePairPer30Days: 50, maxCountedDealsPerDay: 1 }, null);
+    // These suites cover the buyer-confirmation rules (proof of sale switched off); proof flow is in sale-proof.test.ts.
+  await updateSettingsGroup("deals", { ...s.deals, requireSaleProof: false, minHoursPublishedBeforeSale: 0, maxDealsSamePairPer30Days: 50, maxCountedDealsPerDay: 1 }, null);
     const other = await makeUser();
     const d4 = (await sellTo(seller.id, other.id)).deal;
     expect(d4.ineligibleReason).toMatch(/Daily limit/);

@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 import { quoteCancellation, withdrawListing, adminResolveCancellation } from "@/lib/services/cancellations";
 import { createListingDraft, submitListing, adminRemoveListing } from "@/lib/services/listings";
 import { submitPayment, adminVerifyPayment } from "@/lib/services/payments";
-import { markListingSold } from "@/lib/services/deals";
+import { markListingSold, reviewSaleProof } from "@/lib/services/deals";
 import { recomputeSellerStats, adjustStars } from "@/lib/services/reputation";
 import { getSettings, updateSettingsGroup } from "@/lib/settings";
 import { makeUser, publishedListing, listingInput, resetSettings, slip, today } from "./helpers";
@@ -39,7 +39,8 @@ describe("listing cancellation fine", () => {
     await expect(quoteCancellation(removed.id, seller.id)).rejects.toThrow(/Only live/);
 
     const sold = await publishedListing(seller.id);
-    await markListingSold(sold.id, seller.id, null);
+    const deal = await markListingSold(sold.id, seller.id, null, { files: [await slip()] });
+    await reviewSaleProof(deal.id, admin.id, "approve", "");
     await expect(quoteCancellation(sold.id, seller.id)).rejects.toThrow(/Only live/);
     expect(await prisma.cancellationRecord.count({ where: { sellerId: seller.id } })).toBe(0);
   });

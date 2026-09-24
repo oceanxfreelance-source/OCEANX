@@ -7,9 +7,10 @@ import { getSession } from "@/lib/auth/session";
 import { runAction, str, bool, type ActionState } from "@/lib/action";
 import { createListingDraft, updateListingDraft, submitListing, deleteDraft, updatePublishedListing } from "@/lib/services/listings";
 import { submitPayment, cancelOwnPayment } from "@/lib/services/payments";
-import { markListingSold } from "@/lib/services/deals";
+import { markListingSold, resubmitSaleProof } from "@/lib/services/deals";
 import { withdrawListing } from "@/lib/services/cancellations";
 import { UserError } from "@/lib/errors";
+import { prisma } from "@/lib/db";
 
 async function requireSession(next: string) {
   const s = await getSession();
@@ -109,10 +110,27 @@ export async function markSoldAction(_: ActionState, fd: FormData): Promise<Acti
   const id = str(fd, "listingId");
   const s = await requireSession(`/account/listings/${id}/sold`);
   const res = await runAction(async () => {
-    await markListingSold(id, s.userId, str(fd, "buyerId") || null);
+    await markListingSold(id, s.userId, str(fd, "buyerId") || null, { files: await proofFiles(fd), note: str(fd, "proofNote") });
   });
   if (res?.error) return res;
   redirect("/account/listings?sold=1");
+}
+
+async function proofFiles(fd: FormData) {
+  const files = fd.getAll("proof").filter((f): f is File => f instanceof File && f.size > 0);
+  return Promise.all(files.map(async (f) => ({ buffer: Buffer.from(await f.arrayBuffer()), mimeType: f.type })));
+}
+
+export async function resubmitProofAction(_: ActionState, fd: FormData): Promise<ActionState> {
+  const id = str(fd, "listingId");
+  const s = await requireSession(`/account/listings/${id}/proof`);
+  const res = await runAction(async () => {
+    const deal = await prisma.successfulDeal.findUnique({ where: { listingId: id }, select: { id: true } });
+    if (!deal) throw new UserError("This listing has no recorded sale.");
+    await resubmitSaleProof(deal.id, s.userId, { files: await proofFiles(fd), note: str(fd, "proofNote") });
+  });
+  if (res?.error) return res;
+  redirect("/account/listings?tab=sold&proof=1");
 }
 
 export async function withdrawAction(_: ActionState, fd: FormData): Promise<ActionState> {

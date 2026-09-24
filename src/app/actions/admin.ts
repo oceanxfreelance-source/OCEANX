@@ -21,7 +21,7 @@ import { suspendUser, banUser, reinstateUser, clearSellerReview, setUserAdminRol
 import { adminHandleReport } from "@/lib/services/reports";
 import { adjustStars, recomputeSellerStats } from "@/lib/services/reputation";
 import { adminApproveVip, adminRejectVip, adminSuspendVip, adminRestoreVip, adminRevokeVip, evaluateVip, runVipMaintenance } from "@/lib/services/vip";
-import { adminReviewDeal } from "@/lib/services/deals";
+import { adminReviewDeal, reviewSaleProof } from "@/lib/services/deals";
 import { adminResolveCancellation } from "@/lib/services/cancellations";
 import { createOrUpdatePool, calculatePool, adjustAllocation, approvePool, recordRewardPayment, setAllocationWithheld } from "@/lib/services/rewards";
 import { adminSetBusinessVerified, adminSetBusinessStatus } from "@/lib/services/business";
@@ -305,6 +305,16 @@ export async function dealAction(_: ActionState, fd: FormData): Promise<ActionSt
     await adminReviewDeal(str(fd, "dealId"), user.id, str(fd, "op") as "confirm", str(fd, "reason"));
     revalidatePath("/admin/deals");
     return { message: "Deal updated." };
+  });
+}
+
+export async function saleProofAction(_: ActionState, fd: FormData): Promise<ActionState> {
+  return runAction(async () => {
+    const { user } = await requireAdmin("vip");
+    const decision = str(fd, "decision") === "approve" ? "approve" : "reject";
+    await reviewSaleProof(str(fd, "dealId"), user.id, decision, str(fd, "note"));
+    revalidatePath("/admin/deals");
+    return { message: decision === "approve" ? "Sale accepted." : "Proof rejected — the seller was asked for better proof." };
   });
 }
 

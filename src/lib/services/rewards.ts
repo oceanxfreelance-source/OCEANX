@@ -7,7 +7,7 @@ import { monthRange } from "../dates";
 import { formatMVR } from "../money";
 import { audit } from "../audit";
 import { notify } from "../notify";
-import { countedDealStatuses } from "./reputation";
+import { countedDealWhere } from "./reputation";
 
 /**
  * Monthly VIP reward / profit-sharing.
@@ -67,12 +67,11 @@ async function eligibleVips(month: string, settings: Settings) {
       : { since: { lt: end }, expiresAt: { gt: start }, state: { in: ["ACTIVE", "EXPIRED"] } },
     select: { userId: true, user: { select: { status: true } } },
   });
-  const statuses = countedDealStatuses(settings);
   const out: { userId: string; metrics: Metrics }[] = [];
   for (const v of vips) {
     if (v.user.status !== "ACTIVE") continue;
     const [deals, listings, referrals, stats] = await Promise.all([
-      prisma.successfulDeal.count({ where: { sellerId: v.userId, countsTowardStats: true, status: { in: statuses }, createdAt: { gte: start, lt: end } } }),
+      prisma.successfulDeal.count({ where: { sellerId: v.userId, ...countedDealWhere(settings), createdAt: { gte: start, lt: end } } }),
       prisma.listing.count({ where: { sellerId: v.userId, publishedAt: { gte: start, lt: end } } }),
       settings.referrals.enabled ? prisma.referral.count({ where: { referrerId: v.userId, status: "VERIFIED", verifiedAt: { gte: start, lt: end } } }) : 0,
       prisma.sellerStatistics.findUnique({ where: { userId: v.userId }, select: { stars: true } }),
