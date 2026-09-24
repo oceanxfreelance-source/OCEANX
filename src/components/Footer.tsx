@@ -8,12 +8,13 @@ export async function Footer() {
   const cols: { title: string; links: [string, string][] }[] = [
     { title: "Marketplace", links: [["/search", "Browse listings"], ["/categories", "Categories"], ["/sell", "Post a listing"], ["/giveaways", "Giveaways"]] },
     { title: "Programs", links: [["/vip", "Stars & VIP"], ["/business", "Business accounts"], ["/account/referrals", "Invite friends"]] },
-    { title: "Company", links: [["/#about", "About us"], ["/terms", "Terms of use"], ["/privacy", "Privacy policy"]] },
+    { title: "Company", links: [["/app", "Get the app"], ["/#about", "About us"], ["/terms", "Terms of use"], ["/privacy", "Privacy policy"]] },
   ];
   const year = new Date().getFullYear();
   const compact = (
     <footer className="border-t border-slate-200/80 bg-surface pb-24 text-xs text-slate-500">
       <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 px-4 py-4">
+        <Link href="/app" className="hide-in-app font-medium text-ocean-700">Get the app</Link>
         <Link href="/#about" className="hover:text-slate-900">About</Link>
         <Link href="/terms" className="hover:text-slate-900">Terms</Link>
         <Link href="/privacy" className="hover:text-slate-900">Privacy</Link>

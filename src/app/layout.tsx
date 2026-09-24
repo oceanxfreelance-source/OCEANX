@@ -4,6 +4,8 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { IntroSplash } from "@/components/IntroSplash";
 import { themeInitScript } from "@/components/ThemeToggle";
+import { PwaSetup } from "@/components/pwa";
+import { InstallPrompt } from "@/components/InstallPrompt";
 import { fileUrl } from "@/lib/storage";
 import { getSiteSettings } from "@/lib/site";
 import { env } from "@/lib/env";
@@ -29,6 +31,7 @@ export async function generateMetadata(): Promise<Metadata> {
     robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large" } },
     verification: { google: verificationToken(s.general.googleSiteVerification) },
     formatDetection: { telephone: false },
+    appleWebApp: { capable: true, title: "MV Markets", statusBarStyle: "default" },
   };
 }
 
@@ -49,6 +52,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         {s.homepage.introAnimation && (
           <IntroSplash name={s.general.marketplaceName} tagline={s.general.tagline} logoUrl={s.general.logoFileId ? fileUrl(s.general.logoFileId) : null} />
         )}
+        <PwaSetup />
+        <InstallPrompt />
         <Header />
         <main className="mx-auto min-h-[70vh] max-w-6xl px-4 pb-28 pt-4 md:pb-12">{children}</main>
         <Footer />

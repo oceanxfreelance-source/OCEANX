@@ -22,6 +22,7 @@ export function UserMenu({ name, isAdmin }: { name: string; isAdmin: boolean }) 
     ["/account/vip", "Stars & VIP"],
     ["/account/business", "Business"],
     ["/account/settings", "Settings"],
+    ["/app", "Get the app"],
   ];
   return (
     <div className="relative" ref={ref}>

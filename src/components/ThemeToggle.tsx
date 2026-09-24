@@ -7,7 +7,7 @@ import { Moon, Sun } from "lucide-react";
 export const THEME_KEY = "mvm-theme";
 
 /** Runs before first paint (inlined in <head>) so the page never flashes the wrong theme. */
-export const themeInitScript = `(function(){try{var d=document.documentElement;if(location.pathname.indexOf('/admin')===0){d.dataset.theme='light';return}var t=localStorage.getItem('${THEME_KEY}');if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';d.dataset.theme=t}catch(e){}})()`;
+export const themeInitScript = `(function(){try{var d=document.documentElement;if(location.pathname.indexOf('/admin')===0){d.dataset.theme='light';return}var t=localStorage.getItem('${THEME_KEY}');if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';d.dataset.theme=t}catch(e){}})();window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();window.__mvmInstall=e;window.dispatchEvent(new Event('mvm-install-ready'))});`;
 
 function preferred(): "light" | "dark" {
   try {

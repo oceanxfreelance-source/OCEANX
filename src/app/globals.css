@@ -474,3 +474,15 @@ html.theme-anim * {
   .ad-img, .ad-active .ad-img { transform: none; transition: none; }
   .ad-active .ad-text { animation: none; }
 }
+
+/* ─────────── Installable app ─────────── */
+.install-pop {
+  animation: install-pop 0.45s cubic-bezier(0.2, 0.9, 0.25, 1) both;
+}
+@keyframes install-pop {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: none; }
+}
+@media (display-mode: standalone) {
+  .hide-in-app { display: none !important; }
+}
