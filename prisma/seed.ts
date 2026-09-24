@@ -33,6 +33,9 @@ async function main() {
     update: {},
   });
 
+  // Reference data is only inserted on the first run; afterwards admins own it (and deploys stay fast).
+  const seeded = await prisma.siteSetting.findUnique({ where: { key: "_seed" } });
+  if (!seeded) {
   // Locations
   for (const [ai, atoll] of ATOLLS.entries()) {
     const a = await prisma.atoll.upsert({ where: { code: atoll.code }, create: { code: atoll.code, name: atoll.name, sortOrder: ai }, update: {} });
@@ -63,6 +66,9 @@ async function main() {
   // Seller levels
   for (const [i, l] of SELLER_LEVELS.entries()) {
     await prisma.sellerLevel.upsert({ where: { slug: l.slug }, create: { ...l, sortOrder: i }, update: {} });
+  }
+
+  await prisma.siteSetting.upsert({ where: { key: "_seed" }, create: { key: "_seed", value: { at: new Date().toISOString() } }, update: {} });
   }
 
   // Subscription plans
