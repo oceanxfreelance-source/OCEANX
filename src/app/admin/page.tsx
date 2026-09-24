@@ -5,6 +5,7 @@ import { formatMVR } from "@/lib/money";
 import { PageTitle, Section, Stat } from "@/components/admin/ui";
 import { ActionForm, SubmitButton } from "@/components/ui/form";
 import { revenueEntryAction } from "@/app/actions/admin";
+import { RevenueReportPanel } from "@/components/admin/RevenueReportPanel";
 
 export default async function AdminDashboard() {
   const { permissions } = await requireAdminPage("dashboard");
@@ -14,6 +15,7 @@ export default async function AdminDashboard() {
   return (
     <>
       <PageTitle title="Dashboard" />
+      {canFinance && <RevenueReportPanel />}
       {revenue && (
         <Section title="Revenue">
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">

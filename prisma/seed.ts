@@ -86,7 +86,7 @@ async function main() {
 
   // Welcome banner
   if ((await prisma.banner.count()) === 0) {
-    await prisma.banner.create({ data: { title: "List once. Sell across 20 atolls.", subtitle: "Only MVR 20 per listing — VIP sellers pay just MVR 10.", linkUrl: "/sell", background: "#0e7490" } });
+    await prisma.banner.create({ data: { title: "List once. Sell across 20 atolls.", subtitle: "No commission on your sale. Post in minutes.", linkUrl: "/sell", background: "#143c5b" } });
   }
 
   // Super admin (from environment). Log in with ADMIN_USERNAME or ADMIN_EMAIL.

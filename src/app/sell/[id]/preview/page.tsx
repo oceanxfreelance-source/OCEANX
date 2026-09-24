@@ -45,16 +45,11 @@ export default async function PreviewPage({ params }: { params: Promise<{ id: st
 
       <div className="card space-y-3 p-4">
         {quote.amount === 0 ? (
-          <p className="font-semibold text-emerald-700">No posting fee for this listing{quote.waivedReason === "business_plan" ? " — included in your business plan" : ""}. It will be published immediately.</p>
-        ) : quote.isVipRate ? (
-          <div>
-            <p className="text-lg font-semibold">{settings.vip.badgeName} posting fee: {formatMVR(quote.amount)}</p>
-            <p className="text-sm text-slate-600">Normal posting fee: <span className="line-through">{formatMVR(quote.normalFee)}</span> — you save {quote.discountPercent}% as a {settings.vip.badgeName} seller.</p>
-          </div>
+          <p className="font-medium text-emerald-700">This listing will be published immediately{quote.waivedReason === "business_plan" ? " — included in your business plan" : ""}.</p>
         ) : (
           <div>
-            <p className="text-lg font-semibold">Normal posting fee: {formatMVR(quote.amount)}</p>
-            <p className="text-sm text-slate-600">One-time fee. No commission on your sale. {settings.vip.badgeName} sellers pay {formatMVR(quote.vipFee)}.</p>
+            <p className="font-semibold text-slate-900">Ready to publish?</p>
+            <p className="text-sm text-slate-500">Next, you&apos;ll complete a quick payment. Your listing goes live as soon as it&apos;s verified.</p>
           </div>
         )}
         {settings.cancellation.enabled && settings.cancellation.fineAmount > 0 && (
@@ -64,7 +59,7 @@ export default async function PreviewPage({ params }: { params: Promise<{ id: st
         )}
         <ActionForm action={submitListingAction}>
           <input type="hidden" name="listingId" value={l.id} />
-          <SubmitButton className="btn-accent w-full">{quote.amount === 0 ? "Publish now" : `Continue to payment (${formatMVR(quote.amount)})`}</SubmitButton>
+          <SubmitButton className="btn-accent w-full">{quote.amount === 0 ? "Publish now" : "Continue"}</SubmitButton>
         </ActionForm>
         <ActionForm action={deleteDraftAction}>
           <input type="hidden" name="listingId" value={l.id} />

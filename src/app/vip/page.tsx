@@ -2,7 +2,6 @@ import { Check } from "lucide-react";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { getSiteSettings } from "@/lib/site";
-import { formatMVR } from "@/lib/money";
 import { VipBadge } from "@/components/ui/badges";
 
 export const metadata = { title: "Stars & VIP program" };
@@ -33,7 +32,7 @@ export default async function VipInfoPage() {
       <section className="card p-5">
         <h2 className="text-lg font-semibold">{v.badgeName} benefits</h2>
         <ul className="mt-3 space-y-2">
-          <li className="flex gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" /> Posting fee <strong>{formatMVR(s.fees.vipPostingFee)}</strong> instead of {formatMVR(s.fees.postingFee)}</li>
+          <li className="flex gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" /> Reduced posting fees on every listing</li>
           {v.benefits.map((b) => (
             <li key={b} className="flex gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" /> {b}</li>
           ))}

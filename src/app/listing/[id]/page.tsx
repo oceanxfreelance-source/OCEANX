@@ -100,7 +100,7 @@ export default async function ListingPage({ params }: { params: Promise<{ id: st
       </div>
 
       <aside className="space-y-4">
-        <div className="card p-4">
+        <div id="contact" className="card scroll-mt-24 p-4">
           <Link href={`/seller/${l.sellerId}`} className="flex items-center gap-3">
             {l.seller.profile?.avatarFileId ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -179,6 +179,25 @@ export default async function ListingPage({ params }: { params: Promise<{ id: st
         )}
         <p className="px-1 text-xs text-slate-500">Safety tip: meet in a public place and never pay in advance for items you haven&apos;t seen.</p>
       </aside>
+
+      {!isOwner && publicVisible && !sold && (
+        <div className="fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-30 border-t border-slate-200 bg-white/95 px-4 py-2.5 backdrop-blur-md lg:hidden">
+          <div className="flex items-center gap-2">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-xs text-slate-500">{l.title}</p>
+              <p className="text-sm font-semibold">{formatMVR(l.price, { free: "Free" })}</p>
+            </div>
+            {phone && (
+              <a href={`tel:${phone}`} className="btn-secondary btn-sm h-10 px-3" aria-label="Call seller">
+                <Phone className="h-4 w-4" /> Call
+              </a>
+            )}
+            <a href="#contact" className="btn-accent btn-sm h-10 px-3">
+              <MessageSquare className="h-4 w-4" /> Message
+            </a>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -107,8 +107,11 @@ async function adminLogin(page: Page) {
 
 async function createListing(page: Page, title: string, img: string) {
   await page.goto(`${BASE}/sell`);
+  // Step 1: photos
   await page.setInputFiles('[data-testid="image-input"]', img);
   await page.locator('input[name="imageIds"]').first().waitFor({ state: "attached", timeout: 20000 });
+  await page.click('button:has-text("Continue")');
+  // Step 2: details
   await page.fill("#title", title);
   const cat = await prisma.category.findFirstOrThrow({ where: { slug: "phones" }, include: { subcategories: true } });
   await page.selectOption("#categoryId", cat.id);
@@ -116,13 +119,22 @@ async function createListing(page: Page, title: string, img: string) {
   await page.fill("#price", "8500");
   await page.selectOption("#condition", "LIKE_NEW");
   await page.fill("#description", "Excellent condition, battery health 91%. Box and charger included.");
+  await page.click('button:has-text("Continue")');
+  // Step 3: location
   const atoll = await prisma.atoll.findFirstOrThrow({ where: { code: "MLE" }, include: { islands: true } });
   await page.selectOption("#atollId", atoll.id);
   await page.selectOption("#islandId", atoll.islands.find((i) => i.name === "Hulhumalé")!.id);
+  await page.click('button:has-text("Continue")');
+  // Step 4: contact
   await page.fill("#contactPhone", "7771234");
-  await page.click('button:has-text("Continue to preview")');
+  await page.click('button:has-text("Preview listing")');
   await page.waitForURL(/\/sell\/.+\/preview/);
   return page.url().split("/sell/")[1].split("/")[0];
+}
+
+async function continueToPay(page: Page) {
+  await page.click('button:has-text("Continue")');
+  await page.waitForURL(/\/pay$/);
 }
 
 async function paySlip(page: Page, listingId: string, slip: string, ref: string) {
@@ -176,12 +188,12 @@ try {
 
   const title = `iPhone 14 Pro 256GB ${run}`;
   const listingId = await createListing(s, title, img);
-  await expectText(s, "Normal posting fee: MVR 20");
+  if ((await s.content()).includes("MVR 20")) throw new Error("Posting fee must not be shown before the payment step");
   await shot(s, "02-preview-mobile");
-  log("Listing created with photo upload; preview shows normal fee MVR 20");
-  await s.click('button:has-text("Continue to payment")');
-  await s.waitForURL(/\/pay$/);
+  await continueToPay(s);
+  await expectText(s, "Normal posting fee: MVR 20");
   await expectText(s, "Transfer exactly");
+  log("4-step listing form + preview (no fee shown); payment step shows normal fee MVR 20");
   await shot(s, "03-pay-mobile");
   await paySlip(s, listingId, slip1, `BLAZ${run}01`);
   await expectText(s, "Under review");
@@ -248,8 +260,7 @@ try {
   // Cancellation fine flow
   const title2 = `Samsung S23 ${run}`;
   const l2 = await createListing(s, title2, img);
-  await s.click('button:has-text("Continue to payment")');
-  await s.waitForURL(/\/pay$/);
+  await continueToPay(s);
   await paySlip(s, l2, slip2, `BLAZ${run}02`);
   await adminVerifyLatest(a, l2);
   await s.goto(`${BASE}/account/listings/${l2}/withdraw`);
@@ -269,9 +280,10 @@ try {
   await expectText(a, "VIP status updated");
   await prisma.cancellationFine.updateMany({ where: { cancellation: { sellerId: sellerUser.id } }, data: { status: "WAIVED" } });
   await createListing(s, `Pixel 8 ${run}`, img);
+  await continueToPay(s);
   await expectText(s, "VIP posting fee: MVR 10");
   await shot(s, "10-vip-preview-mobile");
-  log("After admin granted VIP, seller sees VIP posting fee MVR 10");
+  log("After admin granted VIP, payment step shows VIP posting fee MVR 10");
 
   await a.goto(`${BASE}/admin/settings`);
   await shot(a, "11-admin-settings");
@@ -290,6 +302,13 @@ try {
 
   await s.goto(`${BASE}/account/vip`);
   await shot(s, "14-account-vip-mobile");
+  const today = new Date(Date.now() + 5 * 3600000).toISOString().slice(0, 10);
+  const pdfRes = await a.request.get(`${BASE}/api/admin/reports/revenue?from=${today.slice(0, 8)}01&to=${today}`);
+  const pdfBody = await pdfRes.body();
+  if (pdfRes.status() !== 200 || pdfBody.subarray(0, 5).toString() !== "%PDF-") throw new Error("Revenue PDF download failed");
+  const anonPdf = await (await browser.newPage()).request.get(`${BASE}/api/admin/reports/revenue?from=${today}&to=${today}`);
+  if (anonPdf.status() !== 404) throw new Error("Revenue PDF must be admin-only");
+  log(`Admin downloaded revenue PDF (${Math.round(pdfBody.length / 1024)} KB); hidden from non-admins`);
   await a.goto(`${BASE}/admin/audit`);
   await expectText(a, "payment.verify");
   log("Audit log records admin actions");

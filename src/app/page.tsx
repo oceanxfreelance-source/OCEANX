@@ -6,7 +6,6 @@ import { listingCardSelect } from "@/lib/services/listings";
 import { ListingGrid, EmptyState } from "@/components/ListingCard";
 import { CategoryIcon } from "@/components/icons";
 import { fileUrl } from "@/lib/storage";
-import { formatMVR } from "@/lib/money";
 
 export const dynamic = "force-dynamic";
 
@@ -63,7 +62,7 @@ export default async function HomePage() {
           </form>
           <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-slate-400">
             <Link href="/sell" className="inline-flex items-center gap-1.5 font-medium text-white hover:text-ocean-200">
-              Post a listing for {formatMVR(settings.fees.postingFee)} <ArrowRight className="h-4 w-4" />
+              Post a listing <ArrowRight className="h-4 w-4" />
             </Link>
             <span className="hidden h-4 w-px bg-white/15 sm:block" />
             <span>No commission on sales</span>
@@ -149,10 +148,10 @@ export default async function HomePage() {
 
       <section className="grid gap-px overflow-hidden rounded-xl border border-slate-200 bg-slate-200 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { Icon: BadgePercent, t: "One small fee", d: `${formatMVR(settings.fees.postingFee)} per listing. No subscriptions, no commission on your sale.` },
+          { Icon: BadgePercent, t: "No commission", d: "Keep 100% of your sale price. No subscriptions for individual sellers." },
           { Icon: ShieldCheck, t: "Verified payments", d: "Every posting fee is checked before a listing goes live." },
           { Icon: Star, t: "Reputation that counts", d: "Stars come only from genuine, buyer-confirmed sales." },
-          { Icon: Crown, t: `${settings.vip.badgeName} sellers`, d: `Top sellers pay ${formatMVR(settings.fees.vipPostingFee)} per listing and share monthly rewards.` },
+          { Icon: Crown, t: `${settings.vip.badgeName} sellers`, d: "Top sellers enjoy reduced fees and share in monthly rewards." },
         ].map(({ Icon, t, d }) => (
           <div key={t} className="bg-white p-5">
             <Icon className="h-5 w-5 text-ocean-600" strokeWidth={1.75} />

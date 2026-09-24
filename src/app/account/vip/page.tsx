@@ -40,9 +40,7 @@ export default async function MyVipPage() {
           </p>
         )}
         {vip?.state === "SUSPENDED" && vip.suspendedReason && <p className="mt-2 text-sm text-red-700">Reason: {vip.suspendedReason}</p>}
-        <p className="mt-2 text-sm">
-          Your posting fee: <strong>{quote.isVipRate ? `${formatMVR(quote.amount)} (${b} rate)` : formatMVR(quote.amount)}</strong>
-        </p>
+        {quote.isVipRate && <p className="mt-2 text-sm text-slate-300">Reduced {b} posting fees are active on your listings.</p>}
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
