@@ -16,7 +16,7 @@ export default async function EditDraftPage({ params }: { params: Promise<{ id: 
   const formData = await sellFormData(user.id);
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="mb-4 text-2xl font-bold">Edit listing</h1>
+      <h1 className="mb-4 text-2xl font-semibold tracking-tight">Edit listing</h1>
       <ListingForm
         action={saveListingAction}
         categories={formData.categories} atolls={formData.atolls} businesses={formData.businesses} conditions={formData.conditions} maxImages={formData.maxImages}

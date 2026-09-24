@@ -19,14 +19,14 @@ export default async function WithdrawPage({ params }: { params: Promise<{ id: s
   const q = await quoteCancellation(id, user.id);
   return (
     <div className="mx-auto max-w-lg space-y-4">
-      <h1 className="text-2xl font-bold">Remove published listing</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">Remove published listing</h1>
       <div className="card space-y-3 p-4">
         <p>
           You&apos;re about to remove this published listing: <strong>{l.title}</strong>
         </p>
         <div className={`rounded-xl p-4 text-center ${q.fine > 0 ? "bg-red-50 ring-1 ring-red-200" : "bg-emerald-50 ring-1 ring-emerald-200"}`}>
           <p className="text-sm text-slate-600">Cancellation fee</p>
-          <p className={`text-3xl font-extrabold ${q.fine > 0 ? "text-red-700" : "text-emerald-700"}`}>{formatMVR(q.fine)}</p>
+          <p className={`text-3xl font-semibold tracking-tight ${q.fine > 0 ? "text-red-700" : "text-emerald-700"}`}>{formatMVR(q.fine)}</p>
           {q.reason === "grace" && q.graceEndsAt && <p className="text-xs text-emerald-800">Free — you&apos;re within the grace period (until {formatDateTime(q.graceEndsAt)}).</p>}
           {q.reason === "disabled" && <p className="text-xs text-emerald-800">No cancellation fee currently applies.</p>}
         </div>

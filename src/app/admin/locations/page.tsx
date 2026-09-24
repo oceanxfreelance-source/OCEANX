@@ -23,7 +23,7 @@ function Row({ level, item, parentId }: { level: "atoll" | "island" | "location"
         <ActionForm action={deleteLocationAction}>
           <input type="hidden" name="level" value={level} />
           <input type="hidden" name="id" value={item.id} />
-          <SubmitButton className="btn-ghost btn-sm text-red-600" confirm={`Delete this ${level}?`}>✕</SubmitButton>
+          <SubmitButton className="btn-ghost btn-sm text-red-600" confirm={`Delete this ${level}?`}>Delete</SubmitButton>
         </ActionForm>
       )}
     </div>

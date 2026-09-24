@@ -28,10 +28,10 @@ export default async function SellerPage({ params, searchParams }: { params: Pro
           // eslint-disable-next-line @next/next/no-img-element
           <img src={fileUrl(seller.profile.avatarFileId)!} alt="" className="h-20 w-20 rounded-full object-cover" />
         ) : (
-          <span className="grid h-20 w-20 place-items-center rounded-full bg-ocean-100 text-3xl font-bold text-ocean-800">{seller.name.charAt(0)}</span>
+          <span className="grid h-20 w-20 place-items-center rounded-full bg-ocean-100 text-3xl font-semibold text-ocean-800">{seller.name.charAt(0)}</span>
         )}
         <div className="flex-1">
-          <h1 className="text-2xl font-bold">{seller.profile?.displayName || seller.name}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">{seller.profile?.displayName || seller.name}</h1>
           <p className="text-sm text-slate-500">
             Member since {formatDate(seller.createdAt)}
             {seller.profile?.island ? ` · ${seller.profile.island.name}, ${seller.profile.atoll?.code ?? ""}` : ""}
@@ -44,9 +44,9 @@ export default async function SellerPage({ params, searchParams }: { params: Pro
           {seller.profile?.bio && <p className="mt-2 whitespace-pre-line text-sm text-slate-700">{seller.profile.bio}</p>}
         </div>
         <dl className="grid grid-cols-3 gap-3 text-center">
-          <div><dt className="text-xs text-slate-500">Live</dt><dd className="text-lg font-bold">{stats?.activeListings ?? 0}</dd></div>
-          <div><dt className="text-xs text-slate-500">Sold</dt><dd className="text-lg font-bold">{stats?.soldListings ?? 0}</dd></div>
-          <div><dt className="text-xs text-slate-500">Deals</dt><dd className="text-lg font-bold">{stats?.countedDeals ?? 0}</dd></div>
+          <div><dt className="text-xs text-slate-500">Live</dt><dd className="text-lg font-semibold">{stats?.activeListings ?? 0}</dd></div>
+          <div><dt className="text-xs text-slate-500">Sold</dt><dd className="text-lg font-semibold">{stats?.soldListings ?? 0}</dd></div>
+          <div><dt className="text-xs text-slate-500">Deals</dt><dd className="text-lg font-semibold">{stats?.countedDeals ?? 0}</dd></div>
         </dl>
       </div>
       <div className="flex gap-2">

@@ -9,7 +9,7 @@ export function SettingsForm({ group, settings }: { group: keyof Settings; setti
   const values = settings[group] as unknown as Record<string, unknown>;
   return (
     <section id={group} className="card scroll-mt-24 p-4">
-      <h2 className="font-bold">{form.title}</h2>
+      <h2 className="font-semibold">{form.title}</h2>
       <p className="mb-3 text-sm text-slate-600">{form.description}</p>
       <ActionForm action={saveSettingsAction}>
         <input type="hidden" name="group" value={group} />

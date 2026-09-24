@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 export function PageTitle({ title, children }: { title: string; children?: ReactNode }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-2">
-      <h1 className="text-2xl font-bold">{title}</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
       {children}
     </div>
   );
@@ -14,7 +14,7 @@ export function Stat({ label, value, sub }: { label: string; value: ReactNode; s
   return (
     <div className="card p-3">
       <p className="text-xs text-slate-500">{label}</p>
-      <p className="text-xl font-bold">{value}</p>
+      <p className="text-xl font-semibold">{value}</p>
       {sub && <p className="text-xs text-slate-500">{sub}</p>}
     </div>
   );
@@ -24,7 +24,7 @@ export function Section({ title, children, actions }: { title: string; children:
   return (
     <section className="card p-4">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <h2 className="font-bold">{title}</h2>
+        <h2 className="font-semibold">{title}</h2>
         {actions}
       </div>
       {children}

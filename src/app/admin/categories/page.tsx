@@ -51,7 +51,7 @@ export default async function AdminCategoriesPage() {
                 </ActionForm>
                 <ActionForm action={deleteSubcategoryAction}>
                   <input type="hidden" name="id" value={s.id} />
-                  <SubmitButton className="btn-ghost btn-sm text-red-600" confirm="Delete this subcategory?">✕</SubmitButton>
+                  <SubmitButton className="btn-ghost btn-sm text-red-600" confirm="Delete this subcategory?">Delete</SubmitButton>
                 </ActionForm>
               </div>
             ))}

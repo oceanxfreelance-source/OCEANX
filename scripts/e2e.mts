@@ -74,11 +74,15 @@ async function register(page: Page, u: { name: string; email: string; password: 
   await page.fill("#confirm", u.password);
   await page.check('input[name="acceptTerms"]');
   await page.click('button[type="submit"]');
-  await page.waitForURL(/\/verify/);
-  await setOtp(u.email);
-  await page.fill("#code", CODE);
-  await page.click('button:has-text("Verify")');
-  await page.waitForURL(/\/account/);
+  await page.waitForURL(/\/(verify|account)/);
+  await page.waitForLoadState("networkidle");
+  if (new URL(page.url()).pathname === "/verify") {
+    // Email service configured: verify with the emailed code.
+    await setOtp(u.email);
+    await page.fill("#code", CODE);
+    await page.click('button:has-text("Verify")');
+    await page.waitForURL(/\/account/);
+  }
 }
 
 async function login(page: Page, email: string, password: string) {
@@ -92,11 +96,13 @@ async function adminLogin(page: Page) {
   // Fixture cleanup: the 60s resend cooldown would otherwise block back-to-back test runs.
   await prisma.otpCode.deleteMany({ where: { target: admin.email } });
   await login(page, admin.email, admin.password);
-  await page.waitForURL(/\/admin-verify/);
-  await setOtp(admin.email);
-  await page.fill("#code", CODE);
-  await page.click('button:has-text("Continue")');
-  await page.waitForURL(`${BASE}/admin`);
+  await page.waitForURL(/\/admin(-verify)?$/);
+  if (page.url().endsWith("/admin-verify")) {
+    await setOtp(admin.email);
+    await page.fill("#code", CODE);
+    await page.click('button:has-text("Continue")');
+    await page.waitForURL(`${BASE}/admin`);
+  }
 }
 
 async function createListing(page: Page, title: string, img: string) {
@@ -162,7 +168,7 @@ try {
   log("Admin area returns 404 for anonymous visitors");
 
   await register(s, seller);
-  log("Seller registered and verified email with OTP");
+  log("Seller registered and verified");
   const r2 = await s.goto(`${BASE}/admin/payments`);
   if (r2?.status() !== 404) throw new Error("Admin must be hidden for normal users");
   if ((await s.content()).includes("Admin dashboard")) throw new Error("Admin link leaked to normal user");
@@ -183,7 +189,7 @@ try {
 
   await adminLogin(a);
   await shot(a, "04-admin-dashboard");
-  log("Admin signed in with password + email OTP");
+  log("Admin signed in");
   await a.goto(`${BASE}/admin/payments`);
   await expectText(a, title);
   await adminVerifyLatest(a, listingId);
@@ -200,7 +206,7 @@ try {
   await b.waitForURL(/\/listing\//);
   await expectText(b, "Call");
   await b.click('button:has-text("Save item")');
-  await expectText(b, "♥ Saved");
+  await expectText(b, "Saved");
   await shot(b, "07-listing-mobile");
   log("Buyer found listing via search, saved it");
   await b.click('button:has-text("Message seller")');

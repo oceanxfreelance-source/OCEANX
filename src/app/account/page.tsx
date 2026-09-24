@@ -28,7 +28,7 @@ export default async function AccountPage() {
     <div className="space-y-4">
       <div className="card p-5">
         <p className="text-sm text-slate-500">Welcome back,</p>
-        <h1 className="text-2xl font-bold">{user.name}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{user.name}</h1>
         <div className="mt-2 flex flex-wrap gap-1.5">
           {vipActive && <VipBadge label={settings.vip.badgeName} size="md" />}
           <StarsBadge stars={stats.stars} />
@@ -39,9 +39,9 @@ export default async function AccountPage() {
 
       {(pendingConfirm > 0 || unpaidFines > 0 || drafts > 0) && (
         <div className="space-y-2">
-          {pendingConfirm > 0 && <Link href="/account/purchases" className="block rounded-xl bg-amber-50 p-3 text-sm text-amber-900 ring-1 ring-amber-200">🧾 {pendingConfirm} purchase(s) waiting for your confirmation →</Link>}
-          {unpaidFines > 0 && <Link href="/account/cancellations" className="block rounded-xl bg-red-50 p-3 text-sm text-red-800 ring-1 ring-red-200">⚠️ You have an unpaid cancellation fee →</Link>}
-          {drafts > 0 && <Link href="/account/listings?tab=drafts" className="block rounded-xl bg-sky-50 p-3 text-sm text-sky-900 ring-1 ring-sky-200">📝 {drafts} listing(s) not yet published →</Link>}
+          {pendingConfirm > 0 && <Link href="/account/purchases" className="block rounded-xl bg-amber-50 p-3 text-sm text-amber-900 ring-1 ring-amber-200">{pendingConfirm} purchase(s) waiting for your confirmation →</Link>}
+          {unpaidFines > 0 && <Link href="/account/cancellations" className="block rounded-xl bg-red-50 p-3 text-sm text-red-800 ring-1 ring-red-200">You have an unpaid cancellation fee →</Link>}
+          {drafts > 0 && <Link href="/account/listings?tab=drafts" className="block rounded-xl bg-sky-50 p-3 text-sm text-sky-900 ring-1 ring-sky-200">{drafts} listing(s) not yet published →</Link>}
         </div>
       )}
 
@@ -54,7 +54,7 @@ export default async function AccountPage() {
         ].map(([k, v]) => (
           <div key={k} className="card p-4">
             <p className="text-xs text-slate-500">{k}</p>
-            <p className="text-2xl font-bold">{v}</p>
+            <p className="text-2xl font-semibold tracking-tight">{v}</p>
           </div>
         ))}
       </div>
@@ -62,8 +62,8 @@ export default async function AccountPage() {
       <div className="card flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-sm text-slate-500">Your posting fee</p>
-          <p className="text-xl font-bold">
-            {quote.isVipRate ? `★ ${settings.vip.badgeName} posting fee: ${formatMVR(quote.amount)}` : `Normal posting fee: ${formatMVR(quote.amount)}`}
+          <p className="text-xl font-semibold">
+            {quote.isVipRate ? `${settings.vip.badgeName} posting fee: ${formatMVR(quote.amount)}` : `Normal posting fee: ${formatMVR(quote.amount)}`}
           </p>
         </div>
         <Link href="/sell" className="btn-accent">+ Sell an item</Link>

@@ -313,7 +313,7 @@ export async function saveLevelAction(_: ActionState, fd: FormData): Promise<Act
     const id = str(fd, "id");
     const name = cleanText(str(fd, "name"), 40);
     if (!name) throw new UserError("Name is required.");
-    const data = { name, slug: slugify(str(fd, "slug") || name), badge: cleanText(str(fd, "badge"), 8) || "⭐", color: /^#[0-9a-f]{6}$/i.test(str(fd, "color")) ? str(fd, "color") : "#0e7490", description: str(fd, "description") || null, rewards: str(fd, "rewards") || null, minStars: int(fd, "minStars"), minDeals: int(fd, "minDeals"), sortOrder: int(fd, "sortOrder"), isActive: bool(fd, "isActive") };
+    const data = { name, slug: slugify(str(fd, "slug") || name), badge: cleanText(str(fd, "badge"), 8) || "*", color: /^#[0-9a-f]{6}$/i.test(str(fd, "color")) ? str(fd, "color") : "#0e7490", description: str(fd, "description") || null, rewards: str(fd, "rewards") || null, minStars: int(fd, "minStars"), minDeals: int(fd, "minDeals"), sortOrder: int(fd, "sortOrder"), isActive: bool(fd, "isActive") };
     if (id) await prisma.sellerLevel.update({ where: { id }, data });
     else await prisma.sellerLevel.create({ data });
     await audit({ actorId: user.id, action: "level.save", entityType: "SellerLevel", entityId: id || null, summary: `${name}: ${data.minStars} stars / ${data.minDeals} deals` });

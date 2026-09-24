@@ -82,7 +82,7 @@ async function grant(userId: string, settings: Settings, snapshot: unknown, acto
   await record(userId, event, { reason, actorId, expiresAt, snapshot });
   await notify(userId, {
     type: "vip",
-    title: `You are now ${settings.vip.badgeName}! ⭐`,
+    title: `You are now ${settings.vip.badgeName}`,
     body: `Congratulations — your genuine selling activity earned you ${settings.vip.badgeName} status until ${expiresAt.toDateString()}. Your posting fee is now reduced and you are eligible for the monthly VIP reward pool.`,
     link: "/account/vip",
     event: "vip",

@@ -7,7 +7,7 @@ export default async function ResetPasswordPage({ searchParams }: { searchParams
   const sp = await searchParams;
   return (
     <div className="card p-6">
-      <h1 className="text-2xl font-bold">Choose a new password</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">Choose a new password</h1>
       <p className="mb-5 mt-1 text-sm text-slate-600">If an account exists for this email, we sent it a 6-digit code.</p>
       <ActionForm action={resetPasswordAction}>
         <Field label="Email" name="email">

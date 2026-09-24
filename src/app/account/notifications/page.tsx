@@ -13,7 +13,7 @@ export default async function NotificationsPage() {
   return (
     <div>
       <div className="mb-3 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Notifications</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Notifications</h1>
         {items.some((n) => !n.readAt) && (
           <form action={markNotificationsReadAction}>
             <button className="btn-ghost btn-sm">Mark all read</button>

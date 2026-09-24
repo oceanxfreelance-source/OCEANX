@@ -14,10 +14,10 @@ export default async function ReferralsPage() {
   const link = `${env.appUrl}/register?ref=${user.referralCode}`;
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-bold">Invite friends</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">Invite friends</h1>
       <div className="card space-y-2 p-4">
         <p className="text-sm text-slate-600">Your referral code</p>
-        <p className="select-all font-mono text-2xl font-bold tracking-widest">{user.referralCode}</p>
+        <p className="select-all font-mono text-2xl font-semibold tracking-tight tracking-widest">{user.referralCode}</p>
         <p className="select-all break-all rounded-xl bg-slate-50 p-2 text-sm">{link}</p>
         <a href={`https://wa.me/?text=${encodeURIComponent(`Join me on MV Markets — buy & sell across the Maldives: ${link}`)}`} target="_blank" rel="noopener noreferrer" className="btn bg-emerald-600 text-white">Share on WhatsApp</a>
         <p className="text-xs text-slate-500">
@@ -28,7 +28,7 @@ export default async function ReferralsPage() {
         </p>
       </div>
       <div className="card p-4">
-        <h2 className="font-bold">Your referrals ({referrals.filter((r) => r.status === "VERIFIED").length} verified)</h2>
+        <h2 className="font-semibold">Your referrals ({referrals.filter((r) => r.status === "VERIFIED").length} verified)</h2>
         <ul className="mt-2 divide-y divide-slate-100 text-sm">
           {referrals.length === 0 && <li className="py-2 text-slate-500">No referrals yet.</li>}
           {referrals.map((r) => (

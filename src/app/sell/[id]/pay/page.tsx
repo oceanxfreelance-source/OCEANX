@@ -21,13 +21,13 @@ export default async function PayPage({ params }: { params: Promise<{ id: string
   const lastRejected = l.payments[0]?.status === "REJECTED" ? l.payments[0] : null;
   return (
     <div className="mx-auto max-w-xl space-y-4">
-      <h1 className="text-2xl font-bold">Pay posting fee</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">Pay posting fee</h1>
       <p className="text-sm text-slate-600">
         For <Link href={`/listing/${id}`} className="font-medium text-ocean-700">{l.title}</Link>
       </p>
       <div className="rounded-2xl bg-ocean-50 p-4 ring-1 ring-ocean-100">
         {quote.isVipRate ? (
-          <p className="font-semibold">★ {settings.vip.badgeName} posting fee: {formatMVR(quote.amount)} <span className="text-sm font-normal text-slate-500">(normal {formatMVR(quote.normalFee)})</span></p>
+          <p className="font-semibold">{settings.vip.badgeName} posting fee: {formatMVR(quote.amount)} <span className="text-sm font-normal text-slate-500">(normal {formatMVR(quote.normalFee)})</span></p>
         ) : (
           <p className="font-semibold">Normal posting fee: {formatMVR(quote.amount)}</p>
         )}

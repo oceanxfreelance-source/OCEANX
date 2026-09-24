@@ -99,7 +99,7 @@ export default async function AdminPaymentPage({ params }: { params: Promise<{ i
             {p.flags.length > 0 ? (
               <ul className="mb-3 space-y-1">
                 {p.flags.map((f) => (
-                  <li key={f} className="rounded-lg bg-amber-50 px-3 py-1.5 text-sm text-amber-900">⚠️ {FLAG_LABELS[f] ?? f}</li>
+                  <li key={f} className="rounded-lg bg-amber-50 px-3 py-1.5 text-sm text-amber-900">{FLAG_LABELS[f] ?? f}</li>
                 ))}
               </ul>
             ) : (
@@ -130,8 +130,8 @@ export default async function AdminPaymentPage({ params }: { params: Promise<{ i
                   <input type="hidden" name="paymentId" value={p.id} />
                   <textarea name="note" rows={2} className="input" placeholder={p.flags.length ? "Required: why are you verifying despite flags? / reason for rejection (shown to customer)" : "Note / reason (rejection reason is shown to the customer)"} />
                   <div className="grid grid-cols-2 gap-2">
-                    <SubmitButton name="decision" value="verify" className="btn-primary">✓ Verify & apply</SubmitButton>
-                    <SubmitButton name="decision" value="reject" className="btn-danger" confirm="Reject this payment? The customer will be asked to upload a new slip.">✕ Reject</SubmitButton>
+                    <SubmitButton name="decision" value="verify" className="btn-primary">Verify & apply</SubmitButton>
+                    <SubmitButton name="decision" value="reject" className="btn-danger" confirm="Reject this payment? The customer will be asked to upload a new slip.">Reject</SubmitButton>
                   </div>
                 </ActionForm>
                 <ActionForm action={paymentDecisionAction}>

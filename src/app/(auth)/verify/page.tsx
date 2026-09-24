@@ -13,7 +13,7 @@ export default async function VerifyPage({ searchParams }: { searchParams: Promi
   if (session.user.emailVerifiedAt) redirect(safeNext(sp.next, "/account"));
   return (
     <div className="card p-6">
-      <h1 className="text-2xl font-bold">Check your email</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">Check your email</h1>
       <p className="mb-5 mt-1 text-sm text-slate-600">
         We sent a 6-digit code to <strong>{session.user.email}</strong>. Enter it below to verify your account.
       </p>

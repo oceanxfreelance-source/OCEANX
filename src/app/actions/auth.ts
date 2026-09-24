@@ -34,7 +34,8 @@ export async function registerAction(_: ActionState, fd: FormData): Promise<Acti
   });
   if (res?.error) return res;
   await createSession(userId);
-  redirect(`/verify?next=${encodeURIComponent(safeNext(str(fd, "next"), "/account"))}`);
+  const next = safeNext(str(fd, "next"), "/account");
+  redirect(emailDeliveryAvailable() ? `/verify?next=${encodeURIComponent(next)}` : next);
 }
 
 export async function loginAction(_: ActionState, fd: FormData): Promise<ActionState> {

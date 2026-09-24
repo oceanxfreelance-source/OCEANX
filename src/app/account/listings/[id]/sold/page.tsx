@@ -17,7 +17,7 @@ export default async function MarkSoldPage({ params }: { params: Promise<{ id: s
   const [buyers, settings] = await Promise.all([buyerCandidates(id, user.id), getSiteSettings()]);
   return (
     <div className="mx-auto max-w-lg space-y-4">
-      <h1 className="text-2xl font-bold">Mark as sold</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">Mark as sold</h1>
       <p className="text-slate-600">
         <strong>{l.title}</strong> will show a SOLD badge and be removed from search. Your listing history is kept. Marking an item as sold is always free.
       </p>

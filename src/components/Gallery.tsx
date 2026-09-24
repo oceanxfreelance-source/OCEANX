@@ -1,13 +1,14 @@
 "use client";
 
+import { ImageOff } from "lucide-react";
 import { useState } from "react";
 
 export function Gallery({ images, title }: { images: string[]; title: string }) {
   const [i, setI] = useState(0);
-  if (!images.length) return <div className="grid aspect-square place-items-center rounded-2xl bg-slate-100 text-6xl">📦</div>;
+  if (!images.length) return <div className="grid aspect-[4/3] place-items-center rounded-xl bg-slate-100 text-slate-300"><ImageOff className="h-10 w-10" /></div>;
   return (
     <div>
-      <div className="relative aspect-square overflow-hidden rounded-2xl bg-slate-900/5">
+      <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-slate-100">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={images[i]} alt={`${title} photo ${i + 1}`} className="h-full w-full object-contain" />
         {images.length > 1 && (

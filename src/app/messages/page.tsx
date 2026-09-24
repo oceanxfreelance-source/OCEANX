@@ -12,7 +12,7 @@ export default async function MessagesPage() {
   const convs = await listConversations(user.id);
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="mb-4 text-2xl font-bold">Messages</h1>
+      <h1 className="mb-4 text-2xl font-semibold tracking-tight">Messages</h1>
       {convs.length === 0 && <EmptyState title="No conversations yet">Message a seller from any listing to start chatting.</EmptyState>}
       <ul className="space-y-2">
         {convs.map((c) => {
@@ -36,7 +36,7 @@ export default async function MessagesPage() {
                   <p className="truncate text-xs text-ocean-700">{c.listing?.title ?? "Listing removed"}</p>
                   <p className={`truncate text-sm ${unread ? "font-semibold text-slate-900" : "text-slate-500"}`}>{last ? `${last.senderId === user.id ? "You: " : ""}${last.body}` : ""}</p>
                 </div>
-                {unread > 0 && <span className="grid h-6 min-w-6 place-items-center rounded-full bg-coral-500 px-1.5 text-xs font-bold text-white">{unread}</span>}
+                {unread > 0 && <span className="grid h-6 min-w-6 place-items-center rounded-full bg-coral-500 px-1.5 text-xs font-semibold text-white">{unread}</span>}
               </Link>
             </li>
           );

@@ -12,8 +12,8 @@ export default async function SavedPage() {
   const saved = await prisma.savedListing.findMany({ where: { userId: user.id, listing: { status: { in: ["PUBLISHED", "SOLD"] } } }, orderBy: { createdAt: "desc" }, include: { listing: { select: listingCardSelect } } });
   return (
     <div>
-      <h1 className="mb-4 text-2xl font-bold">Saved items</h1>
-      {saved.length ? <ListingGrid items={saved.map((s) => s.listing)} vipLabel={settings.vip.badgeName} /> : <EmptyState title="No saved items">Tap ♡ Save on any listing to keep it here.</EmptyState>}
+      <h1 className="mb-4 text-2xl font-semibold tracking-tight">Saved items</h1>
+      {saved.length ? <ListingGrid items={saved.map((s) => s.listing)} vipLabel={settings.vip.badgeName} /> : <EmptyState title="No saved items">Use Save item on any listing to keep it here.</EmptyState>}
     </div>
   );
 }

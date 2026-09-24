@@ -1,3 +1,4 @@
+import { Phone } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth/guards";
@@ -45,7 +46,7 @@ export default async function ConversationPage({ params }: { params: Promise<{ i
           </Link>
         )}
         {!iAmSeller && conv.seller.phone && (
-          <a href={`tel:${conv.seller.phone}`} className="btn-secondary btn-sm">📞</a>
+          <a href={`tel:${conv.seller.phone}`} className="btn-secondary btn-sm" aria-label="Call seller"><Phone className="h-4 w-4" /></a>
         )}
       </div>
       <ul className="flex-1 space-y-2">

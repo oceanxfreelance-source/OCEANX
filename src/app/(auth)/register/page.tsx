@@ -11,7 +11,7 @@ export default async function RegisterPage({ searchParams }: { searchParams: Pro
   if (await getSession()) redirect("/account");
   return (
     <div className="card p-6">
-      <h1 className="text-2xl font-bold">Create your account</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">Create your account</h1>
       <p className="mb-5 mt-1 text-sm text-slate-600">Free to join. Buy from sellers across all atolls.</p>
       <ActionForm action={registerAction}>
         <input type="hidden" name="next" value={sp.next ?? ""} />

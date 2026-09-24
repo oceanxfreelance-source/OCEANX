@@ -15,7 +15,7 @@ export function CategoryPicker({ categories, defaultCategory, defaultSub }: { ca
         <select id="categoryId" name="categoryId" required className="input" value={cat} onChange={(e) => setCat(e.target.value)}>
           <option value="">Choose…</option>
           {categories.map((c) => (
-            <option key={c.id} value={c.id}>{c.icon} {c.name}</option>
+            <option key={c.id} value={c.id}>{c.name}</option>
           ))}
         </select>
       </div>

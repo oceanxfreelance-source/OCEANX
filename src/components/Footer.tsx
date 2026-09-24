@@ -1,32 +1,39 @@
 import Link from "next/link";
 import { getSiteSettings } from "@/lib/site";
+import { Logo } from "./Logo";
 
 export async function Footer() {
   const s = await getSiteSettings();
+  const cols: { title: string; links: [string, string][] }[] = [
+    { title: "Marketplace", links: [["/search", "Browse listings"], ["/categories", "Categories"], ["/sell", "Post a listing"], ["/giveaways", "Giveaways"]] },
+    { title: "Programs", links: [["/vip", "Stars & VIP"], ["/business", "Business accounts"], ["/account/referrals", "Invite friends"]] },
+    { title: "Legal", links: [["/terms", "Terms of use"], ["/privacy", "Privacy policy"]] },
+  ];
   return (
-    <footer className="border-t border-slate-200 bg-white pb-24 md:pb-0">
-      <div className="mx-auto grid max-w-6xl gap-6 px-4 py-8 text-sm text-slate-600 sm:grid-cols-3">
-        <div>
-          <p className="font-bold text-ocean-900">
-            {s.general.marketplaceName} <span className="font-medium text-ocean-600">{s.general.tagline}</span>
-          </p>
-          <p className="mt-2">The Maldives-first marketplace. No commission on your sale — just a small one-time posting fee.</p>
+    <footer className="bg-slate-950 pb-24 text-slate-400 md:pb-0">
+      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 md:grid-cols-[1.4fr_repeat(3,1fr)]">
+        <div className="space-y-4">
+          <Logo name={s.general.marketplaceName} tagline={s.general.tagline} inverted />
+          <p className="max-w-xs text-sm leading-relaxed">The Maldives-first marketplace. A small one-time posting fee, and never a commission on your sale.</p>
+          <div className="space-y-1 text-sm">
+            {s.general.supportEmail && <p><a href={`mailto:${s.general.supportEmail}`} className="hover:text-white">{s.general.supportEmail}</a></p>}
+            {s.general.supportPhone && <p><a href={`tel:${s.general.supportPhone}`} className="hover:text-white">{s.general.supportPhone}</a></p>}
+          </div>
         </div>
-        <ul className="space-y-1.5">
-          <li><Link href="/search" className="hover:text-ocean-700">Browse listings</Link></li>
-          <li><Link href="/categories" className="hover:text-ocean-700">Categories</Link></li>
-          <li><Link href="/vip" className="hover:text-ocean-700">Stars & VIP program</Link></li>
-          <li><Link href="/giveaways" className="hover:text-ocean-700">Giveaways</Link></li>
-          <li><Link href="/business" className="hover:text-ocean-700">Business accounts</Link></li>
-        </ul>
-        <ul className="space-y-1.5">
-          <li><Link href="/terms" className="hover:text-ocean-700">Terms of use</Link></li>
-          <li><Link href="/privacy" className="hover:text-ocean-700">Privacy policy</Link></li>
-          {s.general.supportEmail && <li>Support: <a href={`mailto:${s.general.supportEmail}`} className="hover:text-ocean-700">{s.general.supportEmail}</a></li>}
-          {s.general.supportPhone && <li>Hotline: <a href={`tel:${s.general.supportPhone}`} className="hover:text-ocean-700">{s.general.supportPhone}</a></li>}
-        </ul>
+        {cols.map((c) => (
+          <div key={c.title}>
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{c.title}</p>
+            <ul className="mt-4 space-y-2.5 text-sm">
+              {c.links.map(([href, label]) => (
+                <li key={href}><Link href={href} className="hover:text-white">{label}</Link></li>
+              ))}
+            </ul>
+          </div>
+        ))}
       </div>
-      <p className="border-t border-slate-100 py-4 text-center text-xs text-slate-400">© {new Date().getFullYear()} OceanX. All rights reserved.</p>
+      <div className="border-t border-white/10">
+        <p className="mx-auto max-w-6xl px-4 py-5 text-xs text-slate-500">© {new Date().getFullYear()} OceanX. All rights reserved.</p>
+      </div>
     </footer>
   );
 }

@@ -1,3 +1,4 @@
+import { Phone, Store } from "lucide-react";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { getSiteSettings } from "@/lib/site";
@@ -30,17 +31,17 @@ export default async function BusinessPage({ params }: { params: Promise<{ slug:
               // eslint-disable-next-line @next/next/no-img-element
               <img src={fileUrl(biz.logoFileId)!} alt="" className="h-full w-full object-cover" />
             ) : (
-              <span className="grid h-full place-items-center text-3xl">🏪</span>
+              <span className="grid h-full place-items-center text-slate-400"><Store className="h-8 w-8" strokeWidth={1.5} /></span>
             )}
           </div>
           <div className="flex-1">
-            <h1 className="flex flex-wrap items-center gap-2 text-2xl font-bold">
+            <h1 className="flex flex-wrap items-center gap-2 text-2xl font-semibold tracking-tight">
               {biz.name} {biz.verified && <VerifiedBadge />}
             </h1>
             <p className="text-sm text-slate-500">{[biz.address, biz.island ? `${biz.island.name}, ${biz.island.atoll.code}` : null].filter(Boolean).join(" · ")}</p>
           </div>
           <div className="flex flex-wrap gap-2">
-            {biz.phone && <a href={`tel:${biz.phone}`} className="btn-primary btn-sm">📞 Call</a>}
+            {biz.phone && <a href={`tel:${biz.phone}`} className="btn-primary btn-sm"><Phone className="h-3.5 w-3.5" /> Call</a>}
             {biz.website && <a href={biz.website} target="_blank" rel="noopener noreferrer nofollow" className="btn-secondary btn-sm">Website</a>}
             {biz.email && <a href={`mailto:${biz.email}`} className="btn-secondary btn-sm">Email</a>}
           </div>

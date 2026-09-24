@@ -11,7 +11,7 @@ export default async function AdminVerifyPage() {
   if (session.mfaVerified) redirect("/admin");
   return (
     <div className="card p-6">
-      <h1 className="text-2xl font-bold">Two-step sign-in</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">Two-step sign-in</h1>
       <p className="mb-5 mt-1 text-sm text-slate-600">Enter the 6-digit code we emailed to {session.user.email} to open the admin dashboard.</p>
       <ActionForm action={adminVerifyAction}>
         <Field label="Code" name="code">

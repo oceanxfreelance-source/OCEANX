@@ -119,7 +119,7 @@ export function ListingForm({ action, categories, atolls, businesses, conditions
             <select id="businessId" name="businessId" defaultValue={defaults.businessId ?? ""} className="input">
               <option value="">Myself (individual seller)</option>
               {businesses.map((b) => (
-                <option key={b.id} value={b.id}>🏪 {b.name}</option>
+                <option key={b.id} value={b.id}>{b.name} (business)</option>
               ))}
             </select>
           </div>

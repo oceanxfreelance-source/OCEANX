@@ -14,7 +14,7 @@ export default async function EditPublishedPage({ params }: { params: Promise<{ 
   if (!["PUBLISHED", "PAYMENT_REVIEW"].includes(l.status)) redirect("/account/listings");
   return (
     <div className="mx-auto max-w-lg space-y-3">
-      <h1 className="text-2xl font-bold">Edit “{l.title}”</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">Edit “{l.title}”</h1>
       <p className="text-sm text-slate-600">You can update the price, description and contact details. The title, category and photos of a published listing can&apos;t be changed.</p>
       <ActionForm action={editPublishedAction} className="card p-4">
         <input type="hidden" name="listingId" value={l.id} />

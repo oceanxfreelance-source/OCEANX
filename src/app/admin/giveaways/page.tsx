@@ -46,12 +46,12 @@ export default async function AdminGiveawaysPage() {
         <Section key={g.id} title={`${g.title} · ${g._count.participants} participants`} actions={<StatusBadge status={g.status === "DRAWN" ? "VERIFIED" : g.status} labels={{ VERIFIED: "Drawn" }} />}>
           <p className="mb-2 text-xs text-slate-500">{formatDateTime(g.startsAt)} → {formatDateTime(g.endsAt)}</p>
           {g.participants.length > 0 && (
-            <ul className="mb-2 text-sm">{g.participants.map((p) => <li key={p.userId}>🏆 {p.user.name} · {p.user.email} {p.user.phone ?? ""}</li>)}</ul>
+            <ul className="mb-2 text-sm">{g.participants.map((p) => <li key={p.userId}>Winner: {p.user.name} · {p.user.email} {p.user.phone ?? ""}</li>)}</ul>
           )}
           {g.status !== "DRAWN" && g.endsAt < new Date() && (
             <ActionForm action={drawGiveawayAction} className="mb-3">
               <input type="hidden" name="id" value={g.id} />
-              <SubmitButton className="btn-accent btn-sm" confirm="Draw winners now? This cannot be undone.">🎲 Draw {g.winnersCount} winner(s)</SubmitButton>
+              <SubmitButton className="btn-accent btn-sm" confirm="Draw winners now? This cannot be undone.">Draw {g.winnersCount} winner(s)</SubmitButton>
             </ActionForm>
           )}
           <details><summary className="cursor-pointer text-sm text-ocean-700">Edit</summary><GiveawayForm g={g} /></details>

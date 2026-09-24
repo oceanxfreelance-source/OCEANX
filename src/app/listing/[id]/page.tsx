@@ -1,3 +1,4 @@
+import { Flag, Heart, MapPin, MessageSquare, Phone, Store } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -80,12 +81,12 @@ export default async function ListingPage({ params }: { params: Promise<{ id: st
             <Link href={`/search?category=${l.category.slug}`} className="chip bg-ocean-50 text-ocean-800">{l.category.name}</Link>
             {l.subcategory && <Link href={`/search?category=${l.category.slug}&sub=${l.subcategory.slug}`} className="chip bg-ocean-50 text-ocean-800">{l.subcategory.name}</Link>}
           </div>
-          <h1 className="mt-2 text-2xl font-bold">{l.title}</h1>
-          <p className="mt-1 text-2xl font-extrabold text-ocean-800">
+          <h1 className="mt-2 text-2xl font-semibold tracking-tight">{l.title}</h1>
+          <p className="mt-1 text-2xl font-semibold tracking-tight text-ocean-800">
             {formatMVR(l.price, { free: "Free" })} {l.negotiable && <span className="text-sm font-medium text-slate-500">· Negotiable</span>}
           </p>
           <p className="mt-2 text-sm text-slate-600">
-            📍 {l.location ? `${l.location.name}, ` : ""}
+            <MapPin className="mr-1 inline h-4 w-4 -translate-y-px text-slate-400" />{l.location ? `${l.location.name}, ` : ""}
             {l.island.name}, {l.atoll.name}
             {l.locationDetail ? ` — ${l.locationDetail}` : ""}
           </p>
@@ -105,7 +106,7 @@ export default async function ListingPage({ params }: { params: Promise<{ id: st
               // eslint-disable-next-line @next/next/no-img-element
               <img src={fileUrl(l.seller.profile.avatarFileId)!} alt="" className="h-12 w-12 rounded-full object-cover" />
             ) : (
-              <span className="grid h-12 w-12 place-items-center rounded-full bg-ocean-100 text-lg font-bold text-ocean-800">{l.seller.name.charAt(0)}</span>
+              <span className="grid h-12 w-12 place-items-center rounded-full bg-ocean-100 text-lg font-semibold text-ocean-800">{l.seller.name.charAt(0)}</span>
             )}
             <div>
               <p className="font-semibold">{l.seller.name}</p>
@@ -119,7 +120,7 @@ export default async function ListingPage({ params }: { params: Promise<{ id: st
           </div>
           {l.business && (
             <Link href={`/business/${l.business.slug}`} className="mt-3 flex items-center gap-2 rounded-xl bg-slate-50 px-3 py-2 text-sm">
-              🏪 {l.business.name} {l.business.verified && <VerifiedBadge />}
+              <Store className="h-4 w-4 text-slate-500" /> {l.business.name} {l.business.verified && <VerifiedBadge />}
             </Link>
           )}
 
@@ -133,7 +134,7 @@ export default async function ListingPage({ params }: { params: Promise<{ id: st
             <div className="mt-4 grid gap-2">
               {phone && (
                 <a href={`tel:${phone}`} className="btn-primary">
-                  📞 Call {phone.replace("+960", "")}
+                  <Phone className="h-4 w-4" /> Call {phone.replace("+960", "")}
                 </a>
               )}
               {l.contactWhatsapp && (
@@ -145,10 +146,10 @@ export default async function ListingPage({ params }: { params: Promise<{ id: st
                 <ActionForm action={contactSellerAction}>
                   <input type="hidden" name="listingId" value={l.id} />
                   <textarea name="message" rows={2} className="input" defaultValue={`Hi, is "${l.title}" still available?`} maxLength={2000} aria-label="Message to seller" />
-                  <SubmitButton className="btn-secondary w-full">💬 Message seller</SubmitButton>
+                  <SubmitButton className="btn-secondary w-full"><MessageSquare className="h-4 w-4" /> Message seller</SubmitButton>
                 </ActionForm>
               ) : (
-                <Link href={`/login?next=/listing/${l.id}`} className="btn-secondary">💬 Log in to message</Link>
+                <Link href={`/login?next=/listing/${l.id}`} className="btn-secondary"><MessageSquare className="h-4 w-4" /> Log in to message</Link>
               )}
             </div>
           )}
@@ -156,13 +157,13 @@ export default async function ListingPage({ params }: { params: Promise<{ id: st
 
         {!isOwner && publicVisible && (
           <form action={toggleSaveAction.bind(null, l.id)}>
-            <button className="btn-secondary w-full">{saved ? "♥ Saved" : "♡ Save item"}</button>
+            <button className="btn-secondary w-full"><Heart className={`h-4 w-4 ${saved ? "fill-coral-500 text-coral-500" : ""}`} /> {saved ? "Saved" : "Save item"}</button>
           </form>
         )}
 
         {!isOwner && publicVisible && session && (
           <details className="card p-4">
-            <summary className="cursor-pointer text-sm font-medium text-slate-600">⚑ Report this listing</summary>
+            <summary className="cursor-pointer text-sm font-medium text-slate-600"><Flag className="mr-1.5 inline h-3.5 w-3.5" />Report this listing</summary>
             <ActionForm action={reportAction} className="mt-3">
               <input type="hidden" name="listingId" value={l.id} />
               <select name="reason" className="input" required defaultValue="">

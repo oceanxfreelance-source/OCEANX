@@ -8,7 +8,7 @@ export function BankDetails({ payment, amount }: { payment: Settings["payment"];
   return (
     <div className="rounded-2xl bg-slate-900 p-4 text-white">
       <p className="text-xs uppercase tracking-wider text-slate-400">Transfer exactly</p>
-      <p className="text-3xl font-extrabold">{formatMVR(amount)}</p>
+      <p className="text-3xl font-semibold tracking-tight">{formatMVR(amount)}</p>
       <dl className="mt-3 grid gap-1 text-sm">
         <div className="flex justify-between gap-2"><dt className="text-slate-400">Bank</dt><dd className="font-medium">{payment.bankName}</dd></div>
         <div className="flex justify-between gap-2"><dt className="text-slate-400">Account name</dt><dd className="font-medium">{payment.accountName}</dd></div>

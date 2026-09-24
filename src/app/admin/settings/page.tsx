@@ -17,7 +17,7 @@ export default async function AdminSettingsPage() {
         {groups.map((g) => <a key={g.group} href={`#${g.group}`} className="btn-secondary btn-sm shrink-0">{g.title}</a>)}
       </nav>
       <div className="rounded-xl bg-slate-50 p-3 text-xs text-slate-600">
-        Integrations: AI slip reading {aiConfigured() ? "✅ configured" : "⚠️ not configured (ANTHROPIC_API_KEY)"} · Email {process.env.RESEND_API_KEY ? "✅" : "⚠️ not configured (RESEND_API_KEY)"} · Storage: {env.storageDriver}
+        Integrations: AI slip reading {aiConfigured() ? "configured" : "not configured (ANTHROPIC_API_KEY)"} · Email {process.env.RESEND_API_KEY ? "configured" : "not configured (RESEND_API_KEY)"} · Storage: {env.storageDriver}
       </div>
       {groups.map((g) => <SettingsForm key={g.group} group={g.group} settings={settings} />)}
     </>

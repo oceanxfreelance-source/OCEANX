@@ -1,17 +1,18 @@
 import clsx from "clsx";
+import { BadgeCheck, Crown, Star } from "lucide-react";
 
 export function VipBadge({ label = "VIP", size = "sm" }: { label?: string; size?: "sm" | "md" }) {
   return (
-    <span className={clsx("chip bg-gradient-to-r from-gold-400 to-gold-500 text-amber-950 shadow-sm", size === "md" && "px-3 py-1 text-sm")} title="VIP seller">
-      ★ {label}
+    <span className={clsx("chip bg-slate-900 text-gold-400 ring-1 ring-gold-500/40", size === "md" && "px-2.5 py-1 text-xs")} title="VIP seller">
+      <Crown className={size === "md" ? "h-3.5 w-3.5" : "h-3 w-3"} strokeWidth={2.25} /> {label}
     </span>
   );
 }
 
 export function StarsBadge({ stars }: { stars: number }) {
   return (
-    <span className="chip bg-amber-50 text-amber-700 ring-1 ring-amber-200" title={`${stars} Stars`}>
-      ⭐ {stars}
+    <span className="chip bg-amber-50 text-amber-800 ring-1 ring-amber-200/70" title={`${stars} Stars`}>
+      <Star className="h-3 w-3 fill-amber-500 text-amber-500" /> {stars}
     </span>
   );
 }
@@ -19,58 +20,73 @@ export function StarsBadge({ stars }: { stars: number }) {
 export function LevelBadge({ level }: { level: { name: string; badge: string; color: string } | null | undefined }) {
   if (!level) return null;
   return (
-    <span className="chip text-white" style={{ backgroundColor: level.color }}>
-      {level.badge} {level.name}
+    <span className="chip bg-white text-slate-700 ring-1 ring-slate-200">
+      <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: level.color }} />
+      {level.name}
     </span>
   );
 }
 
 export function SoldBadge() {
-  return <span className="chip bg-slate-900 text-white">SOLD</span>;
+  return <span className="chip bg-slate-900 text-white">Sold</span>;
 }
 
 export function VerifiedBadge() {
-  return <span className="chip bg-emerald-100 text-emerald-800">✓ Verified</span>;
+  return (
+    <span className="chip bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200">
+      <BadgeCheck className="h-3 w-3" /> Verified
+    </span>
+  );
 }
 
-const statusStyles: Record<string, string> = {
-  DRAFT: "bg-slate-100 text-slate-700",
-  PENDING_PAYMENT: "bg-amber-100 text-amber-800",
-  PAYMENT_REVIEW: "bg-sky-100 text-sky-800",
-  PUBLISHED: "bg-emerald-100 text-emerald-800",
-  SOLD: "bg-slate-900 text-white",
-  WITHDRAWN: "bg-orange-100 text-orange-800",
-  REMOVED: "bg-red-100 text-red-800",
-  REJECTED: "bg-red-100 text-red-800",
-  PENDING: "bg-sky-100 text-sky-800",
-  AI_CHECKING: "bg-violet-100 text-violet-800",
-  VERIFIED: "bg-emerald-100 text-emerald-800",
-  NEEDS_REVIEW: "bg-amber-100 text-amber-800",
-  REFUNDED: "bg-slate-200 text-slate-700",
-  CANCELLED: "bg-slate-100 text-slate-500",
-  ACTIVE: "bg-emerald-100 text-emerald-800",
-  EXPIRED: "bg-slate-200 text-slate-700",
-  SUSPENDED: "bg-red-100 text-red-800",
-  BANNED: "bg-red-200 text-red-900",
-  PENDING_APPROVAL: "bg-amber-100 text-amber-800",
-  NONE: "bg-slate-100 text-slate-500",
-  UNPAID: "bg-red-100 text-red-800",
-  PAID: "bg-emerald-100 text-emerald-800",
-  WAIVED: "bg-slate-100 text-slate-600",
-  PAYMENT_SUBMITTED: "bg-sky-100 text-sky-800",
-  PENDING_EXCEPTION: "bg-amber-100 text-amber-800",
-  OPEN: "bg-amber-100 text-amber-800",
-  REVIEWING: "bg-sky-100 text-sky-800",
-  RESOLVED: "bg-emerald-100 text-emerald-800",
-  DISMISSED: "bg-slate-100 text-slate-600",
-  CONFIRMED: "bg-emerald-100 text-emerald-800",
-  UNCONFIRMED: "bg-slate-100 text-slate-700",
-  PENDING_CONFIRMATION: "bg-amber-100 text-amber-800",
-  DISPUTED: "bg-red-100 text-red-800",
-  VOIDED: "bg-slate-200 text-slate-600",
-  APPROVED: "bg-emerald-100 text-emerald-800",
-  WITHHELD: "bg-red-100 text-red-800",
-  CALCULATED: "bg-sky-100 text-sky-800",
+const tone = {
+  neutral: "bg-slate-100 text-slate-700 ring-slate-200",
+  info: "bg-sky-50 text-sky-700 ring-sky-200",
+  success: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+  warn: "bg-amber-50 text-amber-800 ring-amber-200",
+  danger: "bg-red-50 text-red-700 ring-red-200",
+  dark: "bg-slate-900 text-white ring-slate-900",
+  violet: "bg-violet-50 text-violet-700 ring-violet-200",
+};
+
+const statusTone: Record<string, keyof typeof tone> = {
+  DRAFT: "neutral",
+  PENDING_PAYMENT: "warn",
+  PAYMENT_REVIEW: "info",
+  PUBLISHED: "success",
+  SOLD: "dark",
+  WITHDRAWN: "warn",
+  REMOVED: "danger",
+  REJECTED: "danger",
+  PENDING: "info",
+  AI_CHECKING: "violet",
+  VERIFIED: "success",
+  NEEDS_REVIEW: "warn",
+  REFUNDED: "neutral",
+  CANCELLED: "neutral",
+  ACTIVE: "success",
+  EXPIRED: "neutral",
+  SUSPENDED: "danger",
+  BANNED: "danger",
+  PENDING_APPROVAL: "warn",
+  NONE: "neutral",
+  UNPAID: "danger",
+  PAID: "success",
+  WAIVED: "neutral",
+  PAYMENT_SUBMITTED: "info",
+  PENDING_EXCEPTION: "warn",
+  OPEN: "warn",
+  REVIEWING: "info",
+  RESOLVED: "success",
+  DISMISSED: "neutral",
+  CONFIRMED: "success",
+  UNCONFIRMED: "neutral",
+  PENDING_CONFIRMATION: "warn",
+  DISPUTED: "danger",
+  VOIDED: "neutral",
+  APPROVED: "success",
+  WITHHELD: "danger",
+  CALCULATED: "info",
 };
 
 const statusLabels: Record<string, string> = {
@@ -89,5 +105,5 @@ const statusLabels: Record<string, string> = {
 
 export function StatusBadge({ status, labels }: { status: string; labels?: Record<string, string> }) {
   const label = labels?.[status] ?? statusLabels[status] ?? status.charAt(0) + status.slice(1).toLowerCase().replace(/_/g, " ");
-  return <span className={clsx("chip", statusStyles[status] ?? "bg-slate-100 text-slate-700")}>{label}</span>;
+  return <span className={clsx("chip ring-1", tone[statusTone[status] ?? "neutral"])}>{label}</span>;
 }

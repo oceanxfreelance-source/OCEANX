@@ -14,11 +14,11 @@ export default async function SellPage() {
   const { settings, ...formData } = data;
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="text-2xl font-bold">Sell an item</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">Sell an item</h1>
       <div className="my-4 rounded-2xl bg-ocean-50 p-4 text-sm text-ocean-900 ring-1 ring-ocean-100">
         {quote.isVipRate ? (
           <p>
-            ★ <strong>{settings.vip.badgeName} posting fee: {formatMVR(quote.amount)}</strong> <span className="line-through opacity-60">{formatMVR(quote.normalFee)}</span> — {quote.discountPercent}% off as a {settings.vip.badgeName} seller.
+            <strong>{settings.vip.badgeName} posting fee: {formatMVR(quote.amount)}</strong> <span className="line-through opacity-60">{formatMVR(quote.normalFee)}</span> — {quote.discountPercent}% off as a {settings.vip.badgeName} seller.
           </p>
         ) : (
           <p>

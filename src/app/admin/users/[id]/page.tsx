@@ -47,8 +47,8 @@ export default async function AdminUserPage({ params }: { params: Promise<{ id: 
       </PageTitle>
       <Section title="Account">
         <dl className="grid gap-1 text-sm sm:grid-cols-2">
-          <div>Email: <strong>{u.email}</strong> {u.emailVerifiedAt ? "✓" : "(unverified)"}</div>
-          <div>Phone: <strong>{u.phone ?? "—"}</strong> {u.phoneVerifiedAt ? "✓" : ""}</div>
+          <div>Email: <strong>{u.email}</strong> {u.emailVerifiedAt ? "(verified)" : "(unverified)"}</div>
+          <div>Phone: <strong>{u.phone ?? "—"}</strong> {u.phoneVerifiedAt ? "(verified)" : ""}</div>
           <div>Joined: {formatDateTime(u.createdAt)}</div>
           <div>Last active: {formatDateTime(u.lastActiveAt)}</div>
           <div>Referral code: <span className="font-mono">{u.referralCode}</span></div>
@@ -110,7 +110,7 @@ export default async function AdminUserPage({ params }: { params: Promise<{ id: 
             {u.vipStatus?.suspendedReason && <span className="text-red-700"> · {u.vipStatus.suspendedReason}</span>}
           </p>
           <ul className="mt-2 text-sm">
-            {elig.requirements.map((r) => <li key={r.label}>{r.met ? "✅" : "❌"} {r.label}: {r.current} ({r.kind === "min" ? "min" : "max"} {r.required})</li>)}
+            {elig.requirements.map((r) => <li key={r.label}><span className={r.met ? "text-emerald-600" : "text-red-600"}>{r.met ? "Met" : "Not met"}</span> · {r.label}: {r.current} ({r.kind === "min" ? "min" : "max"} {r.required})</li>)}
           </ul>
           <ActionForm action={vipAction} className="mt-3">
             <input type="hidden" name="userId" value={u.id} />

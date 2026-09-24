@@ -26,7 +26,7 @@ export default async function PaymentsPage({ searchParams }: { searchParams: Pro
   });
   return (
     <div>
-      <h1 className="mb-4 text-2xl font-bold">Payments</h1>
+      <h1 className="mb-4 text-2xl font-semibold tracking-tight">Payments</h1>
       {sp.submitted && <p className="mb-3 rounded-xl bg-emerald-50 p-3 text-sm text-emerald-800">Thanks! Your payment slip was received. We&apos;ll notify you as soon as it&apos;s verified.</p>}
       {payments.length === 0 && <EmptyState title="No payments yet" />}
       <ul className="space-y-3">

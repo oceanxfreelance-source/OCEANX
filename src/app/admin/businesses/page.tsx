@@ -70,7 +70,7 @@ export default async function AdminBusinessesPage() {
           </table>
         </TableWrap>
       </div>
-      <h2 className="text-lg font-bold">Subscription plans</h2>
+      <h2 className="text-lg font-semibold">Subscription plans</h2>
       {plans.map((p) => (
         <Section key={p.id} title={`${p.name} · ${formatMVR(p.price)} · ${p._count.subscriptions} active`}>
           <PlanForm p={p} />

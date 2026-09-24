@@ -32,7 +32,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
                 <option value="">All categories</option>
                 {categories.map((c) => (
                   <option key={c.id} value={c.slug}>
-                    {c.icon} {c.name}
+                    {c.name}
                   </option>
                 ))}
               </select>
@@ -113,7 +113,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
       </aside>
       <section>
         <div className="mb-3 flex items-baseline justify-between">
-          <h1 className="text-lg font-bold">{p.q ? `Results for “${p.q}”` : activeCat ? activeCat.name : "All listings"}</h1>
+          <h1 className="text-lg font-semibold">{p.q ? `Results for “${p.q}”` : activeCat ? activeCat.name : "All listings"}</h1>
           <span className="text-sm text-slate-500">{res.total.toLocaleString()} found</span>
         </div>
         {res.items.length ? <ListingGrid items={res.items} vipLabel={settings.vip.badgeName} /> : <EmptyState title="No listings match your search">Try fewer keywords or clear some filters.</EmptyState>}

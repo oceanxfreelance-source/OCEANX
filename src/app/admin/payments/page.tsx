@@ -46,7 +46,7 @@ export default async function AdminPaymentsPage({ searchParams }: { searchParams
           <table className="table">
             <thead><tr><th>Submitted</th><th>Customer</th><th>For</th><th>Amount</th><th>Reference</th><th>Status</th><th>Flags</th><th></th></tr></thead>
             <tbody>
-              {payments.length === 0 && <tr><td colSpan={8} className="py-6 text-center text-slate-500">Nothing here 🎉</td></tr>}
+              {payments.length === 0 && <tr><td colSpan={8} className="py-6 text-center text-slate-500">Nothing to review.</td></tr>}
               {payments.map((p) => (
                 <tr key={p.id}>
                   <td className="whitespace-nowrap">{formatDateTime(p.createdAt)}</td>

@@ -20,11 +20,11 @@ export default async function CancellationsPage({ searchParams }: { searchParams
   const payFor = records.find((r) => r.fine?.id === sp.pay && r.fine?.status === "UNPAID");
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-bold">Cancellation history</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">Cancellation history</h1>
       {sp.withdrawn && <p className="rounded-xl bg-emerald-50 p-3 text-sm text-emerald-800">Your listing was withdrawn.</p>}
       {payFor?.fine && (
         <div className="card space-y-3 p-4">
-          <h2 className="font-bold">Pay cancellation fee for “{payFor.listing.title}”</h2>
+          <h2 className="font-semibold">Pay cancellation fee for “{payFor.listing.title}”</h2>
           <BankDetails payment={settings.payment} amount={payFor.fine.amount} />
           <PaymentForm purpose="CANCELLATION_FINE" targetId={payFor.fine.id} />
         </div>

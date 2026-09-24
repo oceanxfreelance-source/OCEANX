@@ -1,3 +1,4 @@
+import { Store } from "lucide-react";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth/guards";
@@ -14,13 +15,13 @@ export default async function MyBusinessesPage() {
   const businesses = await prisma.business.findMany({ where: { ownerId: user.id }, include: { subscriptions: { where: { status: "ACTIVE", endsAt: { gt: new Date() } }, include: { plan: true }, take: 1 } } });
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-bold">Business accounts</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">Business accounts</h1>
       <p className="text-sm text-slate-600">
         Optional for shops and larger sellers: storefront, branding, fee-free listings and analytics. Individual sellers never need one. <Link href="/business" className="underline">See plans</Link>
       </p>
       {businesses.map((b) => (
         <Link key={b.id} href={`/account/business/${b.id}`} className="card flex items-center justify-between p-4">
-          <span className="font-semibold">🏪 {b.name} {b.verified && <VerifiedBadge />}</span>
+          <span className="flex items-center gap-2 font-semibold"><Store className="h-4 w-4 text-slate-500" /> {b.name} {b.verified && <VerifiedBadge />}</span>
           {b.subscriptions[0] ? <StatusBadge status="ACTIVE" labels={{ ACTIVE: b.subscriptions[0].plan.name }} /> : <StatusBadge status="NONE" labels={{ NONE: "No plan" }} />}
         </Link>
       ))}

@@ -30,6 +30,6 @@ export async function drawWinners(giveawayId: string, adminId: string) {
     prisma.giveaway.update({ where: { id: giveawayId }, data: { status: "DRAWN" } }),
   ]);
   await audit({ actorId: adminId, action: "giveaway.draw", entityType: "Giveaway", entityId: giveawayId, summary: `Drew ${winners.length} winner(s) from ${g.participants.length} participants`, metadata: { winners } });
-  for (const w of winners) await notify(w, { type: "giveaway", title: "You won! 🎉", body: `Congratulations — you won "${g.title}" (${g.prize}). OceanX will contact you.`, link: "/giveaways" });
+  for (const w of winners) await notify(w, { type: "giveaway", title: "You won a giveaway", body: `Congratulations — you won "${g.title}" (${g.prize}). OceanX will contact you.`, link: "/giveaways" });
   return winners;
 }

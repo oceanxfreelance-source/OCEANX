@@ -33,10 +33,10 @@ export default async function MyListingsPage({ searchParams }: { searchParams: P
   return (
     <div>
       <div className="mb-3 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">My listings</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">My listings</h1>
         <Link href="/sell" className="btn-accent btn-sm">+ New</Link>
       </div>
-      {sp.sold && <p className="mb-3 rounded-xl bg-emerald-50 p-3 text-sm text-emerald-800">Marked as sold. Congratulations on your sale! 🎉</p>}
+      {sp.sold && <p className="mb-3 rounded-xl bg-emerald-50 p-3 text-sm text-emerald-800">Marked as sold. Congratulations on your sale.</p>}
       <div className="no-scrollbar mb-4 flex gap-2 overflow-x-auto">
         {TABS.map((t) => (
           <Link key={t.key} href={`/account/listings?tab=${t.key}`} className={t.key === tab.key ? "btn-primary btn-sm shrink-0" : "btn-secondary btn-sm shrink-0"}>
@@ -70,7 +70,7 @@ export default async function MyListingsPage({ searchParams }: { searchParams: P
                 <div className="mt-2 flex flex-wrap gap-2">
                   {l.status === "PUBLISHED" && (
                     <>
-                      <Link href={`/account/listings/${l.id}/sold`} className="btn-primary btn-sm">✓ Mark as sold</Link>
+                      <Link href={`/account/listings/${l.id}/sold`} className="btn-primary btn-sm">Mark as sold</Link>
                       <Link href={`/account/listings/${l.id}/edit`} className="btn-secondary btn-sm">Edit</Link>
                       <Link href={`/account/listings/${l.id}/withdraw`} className="btn-ghost btn-sm text-red-600">Withdraw</Link>
                     </>

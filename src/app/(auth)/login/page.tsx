@@ -12,7 +12,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   if (await getSession()) redirect(safeNext(sp.next, "/"));
   return (
     <div className="card p-6">
-      <h1 className="text-2xl font-bold">Welcome back</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
       <p className="mb-5 mt-1 text-sm text-slate-600">Log in to buy, sell and chat on MV Markets.</p>
       {sp.reset && <p className="mb-3 rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-800">Password updated. Please log in.</p>}
       <ActionForm action={loginAction}>

@@ -15,7 +15,7 @@ export default async function AcceptTermsPage({ searchParams }: { searchParams: 
   if (pending.length === 0) redirect(sp.next ?? "/account");
   return (
     <div className="card p-6">
-      <h1 className="text-2xl font-bold">We&apos;ve updated our policies</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">We&apos;ve updated our policies</h1>
       <p className="mb-4 mt-1 text-sm text-slate-600">Please review and accept to continue using your account.</p>
       <ul className="mb-4 list-disc pl-5 text-sm">
         {pending.map((d) => (

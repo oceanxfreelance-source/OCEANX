@@ -23,7 +23,7 @@ export default async function AdminReferralsPage() {
                 <tr key={r.id}>
                   <td><Link href={`/admin/users/${r.referrer.id}`} className="underline">{r.referrer.name}</Link></td>
                   <td><Link href={`/admin/users/${r.referred.id}`} className="underline">{r.referred.name}</Link></td>
-                  <td className="text-xs">{r.referred.emailVerifiedAt ? "Email ✓" : "Email ✗"} · {r.referred._count.listings} published</td>
+                  <td className="text-xs">{r.referred.emailVerifiedAt ? "Email verified" : "Email not verified"} · {r.referred._count.listings} published</td>
                   <td><StatusBadge status={r.status} />{r.reason && <span className="block text-xs text-amber-800">{r.reason}</span>}</td>
                   <td>{formatDate(r.createdAt)}</td>
                   <td className="min-w-48">

@@ -1,3 +1,4 @@
+import { CheckCircle2, Circle } from "lucide-react";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth/guards";
@@ -26,14 +27,14 @@ export default async function MyVipPage() {
   const b = settings.vip.badgeName;
   return (
     <div className="space-y-4">
-      <div className={`rounded-3xl p-5 ${active ? "bg-gradient-to-br from-amber-200 to-amber-400 text-amber-950" : "card"}`}>
+      <div className={`rounded-2xl p-5 ${active ? "bg-slate-950 text-white" : "card"}`}>
         <div className="flex flex-wrap items-center gap-2">
           {active ? <VipBadge label={b} size="md" /> : <StatusBadge status={vip?.state ?? "NONE"} labels={{ NONE: `Not ${b} yet`, EXPIRED: `${b} expired`, PENDING_APPROVAL: "Qualified — awaiting approval", SUSPENDED: `${b} suspended` }} />}
           <StarsBadge stars={stats?.stars ?? 0} />
           <LevelBadge level={stats?.level} />
         </div>
         {active && vip?.expiresAt && (
-          <p className="mt-3 text-lg font-bold">
+          <p className="mt-3 text-lg font-semibold">
             {b} until {formatDate(vip.expiresAt)}
             {vip.renewals > 0 && <span className="text-sm font-normal"> · renewed {vip.renewals}×</span>}
           </p>
@@ -53,20 +54,20 @@ export default async function MyVipPage() {
         ].map(([k, v]) => (
           <div key={k} className="card p-3">
             <p className="text-xs text-slate-500">{k}</p>
-            <p className="text-xl font-bold">{v}</p>
+            <p className="text-xl font-semibold">{v}</p>
           </div>
         ))}
       </div>
 
       <section className="card p-4">
-        <h2 className="font-bold">{active ? `Stay ${b} — renewal requirements` : `Your progress to ${b}`}</h2>
+        <h2 className="font-semibold">{active ? `Stay ${b} — renewal requirements` : `Your progress to ${b}`}</h2>
         <ul className="mt-3 space-y-3">
           {elig.requirements.map((r) => {
             const pct = r.kind === "min" ? Math.min(100, r.required === 0 ? 100 : Math.round((r.current / r.required) * 100)) : r.met ? 100 : 0;
             return (
               <li key={r.label}>
                 <div className="flex justify-between text-sm">
-                  <span>{r.met ? "✅" : "⬜"} {r.label}</span>
+                  <span className="flex items-center gap-2">{r.met ? <CheckCircle2 className="h-4 w-4 text-emerald-600" /> : <Circle className="h-4 w-4 text-slate-300" />} {r.label}</span>
                   <span className="font-medium">
                     {r.current} {r.kind === "min" ? `/ ${r.required}` : `(max ${r.required})`}
                   </span>
@@ -84,7 +85,7 @@ export default async function MyVipPage() {
       </section>
 
       <section className="card p-4">
-        <h2 className="font-bold">Monthly {b} rewards</h2>
+        <h2 className="font-semibold">Monthly {b} rewards</h2>
         {rewards.length === 0 ? (
           <p className="mt-2 text-sm text-slate-600">No rewards yet. Active {b} sellers share a monthly reward pool set by OceanX.</p>
         ) : (
@@ -106,7 +107,7 @@ export default async function MyVipPage() {
 
       {history.length > 0 && (
         <section className="card p-4">
-          <h2 className="font-bold">{b} history</h2>
+          <h2 className="font-semibold">{b} history</h2>
           <ul className="mt-2 divide-y divide-slate-100 text-sm">
             {history.map((h) => (
               <li key={h.id} className="flex justify-between gap-2 py-2">

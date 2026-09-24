@@ -33,12 +33,12 @@ export default async function ManageBusinessPage({ params }: { params: Promise<{
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-2xl font-bold">{biz.name} {biz.verified && <VerifiedBadge />}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{biz.name} {biz.verified && <VerifiedBadge />}</h1>
         <Link href={`/business/${biz.slug}`} className="btn-secondary btn-sm">View storefront</Link>
       </div>
 
       <section className="card p-4">
-        <h2 className="font-bold">Subscription</h2>
+        <h2 className="font-semibold">Subscription</h2>
         {sub ? (
           <p className="mt-1 text-sm">
             <StatusBadge status="ACTIVE" labels={{ ACTIVE: sub.plan.name }} /> until {formatDate(sub.endsAt)} · {sub.plan.freeListingsPerPeriod} fee-free listings · {sub.plan.featuredSlots} featured slots ({featuredCount} in use)
@@ -73,10 +73,10 @@ export default async function ManageBusinessPage({ params }: { params: Promise<{
       </section>
 
       <section className="card p-4">
-        <h2 className="font-bold">Analytics</h2>
+        <h2 className="font-semibold">Analytics</h2>
         <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-5">
           {[["Live", analytics.totals.live], ["Sold", analytics.totals.sold], ["Views", analytics.totals.views], ["Saves", analytics.totals.saves], ["Chats", analytics.totals.chats]].map(([k, v]) => (
-            <div key={k} className="rounded-xl bg-slate-50 p-3"><p className="text-xs text-slate-500">{k}</p><p className="text-xl font-bold">{v}</p></div>
+            <div key={k} className="rounded-xl bg-slate-50 p-3"><p className="text-xs text-slate-500">{k}</p><p className="text-xl font-semibold">{v}</p></div>
           ))}
         </div>
         {analytics.listings.length > 0 && (
@@ -109,7 +109,7 @@ export default async function ManageBusinessPage({ params }: { params: Promise<{
       </section>
 
       <ActionForm action={updateBusinessAction} className="card p-4">
-        <h2 className="font-bold">Business profile & branding</h2>
+        <h2 className="font-semibold">Business profile & branding</h2>
         <input type="hidden" name="businessId" value={id} />
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Logo" name="logo"><ImageUploader name="logoFileId" max={1} purpose="business_logo" initial={biz.logoFileId ? [{ id: biz.logoFileId, url: fileUrl(biz.logoFileId)! }] : []} /></Field>

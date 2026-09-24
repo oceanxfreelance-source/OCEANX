@@ -1,3 +1,4 @@
+import { Pencil } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
@@ -24,20 +25,20 @@ export default async function PreviewPage({ params }: { params: Promise<{ id: st
   return (
     <div className="mx-auto max-w-3xl space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Preview</h1>
-        <Link href={`/sell/${id}/edit`} className="btn-secondary btn-sm">✎ Edit</Link>
+        <h1 className="text-2xl font-semibold tracking-tight">Preview</h1>
+        <Link href={`/sell/${id}/edit`} className="btn-secondary btn-sm"><Pencil className="h-3.5 w-3.5" /> Edit</Link>
       </div>
       <p className="text-sm text-slate-600">This is how buyers will see your listing.</p>
       <div className="grid gap-4 md:grid-cols-2">
         <Gallery images={l.images.map((i) => fileUrl(i.fileId)!)} title={l.title} />
         <div className="card space-y-2 p-4">
           <p className="text-xs text-slate-500">{l.category.name}{l.subcategory ? ` › ${l.subcategory.name}` : ""}</p>
-          <h2 className="text-xl font-bold">{l.title}</h2>
-          <p className="text-2xl font-extrabold text-ocean-800">{formatMVR(l.price, { free: "Free" })} {l.negotiable && <span className="text-sm font-medium text-slate-500">· Negotiable</span>}</p>
+          <h2 className="text-xl font-semibold">{l.title}</h2>
+          <p className="text-2xl font-semibold tracking-tight text-ocean-800">{formatMVR(l.price, { free: "Free" })} {l.negotiable && <span className="text-sm font-medium text-slate-500">· Negotiable</span>}</p>
           <p className="text-sm">Condition: {CONDITIONS.find((c) => c.value === l.condition)?.label}</p>
-          <p className="text-sm">📍 {l.location ? `${l.location.name}, ` : ""}{l.island.name}, {l.atoll.name}{l.locationDetail ? ` — ${l.locationDetail}` : ""}</p>
-          {l.contactPhone && <p className="text-sm">📞 {l.contactPhone} {l.showPhone ? "" : "(hidden)"}</p>}
-          {l.business && <p className="text-sm">🏪 Posted as {l.business.name}</p>}
+          <p className="text-sm">Location: {l.location ? `${l.location.name}, ` : ""}{l.island.name}, {l.atoll.name}{l.locationDetail ? ` — ${l.locationDetail}` : ""}</p>
+          {l.contactPhone && <p className="text-sm">Phone: {l.contactPhone} {l.showPhone ? "" : "(hidden)"}</p>}
+          {l.business && <p className="text-sm">Posted as {l.business.name}</p>}
           <p className="whitespace-pre-line pt-2 text-sm text-slate-700">{l.description}</p>
         </div>
       </div>
@@ -47,12 +48,12 @@ export default async function PreviewPage({ params }: { params: Promise<{ id: st
           <p className="font-semibold text-emerald-700">No posting fee for this listing{quote.waivedReason === "business_plan" ? " — included in your business plan" : ""}. It will be published immediately.</p>
         ) : quote.isVipRate ? (
           <div>
-            <p className="text-lg font-bold">★ {settings.vip.badgeName} posting fee: {formatMVR(quote.amount)}</p>
+            <p className="text-lg font-semibold">{settings.vip.badgeName} posting fee: {formatMVR(quote.amount)}</p>
             <p className="text-sm text-slate-600">Normal posting fee: <span className="line-through">{formatMVR(quote.normalFee)}</span> — you save {quote.discountPercent}% as a {settings.vip.badgeName} seller.</p>
           </div>
         ) : (
           <div>
-            <p className="text-lg font-bold">Normal posting fee: {formatMVR(quote.amount)}</p>
+            <p className="text-lg font-semibold">Normal posting fee: {formatMVR(quote.amount)}</p>
             <p className="text-sm text-slate-600">One-time fee. No commission on your sale. {settings.vip.badgeName} sellers pay {formatMVR(quote.vipFee)}.</p>
           </div>
         )}

@@ -64,7 +64,7 @@ export async function joinGiveawayAction(_: ActionState, fd: FormData): Promise<
   return runAction(async () => {
     await joinGiveaway(str(fd, "giveawayId"), s.userId);
     revalidatePath("/giveaways");
-    return { message: "You're in! Good luck 🍀" };
+    return { message: "You're entered. Good luck!" };
   });
 }
 

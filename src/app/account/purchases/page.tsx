@@ -15,7 +15,7 @@ export default async function PurchasesPage() {
   const deals = await prisma.successfulDeal.findMany({ where: { buyerId: user.id }, orderBy: { createdAt: "desc" }, include: { listing: { select: { id: true, title: true } }, seller: { select: { name: true } } } });
   return (
     <div>
-      <h1 className="mb-1 text-2xl font-bold">Purchases</h1>
+      <h1 className="mb-1 text-2xl font-semibold tracking-tight">Purchases</h1>
       <p className="mb-4 text-sm text-slate-600">When a seller marks an item as sold to you, please confirm it. Honest confirmations keep seller ratings trustworthy.</p>
       {deals.length === 0 && <EmptyState title="No purchases yet" />}
       <ul className="space-y-3">

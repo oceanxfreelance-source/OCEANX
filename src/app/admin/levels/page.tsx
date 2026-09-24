@@ -10,7 +10,7 @@ function LevelForm({ l }: { l?: { id: string; name: string; slug: string; badge:
       <input type="hidden" name="id" value={l?.id ?? ""} />
       <div className="grid gap-2 sm:grid-cols-4">
         <input name="name" defaultValue={l?.name} required className="input" placeholder="Name" />
-        <input name="badge" defaultValue={l?.badge ?? "⭐"} className="input" placeholder="Badge emoji" />
+        <input name="badge" defaultValue={l?.badge ?? "*"} className="input" placeholder="Short badge" />
         <input name="color" type="color" defaultValue={l?.color ?? "#0e7490"} className="input h-11 p-1" aria-label="Colour" />
         <input name="sortOrder" type="number" defaultValue={l?.sortOrder ?? 0} className="input" placeholder="Order" />
         <label className="text-xs">Min Stars<input name="minStars" type="number" min={0} defaultValue={l?.minStars ?? 0} className="input" /></label>

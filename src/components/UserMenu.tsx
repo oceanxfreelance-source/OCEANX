@@ -26,18 +26,18 @@ export function UserMenu({ name, isAdmin }: { name: string; isAdmin: boolean }) 
   return (
     <div className="relative" ref={ref}>
       <button type="button" className="btn-ghost" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-haspopup="menu">
-        <span className="grid h-8 w-8 place-items-center rounded-full bg-ocean-100 text-sm font-bold text-ocean-800">{name.charAt(0).toUpperCase()}</span>
+        <span className="grid h-8 w-8 place-items-center rounded-full bg-slate-900 text-xs font-semibold text-white">{name.charAt(0).toUpperCase()}</span>
         <span className="hidden max-w-24 truncate lg:inline">{name}</span>
       </button>
       {open && (
-        <div role="menu" className="absolute right-0 mt-2 w-56 overflow-hidden rounded-2xl border border-slate-200 bg-white py-1 shadow-xl">
+        <div role="menu" className="absolute right-0 mt-2 w-60 overflow-hidden rounded-xl border border-slate-200 bg-white py-1.5 shadow-lg shadow-slate-900/5">
           {links.map(([href, label]) => (
-            <Link key={href} href={href} role="menuitem" className="block px-4 py-2.5 text-sm hover:bg-slate-50" onClick={() => setOpen(false)}>
+            <Link key={href} href={href} role="menuitem" className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-slate-900" onClick={() => setOpen(false)}>
               {label}
             </Link>
           ))}
           {isAdmin && (
-            <Link href="/admin" role="menuitem" className="block border-t border-slate-100 px-4 py-2.5 text-sm font-semibold text-ocean-700 hover:bg-slate-50" onClick={() => setOpen(false)}>
+            <Link href="/admin" role="menuitem" className="block border-t border-slate-100 px-4 py-2.5 text-sm font-medium text-ocean-700 hover:bg-slate-50" onClick={() => setOpen(false)}>
               Admin dashboard
             </Link>
           )}
