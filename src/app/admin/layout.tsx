@@ -47,7 +47,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </div>
         <nav className="no-scrollbar -mx-4 flex gap-1 overflow-x-auto px-4 lg:mx-0 lg:flex-col lg:gap-0.5 lg:px-0" aria-label="Admin">
           {NAV.filter((n) => hasPermission(permissions, n.perm)).map(({ href, label, Icon }) => (
-            <Link key={href} href={href} className="flex shrink-0 items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-white hover:text-slate-900 hover:shadow-sm">
+            <Link key={href} href={href} className="flex shrink-0 items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-surface hover:text-slate-900 hover:shadow-sm">
               <Icon className="h-4 w-4 text-slate-400" strokeWidth={1.75} />
               <span className="flex-1">{label}</span>
               {badge[href] ? <span className="rounded-full bg-coral-500 px-1.5 text-[11px] font-semibold text-white">{badge[href]}</span> : null}

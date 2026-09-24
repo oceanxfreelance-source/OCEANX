@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Bell, MessageSquare, Plus, Search } from "lucide-react";
 import { MobileHeaderSearch } from "./MobileHeaderSearch";
+import { ThemeToggle } from "./ThemeToggle";
 import { getSession } from "@/lib/auth/session";
 import { getSiteSettings } from "@/lib/site";
 import { prisma } from "@/lib/db";
@@ -26,7 +27,7 @@ export async function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/85 backdrop-blur-md">
+      <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-surface/85 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-4">
           <Logo name={settings.general.marketplaceName} tagline={settings.general.tagline} logoUrl={fileUrl(settings.general.logoFileId)} />
           <form action="/search" className="relative ml-4 hidden max-w-xl flex-1 md:block" role="search">
@@ -34,6 +35,7 @@ export async function Header() {
             <input name="q" type="search" placeholder="Search phones, vehicles, property…" className="input h-10 min-h-10 bg-slate-50 pl-9 shadow-none" aria-label="Search listings" />
           </form>
           <nav className="ml-auto flex items-center gap-1">
+            <ThemeToggle />
             <Link href="/search" className="btn-ghost hidden px-3 lg:inline-flex">Browse</Link>
             <Link href="/business" className="btn-ghost hidden px-3 lg:inline-flex">For business</Link>
             {user ? (

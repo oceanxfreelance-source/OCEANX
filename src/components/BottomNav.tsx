@@ -16,7 +16,7 @@ export function BottomNav({ signedIn, unread }: { signedIn: boolean; unread: num
     { href: signedIn ? "/account" : "/login", label: "Account", Icon: User },
   ];
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md md:hidden" aria-label="Main">
+    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-surface/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md md:hidden" aria-label="Main">
       <ul className="grid grid-cols-5">
         {items.map(({ href, label, Icon, accent, badge }) => {
           const active = href === "/" ? path === "/" : path.startsWith(href);

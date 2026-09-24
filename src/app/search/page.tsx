@@ -57,7 +57,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
             <Link
               key={c.slug || "all"}
               href={chipHref(c.slug)}
-              className={on ? "shrink-0 rounded-full bg-slate-900 px-3.5 py-1.5 text-sm font-medium text-white" : "shrink-0 rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-sm text-slate-700 hover:border-slate-300"}
+              className={on ? "shrink-0 rounded-full bg-ink px-3.5 py-1.5 text-sm font-medium text-white" : "shrink-0 rounded-full border border-slate-200 bg-surface px-3.5 py-1.5 text-sm text-slate-700 hover:border-line-strong"}
             >
               {c.name}
             </Link>

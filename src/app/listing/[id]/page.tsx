@@ -217,7 +217,7 @@ export default async function ListingPage({ params }: { params: Promise<{ id: st
       </aside>
 
       {!isOwner && publicVisible && !sold && (
-        <div className="fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-30 border-t border-slate-200 bg-white/95 px-4 py-2.5 backdrop-blur-md lg:hidden">
+        <div className="fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-30 border-t border-slate-200 bg-surface/95 px-4 py-2.5 backdrop-blur-md lg:hidden">
           <div className="flex items-center gap-2">
             <div className="min-w-0 flex-1">
               <p className="truncate text-xs text-slate-500">{l.title}</p>

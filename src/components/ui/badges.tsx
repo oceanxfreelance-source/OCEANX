@@ -3,7 +3,7 @@ import { BadgeCheck, Crown, Star } from "lucide-react";
 
 export function VipBadge({ label = "VIP", size = "sm" }: { label?: string; size?: "sm" | "md" }) {
   return (
-    <span className={clsx("chip bg-slate-900 text-gold-400 ring-1 ring-gold-500/40", size === "md" && "px-2.5 py-1 text-xs")} title="VIP seller">
+    <span className={clsx("chip bg-ink text-gold-400 ring-1 ring-gold-500/40", size === "md" && "px-2.5 py-1 text-xs")} title="VIP seller">
       <Crown className={size === "md" ? "h-3.5 w-3.5" : "h-3 w-3"} strokeWidth={2.25} /> {label}
     </span>
   );
@@ -20,7 +20,7 @@ export function StarsBadge({ stars }: { stars: number }) {
 export function LevelBadge({ level }: { level: { name: string; badge: string; color: string } | null | undefined }) {
   if (!level) return null;
   return (
-    <span className="chip bg-white text-slate-700 ring-1 ring-slate-200">
+    <span className="chip bg-surface text-slate-700 ring-1 ring-slate-200">
       <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: level.color }} />
       {level.name}
     </span>
@@ -28,7 +28,7 @@ export function LevelBadge({ level }: { level: { name: string; badge: string; co
 }
 
 export function SoldBadge() {
-  return <span className="chip bg-slate-900 text-white">Sold</span>;
+  return <span className="chip bg-ink text-white">Sold</span>;
 }
 
 export function VerifiedBadge() {
@@ -45,7 +45,7 @@ const tone = {
   success: "bg-emerald-50 text-emerald-700 ring-emerald-200",
   warn: "bg-amber-50 text-amber-800 ring-amber-200",
   danger: "bg-red-50 text-red-700 ring-red-200",
-  dark: "bg-slate-900 text-white ring-slate-900",
+  dark: "bg-ink text-white ring-ink",
   violet: "bg-violet-50 text-violet-700 ring-violet-200",
 };
 

@@ -4,7 +4,7 @@ import { formatDateTime } from "@/lib/dates";
 import { StatusBadge } from "@/components/ui/badges";
 import { ActionForm, SubmitButton } from "@/components/ui/form";
 import { PageTitle, Section } from "@/components/admin/ui";
-import { saveGiveawayAction, drawGiveawayAction } from "@/app/actions/admin";
+import { saveGiveawayAction, drawGiveawayAction, deleteGiveawayAction } from "@/app/actions/admin";
 
 type G = { id: string; title: string; description: string; prize: string; startsAt: Date; endsAt: Date; status: string; vipOnly: boolean; minStars: number; winnersCount: number };
 const dt = (d?: Date) => (d ? new Date(d.getTime() + 5 * 3600000).toISOString().slice(0, 16) : "");
@@ -54,7 +54,13 @@ export default async function AdminGiveawaysPage() {
               <SubmitButton className="btn-accent btn-sm" confirm="Draw winners now? This cannot be undone.">Draw {g.winnersCount} winner(s)</SubmitButton>
             </ActionForm>
           )}
-          <details><summary className="cursor-pointer text-sm text-ocean-700">Edit</summary><GiveawayForm g={g} /></details>
+          <div className="flex flex-wrap items-start gap-3">
+            <details className="min-w-0 flex-1"><summary className="cursor-pointer text-sm text-ocean-700">Edit</summary><GiveawayForm g={g} /></details>
+            <ActionForm action={deleteGiveawayAction}>
+              <input type="hidden" name="id" value={g.id} />
+              <SubmitButton className="btn-danger btn-sm" confirm={`Delete "${g.title}"${g._count.participants ? ` and its ${g._count.participants} entries` : ""}? This cannot be undone.`}>Delete</SubmitButton>
+            </ActionForm>
+          </div>
         </Section>
       ))}
     </>

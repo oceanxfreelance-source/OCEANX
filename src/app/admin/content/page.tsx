@@ -58,7 +58,7 @@ export default async function AdminContentPage() {
               <ActionForm action={deleteBannerAction}><input type="hidden" name="id" value={b.id} /><SubmitButton className="btn-ghost btn-sm text-red-600" confirm="Delete banner?">Delete</SubmitButton></ActionForm>
             </div>
           ))}
-          <div className="rounded-xl border border-dashed border-slate-300 p-3"><BannerForm /></div>
+          <div className="rounded-xl border border-dashed border-line-strong p-3"><BannerForm /></div>
         </div>
       </Section>
       {(["TERMS", "PRIVACY"] as const).map((t) => {

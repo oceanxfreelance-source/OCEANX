@@ -33,3 +33,11 @@ export async function drawWinners(giveawayId: string, adminId: string) {
   for (const w of winners) await notify(w, { type: "giveaway", title: "You won a giveaway", body: `Congratulations — you won "${g.title}" (${g.prize}). OceanX will contact you.`, link: "/giveaways" });
   return winners;
 }
+
+/** Permanently remove a giveaway and its entries (audited). */
+export async function deleteGiveaway(giveawayId: string, adminId: string) {
+  const g = await prisma.giveaway.findUnique({ where: { id: giveawayId }, include: { _count: { select: { participants: true } } } });
+  if (!g) throw new NotFoundError();
+  await prisma.giveaway.delete({ where: { id: giveawayId } });
+  await audit({ actorId: adminId, action: "giveaway.delete", entityType: "Giveaway", entityId: giveawayId, summary: `Deleted "${g.title}" (${g._count.participants} participants, status ${g.status})` });
+}

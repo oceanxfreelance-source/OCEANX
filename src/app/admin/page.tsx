@@ -56,7 +56,7 @@ export default async function AdminDashboard() {
                 {daily.map((d) => (
                   <div key={d.day} className="group relative flex-1">
                     <div className="rounded-t bg-ocean-600" style={{ height: `${Math.max(2, (d.amount / max) * 120)}px` }} />
-                    <span className="pointer-events-none absolute bottom-full left-1/2 z-10 hidden -translate-x-1/2 whitespace-nowrap rounded bg-slate-900 px-2 py-1 text-xs text-white group-hover:block">
+                    <span className="pointer-events-none absolute bottom-full left-1/2 z-10 hidden -translate-x-1/2 whitespace-nowrap rounded bg-ink px-2 py-1 text-xs text-white group-hover:block">
                       {d.day}: {formatMVR(d.amount)}
                     </span>
                   </div>

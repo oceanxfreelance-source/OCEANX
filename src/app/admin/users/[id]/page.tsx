@@ -42,7 +42,7 @@ export default async function AdminUserPage({ params }: { params: Promise<{ id: 
       <PageTitle title={u.name}>
         <div className="flex gap-2">
           <StatusBadge status={u.status} />
-          {u.adminRole && <span className="chip bg-slate-900 text-white">{u.adminRole.name}</span>}
+          {u.adminRole && <span className="chip bg-ink text-white">{u.adminRole.name}</span>}
         </div>
       </PageTitle>
       <Section title="Account">

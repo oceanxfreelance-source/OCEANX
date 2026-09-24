@@ -45,7 +45,7 @@ export default async function AccountPage() {
     <div className="space-y-5">
       <div className="card flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
-          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-slate-900 text-lg font-semibold text-white">{user.name.charAt(0).toUpperCase()}</span>
+          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-ink text-lg font-semibold text-white">{user.name.charAt(0).toUpperCase()}</span>
           <div>
             <h1 className="text-xl font-semibold tracking-tight">Hi, {user.name.split(" ")[0]}</h1>
             <div className="mt-1.5 flex flex-wrap gap-1.5">
@@ -75,7 +75,7 @@ export default async function AccountPage() {
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
         {tiles.map(({ href, Icon, label, sub }) => (
-          <Link key={href} href={href} className="card group flex items-center gap-3 p-4 transition hover:border-slate-300 hover:shadow-md hover:shadow-slate-900/5">
+          <Link key={href} href={href} className="card group flex items-center gap-3 p-4 transition hover:border-line-strong hover:shadow-md hover:shadow-slate-900/5">
             <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-slate-100 text-slate-700 transition group-hover:bg-ocean-50 group-hover:text-ocean-700">
               <Icon className="h-5 w-5" strokeWidth={1.75} />
             </span>
@@ -101,7 +101,7 @@ export default async function AccountPage() {
         ))}
       </div>
 
-      <Link href="/account/business" className="flex items-center justify-between gap-3 rounded-xl border border-dashed border-slate-300 px-4 py-3 text-sm text-slate-600 hover:border-slate-400 hover:text-slate-900">
+      <Link href="/account/business" className="flex items-center justify-between gap-3 rounded-xl border border-dashed border-line-strong px-4 py-3 text-sm text-slate-600 hover:border-slate-400 hover:text-slate-900">
         <span className="flex items-center gap-2"><Bookmark className="h-4 w-4" /> Run a shop? Set up a business storefront</span>
         <ChevronRight className="h-4 w-4" />
       </Link>

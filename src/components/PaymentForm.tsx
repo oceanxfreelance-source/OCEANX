@@ -6,7 +6,7 @@ import { submitSlipAction } from "@/app/actions/sell";
 
 export function BankDetails({ payment, amount }: { payment: Settings["payment"]; amount: number }) {
   return (
-    <div className="rounded-2xl bg-slate-900 p-4 text-white">
+    <div className="rounded-2xl bg-ink p-4 text-white">
       <p className="text-xs uppercase tracking-wider text-slate-400">Transfer exactly</p>
       <p className="text-3xl font-semibold tracking-tight">{formatMVR(amount)}</p>
       <dl className="mt-3 grid gap-1 text-sm">

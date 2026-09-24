@@ -28,7 +28,7 @@ export default async function GiveawaysPage() {
           const won = joined && g.participants[0].isWinner;
           const open = g.status === "ACTIVE" && g.startsAt <= now && g.endsAt > now;
           return (
-            <div key={g.id} className="card overflow-hidden">
+            <div key={g.id} id={`g-${g.id}`} className="card scroll-mt-24 overflow-hidden">
               {g.imageFileId && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={fileUrl(g.imageFileId)!} alt="" className="h-40 w-full object-cover" />

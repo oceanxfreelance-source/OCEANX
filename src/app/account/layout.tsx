@@ -28,7 +28,7 @@ export default async function AccountLayout({ children }: { children: React.Reac
     <div className="grid gap-4 md:grid-cols-[200px_1fr]">
       <nav className="no-scrollbar -mx-4 flex gap-1 overflow-x-auto px-4 md:mx-0 md:flex-col md:px-0" aria-label="Account">
         {NAV.map(([href, label]) => (
-          <Link key={href} href={href} className="shrink-0 rounded-xl px-3 py-2 text-sm font-medium text-slate-700 hover:bg-white hover:shadow-sm">
+          <Link key={href} href={href} className="shrink-0 rounded-xl px-3 py-2 text-sm font-medium text-slate-700 hover:bg-surface hover:shadow-sm">
             {label}
           </Link>
         ))}

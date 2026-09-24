@@ -8,9 +8,9 @@ export function Logo({ name, tagline, logoUrl, inverted = false }: { name: strin
         <img src={logoUrl} alt="" className="h-8 w-8 rounded-lg object-cover" />
       ) : (
         <svg viewBox="0 0 32 32" className="h-8 w-8" aria-hidden>
-          <rect width="32" height="32" rx="8" className={inverted ? "fill-white" : "fill-slate-900"} />
+          <rect width="32" height="32" rx="8" className={inverted ? "fill-white" : "fill-ink"} />
           <path d="M7 21.5c2.2-1.6 4.3-1.6 6.5 0s4.3 1.6 6.5 0 4.3-1.6 6.5 0" fill="none" strokeWidth="2" strokeLinecap="round" className={inverted ? "stroke-ocean-600" : "stroke-ocean-300"} />
-          <path d="M9 17V10l4 4.5 4-4.5v7m3-7 3 7 3-7" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={inverted ? "stroke-slate-900" : "stroke-white"} />
+          <path d="M9 17V10l4 4.5 4-4.5v7m3-7 3 7 3-7" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={inverted ? "stroke-ink" : "stroke-white"} />
         </svg>
       )}
       <span className="leading-none">

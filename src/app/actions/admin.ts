@@ -25,7 +25,7 @@ import { adminReviewDeal } from "@/lib/services/deals";
 import { adminResolveCancellation } from "@/lib/services/cancellations";
 import { createOrUpdatePool, calculatePool, adjustAllocation, approvePool, recordRewardPayment, setAllocationWithheld } from "@/lib/services/rewards";
 import { adminSetBusinessVerified, adminSetBusinessStatus } from "@/lib/services/business";
-import { drawWinners } from "@/lib/services/giveaways";
+import { drawWinners, deleteGiveaway } from "@/lib/services/giveaways";
 import { adminSetReferralStatus } from "@/lib/services/referrals";
 
 async function uploadAdminImage(fd: FormData, key: string, purpose: string, ownerId: string, maxSize = 1600): Promise<string | undefined> {
@@ -494,6 +494,17 @@ export async function drawGiveawayAction(_: ActionState, fd: FormData): Promise<
     const winners = await drawWinners(str(fd, "id"), user.id);
     revalidatePath("/admin/giveaways");
     return { message: `Drew ${winners.length} winner(s).` };
+  });
+}
+
+export async function deleteGiveawayAction(_: ActionState, fd: FormData): Promise<ActionState> {
+  return runAction(async () => {
+    const { user } = await requireAdmin("giveaways");
+    await deleteGiveaway(str(fd, "id"), user.id);
+    revalidatePath("/admin/giveaways");
+    revalidatePath("/giveaways");
+    revalidatePath("/");
+    return { message: "Giveaway deleted." };
   });
 }
 

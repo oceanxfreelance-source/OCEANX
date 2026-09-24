@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, BadgePercent, Crown, ShieldCheck, Star, Target } from "lucide-react";
 import { BannerCarousel } from "@/components/BannerCarousel";
+import { GiveawayPromo } from "@/components/GiveawayPromo";
 import { prisma } from "@/lib/db";
 import { getActiveCategories, getSiteSettings } from "@/lib/site";
 import { listingCardSelect } from "@/lib/services/listings";
@@ -29,7 +30,7 @@ function SectionHeader({ title, href, action }: { title: string; href?: string; 
 export default async function HomePage() {
   const settings = await getSiteSettings();
   const now = new Date();
-  const [categories, banners, featured, recent, totalListings] = await Promise.all([
+  const [categories, banners, featured, recent, totalListings, giveaways] = await Promise.all([
     getActiveCategories(),
     prisma.banner.findMany({
       where: { isActive: true, AND: [{ OR: [{ startsAt: null }, { startsAt: { lte: now } }] }, { OR: [{ endsAt: null }, { endsAt: { gt: now } }] }] },
@@ -41,6 +42,7 @@ export default async function HomePage() {
       : [],
     prisma.listing.findMany({ where: { status: "PUBLISHED", seller: { status: "ACTIVE" } }, orderBy: { publishedAt: "desc" }, take: settings.homepage.recentCount, select: listingCardSelect }),
     prisma.listing.count({ where: { status: "PUBLISHED", seller: { status: "ACTIVE" } } }),
+    prisma.giveaway.findMany({ where: { status: "ACTIVE", startsAt: { lte: now }, endsAt: { gt: now } }, orderBy: { endsAt: "asc" }, select: { id: true, title: true, prize: true, endsAt: true, imageFileId: true } }),
   ]);
 
   return (
@@ -60,10 +62,17 @@ export default async function HomePage() {
           ],
         }}
       />
+
+      {giveaways.length > 0 && (
+        <GiveawayPromo
+          g={{ id: giveaways[0].id, title: giveaways[0].title, prize: giveaways[0].prize, endsAt: giveaways[0].endsAt.toISOString(), image: giveaways[0].imageFileId ? fileUrl(giveaways[0].imageFileId) : null }}
+          more={giveaways.length - 1}
+        />
+      )}
+
       {settings.homepage.announcement && (
         <div className="rounded-lg border border-ocean-200 bg-ocean-50 px-4 py-2.5 text-sm text-ocean-900">{settings.homepage.announcement}</div>
       )}
-
       {banners.length > 0 && <h1 className="sr-only">{settings.general.marketplaceName} — {settings.homepage.heroTitle}</h1>}
       {banners.length > 0 ? (
         <BannerCarousel
@@ -115,7 +124,7 @@ export default async function HomePage() {
           <SectionHeader title="Browse by category" href="/categories" action="All" />
           <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:grid sm:grid-cols-4 sm:px-0 lg:grid-cols-7">
             {categories.map((c) => (
-              <Link key={c.id} href={`/search?category=${c.slug}`} className="group flex w-24 shrink-0 flex-col items-center gap-2 rounded-xl border border-slate-200/80 bg-white px-2 py-3 text-center transition hover:border-ocean-300 hover:shadow-sm sm:w-auto sm:py-4">
+              <Link key={c.id} href={`/search?category=${c.slug}`} className="group flex w-24 shrink-0 flex-col items-center gap-2 rounded-xl border border-slate-200/80 bg-surface px-2 py-3 text-center transition hover:border-ocean-300 hover:shadow-sm sm:w-auto sm:py-4">
                 {c.imageFileId ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={fileUrl(c.imageFileId)!} alt="" className="h-10 w-10 rounded-lg object-cover" />
@@ -132,7 +141,7 @@ export default async function HomePage() {
       )}
 
       {settings.homepage.showAbout && (settings.homepage.aboutText || settings.homepage.aboutAim) && (
-        <section id="about" className="scroll-mt-24 overflow-hidden rounded-2xl border border-slate-200/80 bg-white">
+        <section id="about" className="scroll-mt-24 overflow-hidden rounded-2xl border border-slate-200/80 bg-surface">
           <div className="grid gap-0 lg:grid-cols-[1.2fr_1fr]">
             <div className="p-6 sm:p-10">
               <p className="eyebrow text-ocean-700">About us</p>
@@ -147,7 +156,7 @@ export default async function HomePage() {
                     <Target className="h-5 w-5" strokeWidth={1.75} />
                   </span>
                   <p className="mt-4 text-sm font-semibold uppercase tracking-[0.12em] text-ocean-200">Our aim</p>
-                  <p className="mt-2 whitespace-pre-line leading-relaxed text-slate-200">{settings.homepage.aboutAim}</p>
+                  <p className="mt-2 whitespace-pre-line leading-relaxed text-white/85">{settings.homepage.aboutAim}</p>
                 </div>
               </div>
             )}
@@ -162,7 +171,7 @@ export default async function HomePage() {
           { Icon: Star, t: "Reputation that counts", d: "Stars come only from genuine, buyer-confirmed sales." },
           { Icon: Crown, t: `${settings.vip.badgeName} sellers`, d: "Top sellers enjoy reduced fees and share in monthly rewards." },
         ].map(({ Icon, t, d }) => (
-          <div key={t} className="bg-white p-5">
+          <div key={t} className="bg-surface p-5">
             <Icon className="h-5 w-5 text-ocean-600" strokeWidth={1.75} />
             <p className="mt-3 font-medium text-slate-900">{t}</p>
             <p className="mt-1 text-sm leading-relaxed text-slate-500">{d}</p>
@@ -170,7 +179,7 @@ export default async function HomePage() {
         ))}
       </section>
 
-      <section className="hidden flex-col items-start justify-between gap-4 rounded-2xl sm:flex border border-slate-200 bg-white p-6 sm:flex-row sm:items-center sm:p-8">
+      <section className="hidden flex-col items-start justify-between gap-4 rounded-2xl sm:flex border border-slate-200 bg-surface p-6 sm:flex-row sm:items-center sm:p-8">
         <div>
           <h2 className="text-xl font-semibold tracking-tight text-slate-900">Have something to sell?</h2>
           <p className="mt-1 text-sm text-slate-500">List it in minutes and reach buyers on every atoll.</p>

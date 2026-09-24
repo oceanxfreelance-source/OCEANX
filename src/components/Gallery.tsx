@@ -13,10 +13,10 @@ export function Gallery({ images, title }: { images: string[]; title: string }) 
         <img src={images[i]} alt={`${title} photo ${i + 1}`} className="h-full w-full object-contain" />
         {images.length > 1 && (
           <>
-            <button type="button" aria-label="Previous photo" onClick={() => setI((i - 1 + images.length) % images.length)} className="absolute left-2 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-xl shadow">
+            <button type="button" aria-label="Previous photo" onClick={() => setI((i - 1 + images.length) % images.length)} className="absolute left-2 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-surface/90 text-xl shadow">
               ‹
             </button>
-            <button type="button" aria-label="Next photo" onClick={() => setI((i + 1) % images.length)} className="absolute right-2 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-xl shadow">
+            <button type="button" aria-label="Next photo" onClick={() => setI((i + 1) % images.length)} className="absolute right-2 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-surface/90 text-xl shadow">
               ›
             </button>
             <span className="absolute bottom-2 right-2 rounded-full bg-black/60 px-2 py-0.5 text-xs text-white">

@@ -13,7 +13,7 @@ export function ListingCard({ l, vipLabel = "VIP" }: { l: ListingCardData; vipLa
   const vip = isVipActiveRecord(l.seller.vipStatus);
   const featured = l.featuredUntil && l.featuredUntil > new Date();
   return (
-    <Link href={`/listing/${l.id}`} className="group block overflow-hidden rounded-xl border border-slate-200/80 bg-white transition hover:border-slate-300 hover:shadow-md hover:shadow-slate-900/5">
+    <Link href={`/listing/${l.id}`} className="group block overflow-hidden rounded-xl border border-slate-200/80 bg-surface transition hover:border-line-strong hover:shadow-md hover:shadow-slate-900/5">
       <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
         {img ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -23,7 +23,7 @@ export function ListingCard({ l, vipLabel = "VIP" }: { l: ListingCardData; vipLa
         )}
         <div className="absolute left-2 top-2 flex flex-wrap gap-1">
           {l.status === "SOLD" && <SoldBadge />}
-          {featured && <span className="chip bg-white/95 text-slate-900 shadow-sm">Featured</span>}
+          {featured && <span className="chip bg-surface/95 text-slate-900 shadow-sm">Featured</span>}
         </div>
         {vip && (
           <div className="absolute right-2 top-2">
@@ -55,7 +55,7 @@ export function ListingGrid({ items, vipLabel }: { items: ListingCardData[]; vip
 
 export function EmptyState({ title, children }: { title: string; children?: React.ReactNode }) {
   return (
-    <div className="grid place-items-center gap-1.5 rounded-xl border border-dashed border-slate-300 bg-white px-6 py-14 text-center">
+    <div className="grid place-items-center gap-1.5 rounded-xl border border-dashed border-line-strong bg-surface px-6 py-14 text-center">
       <p className="font-medium text-slate-900">{title}</p>
       {children && <div className="text-sm text-slate-500">{children}</div>}
     </div>

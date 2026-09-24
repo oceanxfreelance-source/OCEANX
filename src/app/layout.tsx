@@ -3,6 +3,7 @@ import "./globals.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { IntroSplash } from "@/components/IntroSplash";
+import { themeInitScript } from "@/components/ThemeToggle";
 import { fileUrl } from "@/lib/storage";
 import { getSiteSettings } from "@/lib/site";
 import { env } from "@/lib/env";
@@ -40,7 +41,10 @@ export const viewport: Viewport = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const s = await getSiteSettings();
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body className="min-h-screen antialiased">
         {s.homepage.introAnimation && (
           <IntroSplash name={s.general.marketplaceName} tagline={s.general.tagline} logoUrl={s.general.logoFileId ? fileUrl(s.general.logoFileId) : null} />

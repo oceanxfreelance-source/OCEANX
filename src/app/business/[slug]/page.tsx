@@ -34,7 +34,7 @@ export default async function BusinessPage({ params }: { params: Promise<{ slug:
           )}
         </div>
         <div className="flex flex-col gap-3 p-5 sm:flex-row sm:items-end">
-          <div className="-mt-14 h-20 w-20 shrink-0 overflow-hidden rounded-2xl border-4 border-white bg-white shadow">
+          <div className="-mt-14 h-20 w-20 shrink-0 overflow-hidden rounded-2xl border-4 border-white bg-surface shadow">
             {biz.logoFileId ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={fileUrl(biz.logoFileId)!} alt="" className="h-full w-full object-cover" />
