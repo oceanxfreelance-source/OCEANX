@@ -1,0 +1,1109 @@
+// MV MARKETS by OceanX — relational data model.
+// Money is stored as integer laari (1 MVR = 100 laari) to avoid floating point errors.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ───────────────────────────── Users & auth ─────────────────────────────
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  BANNED
+}
+
+model User {
+  id                String     @id @default(cuid())
+  email             String     @unique
+  phone             String?    @unique
+  passwordHash      String
+  name              String
+  status            UserStatus @default(ACTIVE)
+  suspendedReason   String?
+  suspendedUntil    DateTime?
+  emailVerifiedAt   DateTime?
+  phoneVerifiedAt   DateTime?
+  referralCode      String     @unique
+  referredById      String?
+  signupIpHash      String?
+  adminRoleId       String?
+  failedLoginCount  Int        @default(0)
+  lockedUntil       DateTime?
+  lastLoginAt       DateTime?
+  lastActiveAt      DateTime?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  referredBy        User?          @relation("UserReferrals", fields: [referredById], references: [id], onDelete: SetNull)
+  referredUsers     User[]         @relation("UserReferrals")
+  adminRole         AdminRole?     @relation(fields: [adminRoleId], references: [id], onDelete: SetNull)
+  profile           Profile?
+  sessions          Session[]
+  otpCodes          OtpCode[]
+  listings          Listing[]
+  savedListings     SavedListing[]
+  buyerConversations  Conversation[] @relation("BuyerConversations")
+  sellerConversations Conversation[] @relation("SellerConversations")
+  messages          Message[]
+  payments          Payment[]      @relation("PaymentUser")
+  reviewedPayments  Payment[]      @relation("PaymentReviewer")
+  businesses        Business[]
+  sellerStats       SellerStatistics?
+  starAdjustments   StarAdjustment[] @relation("StarAdjustmentUser")
+  starAdjustmentsMade StarAdjustment[] @relation("StarAdjustmentActor")
+  vipStatus         VipStatus?
+  vipHistory        VipHistory[]   @relation("VipHistoryUser")
+  vipHistoryActions VipHistory[]   @relation("VipHistoryActor")
+  dealsAsSeller     SuccessfulDeal[] @relation("DealSeller")
+  dealsAsBuyer      SuccessfulDeal[] @relation("DealBuyer")
+  rewardAllocations VipRewardAllocation[]
+  cancellations     CancellationRecord[] @relation("CancellationSeller")
+  cancellationOverrides CancellationRecord[] @relation("CancellationAdmin")
+  giveawayEntries   GiveawayParticipant[]
+  reportsMade       Report[]       @relation("ReportReporter")
+  reportsAgainst    Report[]       @relation("ReportTargetUser")
+  reportsHandled    Report[]       @relation("ReportHandler")
+  notifications     Notification[]
+  termsAcceptances  TermsAcceptance[]
+  auditLogs         AuditLog[]
+  referralsMade     Referral[]     @relation("ReferralReferrer")
+  referralReceived  Referral?      @relation("ReferralReferred")
+  uploadedFiles     StoredFile[]
+
+  @@index([status])
+  @@index([createdAt])
+  @@index([adminRoleId])
+}
+
+model Profile {
+  userId        String   @id
+  displayName   String?
+  bio           String?
+  avatarFileId  String?
+  whatsapp      String?
+  showPhone     Boolean  @default(true)
+  atollId       String?
+  islandId      String?
+  notifyByEmail Boolean  @default(true)
+  updatedAt     DateTime @updatedAt
+
+  user    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  avatar  StoredFile? @relation("ProfileAvatar", fields: [avatarFileId], references: [id], onDelete: SetNull)
+  atoll   Atoll?      @relation(fields: [atollId], references: [id], onDelete: SetNull)
+  island  Island?     @relation(fields: [islandId], references: [id], onDelete: SetNull)
+}
+
+model Session {
+  id            String   @id // sha256 of the raw cookie token
+  userId        String
+  mfaVerified   Boolean  @default(false)
+  ipHash        String?
+  userAgent     String?
+  createdAt     DateTime @default(now())
+  lastSeenAt    DateTime @default(now())
+  expiresAt     DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+enum OtpPurpose {
+  VERIFY_EMAIL
+  VERIFY_PHONE
+  ADMIN_LOGIN
+  PASSWORD_RESET
+}
+
+enum OtpChannel {
+  EMAIL
+  SMS
+}
+
+model OtpCode {
+  id          String     @id @default(cuid())
+  userId      String?
+  target      String
+  channel     OtpChannel
+  purpose     OtpPurpose
+  codeHash    String
+  attempts    Int        @default(0)
+  expiresAt   DateTime
+  consumedAt  DateTime?
+  createdAt   DateTime   @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([target, purpose, createdAt])
+  @@index([userId])
+}
+
+model RateLimit {
+  key       String   @id
+  count     Int
+  resetAt   DateTime
+
+  @@index([resetAt])
+}
+
+// ───────────────────────────── Admin ─────────────────────────────
+
+model AdminRole {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  permissions String[]
+  isSystem    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  users User[]
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  action     String
+  entityType String
+  entityId   String?
+  summary    String
+  metadata   Json?
+  ipHash     String?
+  createdAt  DateTime @default(now())
+
+  actor User? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([entityType, entityId])
+  @@index([actorId])
+  @@index([createdAt])
+  @@index([action])
+}
+
+model SiteSetting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+}
+
+// ───────────────────────────── Files ─────────────────────────────
+
+enum FileVisibility {
+  PUBLIC
+  PRIVATE
+}
+
+model StoredFile {
+  id          String         @id @default(cuid())
+  ownerId     String?
+  visibility  FileVisibility
+  purpose     String // listing_image | payment_slip | category_image | logo | banner | avatar | business_logo | giveaway
+  mimeType    String
+  size        Int
+  width       Int?
+  height      Int?
+  sha256      String
+  storageKey  String?        // set when stored in external object storage
+  data        Bytes?         // set when stored in the database driver
+  createdAt   DateTime       @default(now())
+
+  owner            User?          @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  listingImages    ListingImage[]
+  paymentSlips     PaymentSlip[]
+  categories       Category[]
+  subcategories    Subcategory[]
+  banners          Banner[]
+  businessLogos    Business[]     @relation("BusinessLogo")
+  businessBanners  Business[]     @relation("BusinessBanner")
+  giveaways        Giveaway[]
+  avatars          Profile[]      @relation("ProfileAvatar")
+
+  @@index([sha256])
+  @@index([ownerId])
+}
+
+// ───────────────────────────── Catalog ─────────────────────────────
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  icon        String?
+  imageFileId String?
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  image         StoredFile?   @relation(fields: [imageFileId], references: [id], onDelete: SetNull)
+  subcategories Subcategory[]
+  listings      Listing[]
+
+  @@index([isActive, sortOrder])
+}
+
+model Subcategory {
+  id          String   @id @default(cuid())
+  categoryId  String
+  name        String
+  slug        String
+  imageFileId String?
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  category Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  image    StoredFile? @relation(fields: [imageFileId], references: [id], onDelete: SetNull)
+  listings Listing[]
+
+  @@unique([categoryId, slug])
+  @@index([categoryId, isActive, sortOrder])
+}
+
+model Atoll {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  name      String
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  islands  Island[]
+  listings Listing[]
+  profiles Profile[]
+
+  @@index([isActive, sortOrder])
+}
+
+model Island {
+  id        String   @id @default(cuid())
+  atollId   String
+  name      String
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  atoll      Atoll      @relation(fields: [atollId], references: [id], onDelete: Cascade)
+  locations  Location[]
+  listings   Listing[]
+  profiles   Profile[]
+  businesses Business[]
+
+  @@unique([atollId, name])
+  @@index([atollId, isActive, sortOrder])
+}
+
+model Location {
+  id        String   @id @default(cuid())
+  islandId  String
+  name      String
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  island   Island    @relation(fields: [islandId], references: [id], onDelete: Cascade)
+  listings Listing[]
+
+  @@unique([islandId, name])
+  @@index([islandId, isActive, sortOrder])
+}
+
+// ───────────────────────────── Listings ─────────────────────────────
+
+enum ListingStatus {
+  DRAFT
+  PENDING_PAYMENT
+  PAYMENT_REVIEW
+  PUBLISHED
+  SOLD
+  WITHDRAWN
+  REMOVED
+  REJECTED
+}
+
+enum ItemCondition {
+  NEW
+  LIKE_NEW
+  GOOD
+  FAIR
+  FOR_PARTS
+  NOT_APPLICABLE
+}
+
+model Listing {
+  id              String        @id @default(cuid())
+  sellerId        String
+  businessId      String?
+  title           String
+  description     String
+  price           Int // laari
+  negotiable      Boolean       @default(false)
+  condition       ItemCondition
+  categoryId      String
+  subcategoryId   String?
+  atollId         String
+  islandId        String
+  locationId      String?
+  locationDetail  String?
+  contactPhone    String?
+  contactWhatsapp String?
+  contactEmail    String?
+  showPhone       Boolean       @default(true)
+  status          ListingStatus @default(DRAFT)
+  contentHash     String
+  feeAmount       Int? // posting fee charged at submission (laari)
+  feeIsVipRate    Boolean       @default(false)
+  feeWaivedReason String?
+  viewCount       Int           @default(0)
+  featuredUntil   DateTime?
+  submittedAt     DateTime?
+  publishedAt     DateTime?
+  soldAt          DateTime?
+  withdrawnAt     DateTime?
+  removedAt       DateTime?
+  removedReason   String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  seller        User                 @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  business      Business?            @relation(fields: [businessId], references: [id], onDelete: SetNull)
+  category      Category             @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  subcategory   Subcategory?         @relation(fields: [subcategoryId], references: [id], onDelete: SetNull)
+  atoll         Atoll                @relation(fields: [atollId], references: [id], onDelete: Restrict)
+  island        Island               @relation(fields: [islandId], references: [id], onDelete: Restrict)
+  location      Location?            @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  images        ListingImage[]
+  savedBy       SavedListing[]
+  conversations Conversation[]
+  payments      Payment[]
+  deal          SuccessfulDeal?
+  cancellation  CancellationRecord?
+  reports       Report[]
+
+  @@index([status, publishedAt])
+  @@index([sellerId, status])
+  @@index([categoryId, status])
+  @@index([subcategoryId, status])
+  @@index([atollId, islandId, status])
+  @@index([price])
+  @@index([contentHash])
+  @@index([businessId])
+}
+
+model ListingImage {
+  id        String   @id @default(cuid())
+  listingId String
+  fileId    String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  listing Listing    @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  file    StoredFile @relation(fields: [fileId], references: [id], onDelete: Cascade)
+
+  @@index([listingId, sortOrder])
+}
+
+model SavedListing {
+  userId    String
+  listingId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@id([userId, listingId])
+  @@index([listingId])
+}
+
+// ───────────────────────────── Messaging ─────────────────────────────
+
+model Conversation {
+  id            String   @id @default(cuid())
+  listingId     String?
+  buyerId       String
+  sellerId      String
+  lastMessageAt DateTime @default(now())
+  createdAt     DateTime @default(now())
+
+  listing  Listing?  @relation(fields: [listingId], references: [id], onDelete: SetNull)
+  buyer    User      @relation("BuyerConversations", fields: [buyerId], references: [id], onDelete: Cascade)
+  seller   User      @relation("SellerConversations", fields: [sellerId], references: [id], onDelete: Cascade)
+  messages Message[]
+
+  @@unique([listingId, buyerId])
+  @@index([buyerId, lastMessageAt])
+  @@index([sellerId, lastMessageAt])
+}
+
+model Message {
+  id             String    @id @default(cuid())
+  conversationId String
+  senderId       String
+  body           String
+  readAt         DateTime?
+  createdAt      DateTime  @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+  @@index([senderId, createdAt])
+}
+
+// ───────────────────────────── Payments ─────────────────────────────
+
+enum PaymentPurpose {
+  LISTING_FEE
+  CANCELLATION_FINE
+  BUSINESS_SUBSCRIPTION
+}
+
+enum PaymentStatus {
+  PENDING
+  AI_CHECKING
+  VERIFIED
+  NEEDS_REVIEW
+  REJECTED
+  REFUNDED
+  CANCELLED
+}
+
+model Payment {
+  id                 String         @id @default(cuid())
+  userId             String
+  purpose            PaymentPurpose
+  status             PaymentStatus  @default(AI_CHECKING)
+  amount             Int // expected amount (laari)
+  isVipRate          Boolean        @default(false)
+  listingId          String?
+  cancellationFineId String?        @unique
+  subscriptionId     String?        @unique
+  referenceNumber    String?
+  referenceNormalized String?
+  paidAt             DateTime?
+  payerName          String?
+  payerAccount       String?
+  bankName           String?
+  userNote           String?
+  flags              String[]
+  reviewedById       String?
+  reviewedAt         DateTime?
+  reviewNote         String?
+  rejectionReason    String?
+  refundedAt         DateTime?
+  refundNote         String?
+  verifiedAt         DateTime?
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+
+  user             User                 @relation("PaymentUser", fields: [userId], references: [id], onDelete: Cascade)
+  reviewedBy       User?                @relation("PaymentReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+  listing          Listing?             @relation(fields: [listingId], references: [id], onDelete: SetNull)
+  cancellationFine CancellationFine?    @relation(fields: [cancellationFineId], references: [id], onDelete: SetNull)
+  subscription     BusinessSubscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+  slips            PaymentSlip[]
+  aiVerifications  AiVerification[]
+
+  @@index([status, createdAt])
+  @@index([userId, createdAt])
+  @@index([purpose, status])
+  @@index([referenceNormalized])
+  @@index([listingId])
+  @@index([verifiedAt])
+}
+
+model PaymentSlip {
+  id         String   @id @default(cuid())
+  paymentId  String
+  fileId     String
+  sha256     String
+  perceptualHash String?
+  createdAt  DateTime @default(now())
+
+  payment Payment    @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  file    StoredFile @relation(fields: [fileId], references: [id], onDelete: Cascade)
+
+  @@index([sha256])
+  @@index([paymentId])
+}
+
+enum AiVerificationStatus {
+  PASSED
+  FLAGGED
+  UNAVAILABLE
+  ERROR
+}
+
+model AiVerification {
+  id                 String               @id @default(cuid())
+  paymentId          String
+  provider           String
+  model              String?
+  status             AiVerificationStatus
+  confidence         Float?
+  extractedAmount    Int?
+  extractedReference String?
+  extractedDate      String?
+  extractedAccount   String?
+  extractedPayer     String?
+  checks             Json
+  summary            String
+  createdAt          DateTime             @default(now())
+
+  payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  @@index([paymentId])
+}
+
+// ───────────────────────────── Businesses ─────────────────────────────
+
+enum BusinessStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+model Business {
+  id            String         @id @default(cuid())
+  ownerId       String
+  name          String
+  slug          String         @unique
+  description   String?
+  phone         String?
+  email         String?
+  website       String?
+  address       String?
+  islandId      String?
+  logoFileId    String?
+  bannerFileId  String?
+  brandColor    String?
+  verified      Boolean        @default(false)
+  verifiedAt    DateTime?
+  status        BusinessStatus @default(ACTIVE)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  owner         User                   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  island        Island?                @relation(fields: [islandId], references: [id], onDelete: SetNull)
+  logo          StoredFile?            @relation("BusinessLogo", fields: [logoFileId], references: [id], onDelete: SetNull)
+  banner        StoredFile?            @relation("BusinessBanner", fields: [bannerFileId], references: [id], onDelete: SetNull)
+  listings      Listing[]
+  subscriptions BusinessSubscription[]
+
+  @@index([ownerId])
+}
+
+model SubscriptionPlan {
+  id                  String   @id @default(cuid())
+  name                String
+  description         String?
+  price               Int // laari per period
+  durationDays        Int
+  freeListingsPerPeriod Int    @default(0)
+  featuredSlots       Int      @default(0)
+  features            String[]
+  isActive            Boolean  @default(true)
+  sortOrder           Int      @default(0)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  subscriptions BusinessSubscription[]
+}
+
+enum SubscriptionStatus {
+  PENDING_PAYMENT
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+model BusinessSubscription {
+  id          String             @id @default(cuid())
+  businessId  String
+  planId      String
+  status      SubscriptionStatus @default(PENDING_PAYMENT)
+  price       Int
+  startsAt    DateTime?
+  endsAt      DateTime?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  business Business         @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  plan     SubscriptionPlan @relation(fields: [planId], references: [id], onDelete: Restrict)
+  payment  Payment?
+
+  @@index([businessId, status])
+  @@index([status, endsAt])
+}
+
+// ───────────────────────────── Reputation: deals, stars, levels ─────────────────────────────
+
+enum DealStatus {
+  PENDING_CONFIRMATION
+  CONFIRMED
+  UNCONFIRMED
+  DISPUTED
+  VOIDED
+}
+
+model SuccessfulDeal {
+  id            String     @id @default(cuid())
+  listingId     String     @unique
+  sellerId      String
+  buyerId       String?
+  price         Int
+  status        DealStatus
+  countsTowardStats Boolean @default(false)
+  ineligibleReason  String?
+  confirmedAt   DateTime?
+  disputedReason String?
+  voidReason    String?
+  reviewedById  String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  seller  User    @relation("DealSeller", fields: [sellerId], references: [id], onDelete: Cascade)
+  buyer   User?   @relation("DealBuyer", fields: [buyerId], references: [id], onDelete: SetNull)
+
+  @@index([sellerId, status, createdAt])
+  @@index([buyerId])
+  @@index([status])
+}
+
+model StarAdjustment {
+  id        String   @id @default(cuid())
+  userId    String
+  delta     Int
+  reason    String
+  actorId   String?
+  createdAt DateTime @default(now())
+
+  user  User  @relation("StarAdjustmentUser", fields: [userId], references: [id], onDelete: Cascade)
+  actor User? @relation("StarAdjustmentActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+}
+
+model SellerLevel {
+  id           String   @id @default(cuid())
+  name         String
+  slug         String   @unique
+  badge        String // emoji / short badge label
+  color        String   @default("#0e7490")
+  description  String?
+  minStars     Int      @default(0)
+  minDeals     Int      @default(0)
+  rewards      String?
+  sortOrder    Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  stats SellerStatistics[]
+}
+
+model SellerStatistics {
+  userId                 String   @id
+  publishedListings      Int      @default(0)
+  activeListings         Int      @default(0)
+  soldListings           Int      @default(0)
+  countedDeals           Int      @default(0)
+  countedDealsInWindow   Int      @default(0)
+  pendingDeals           Int      @default(0)
+  voluntaryCancellations Int      @default(0)
+  cancellationsInWindow  Int      @default(0)
+  verifiedReferrals      Int      @default(0)
+  stars                  Int      @default(0)
+  levelId                String?
+  underReview            Boolean  @default(false)
+  warningIssuedAt        DateTime?
+  computedAt             DateTime @default(now())
+
+  user  User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  level SellerLevel? @relation(fields: [levelId], references: [id], onDelete: SetNull)
+
+  @@index([stars])
+}
+
+// ───────────────────────────── VIP ─────────────────────────────
+
+enum VipState {
+  NONE
+  PENDING_APPROVAL
+  ACTIVE
+  EXPIRED
+  SUSPENDED
+}
+
+model VipStatus {
+  userId        String    @id
+  state         VipState  @default(NONE)
+  since         DateTime?
+  expiresAt     DateTime?
+  renewals      Int       @default(0)
+  suspendedReason String?
+  lastEvaluatedAt DateTime?
+  updatedAt     DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([state, expiresAt])
+}
+
+enum VipEvent {
+  QUALIFIED
+  GRANTED
+  RENEWED
+  EXPIRED
+  SUSPENDED
+  RESTORED
+  APPROVED
+  REJECTED
+  REVOKED
+}
+
+model VipHistory {
+  id        String   @id @default(cuid())
+  userId    String
+  event     VipEvent
+  reason    String?
+  actorId   String?
+  expiresAt DateTime?
+  snapshot  Json?
+  createdAt DateTime @default(now())
+
+  user  User  @relation("VipHistoryUser", fields: [userId], references: [id], onDelete: Cascade)
+  actor User? @relation("VipHistoryActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([event, createdAt])
+}
+
+enum RewardPoolStatus {
+  DRAFT
+  CALCULATED
+  APPROVED
+  PAID
+}
+
+model VipRewardPool {
+  id              String           @id @default(cuid())
+  month           String           @unique // YYYY-MM
+  eligibleProfit  Int // laari, entered/approved by OceanX
+  profitNote      String?
+  rewardPercent   Float
+  poolAmount      Int // laari
+  formula         Json // weights snapshot used for the calculation
+  status          RewardPoolStatus @default(DRAFT)
+  calculatedAt    DateTime?
+  approvedAt      DateTime?
+  approvedById    String?
+  createdById     String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  allocations VipRewardAllocation[]
+}
+
+enum RewardPaymentStatus {
+  PENDING
+  APPROVED
+  PAID
+  WITHHELD
+}
+
+model VipRewardAllocation {
+  id              String              @id @default(cuid())
+  poolId          String
+  userId          String
+  metrics         Json
+  score           Float
+  calculatedAmount Int
+  adjustment      Int                 @default(0)
+  adjustmentReason String?
+  finalAmount     Int
+  status          RewardPaymentStatus @default(PENDING)
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  pool     VipRewardPool      @relation(fields: [poolId], references: [id], onDelete: Cascade)
+  user     User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  payments VipRewardPayment[]
+
+  @@unique([poolId, userId])
+  @@index([userId])
+}
+
+model VipRewardPayment {
+  id            String   @id @default(cuid())
+  allocationId  String
+  amount        Int
+  method        String?
+  reference     String?
+  paidAt        DateTime
+  recordedById  String?
+  note          String?
+  createdAt     DateTime @default(now())
+
+  allocation VipRewardAllocation @relation(fields: [allocationId], references: [id], onDelete: Cascade)
+
+  @@index([allocationId])
+}
+
+enum ReferralStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+model Referral {
+  id          String         @id @default(cuid())
+  referrerId  String
+  referredId  String         @unique
+  status      ReferralStatus @default(PENDING)
+  reason      String?
+  verifiedAt  DateTime?
+  createdAt   DateTime       @default(now())
+
+  referrer User @relation("ReferralReferrer", fields: [referrerId], references: [id], onDelete: Cascade)
+  referred User @relation("ReferralReferred", fields: [referredId], references: [id], onDelete: Cascade)
+
+  @@index([referrerId, status])
+}
+
+// ───────────────────────────── Cancellations ─────────────────────────────
+
+enum CancellationOutcome {
+  FINED
+  NO_FINE_GRACE
+  NO_FINE_DISABLED
+  EXCEPTION_REQUESTED
+  EXCEPTION_APPROVED
+  WAIVED
+}
+
+model CancellationRecord {
+  id               String              @id @default(cuid())
+  listingId        String              @unique
+  sellerId         String
+  reason           String?
+  exceptionRequest String?
+  fineAmount       Int                 @default(0)
+  outcome          CancellationOutcome
+  countsAgainstSeller Boolean          @default(true)
+  affectsVip       Boolean             @default(false)
+  statsEffect      String?
+  vipEffect        String?
+  adminId          String?
+  adminReason      String?
+  overriddenAt     DateTime?
+  createdAt        DateTime            @default(now())
+
+  listing Listing           @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  seller  User              @relation("CancellationSeller", fields: [sellerId], references: [id], onDelete: Cascade)
+  admin   User?             @relation("CancellationAdmin", fields: [adminId], references: [id], onDelete: SetNull)
+  fine    CancellationFine?
+
+  @@index([sellerId, createdAt])
+  @@index([outcome])
+}
+
+enum FineStatus {
+  UNPAID
+  PAYMENT_SUBMITTED
+  PAID
+  WAIVED
+  PENDING_EXCEPTION
+}
+
+model CancellationFine {
+  id             String     @id @default(cuid())
+  cancellationId String     @unique
+  amount         Int
+  status         FineStatus @default(UNPAID)
+  paidAt         DateTime?
+  waivedAt       DateTime?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  cancellation CancellationRecord @relation(fields: [cancellationId], references: [id], onDelete: Cascade)
+  payment      Payment?
+
+  @@index([status])
+}
+
+// ───────────────────────────── Giveaways ─────────────────────────────
+
+enum GiveawayStatus {
+  DRAFT
+  ACTIVE
+  ENDED
+  DRAWN
+}
+
+model Giveaway {
+  id           String         @id @default(cuid())
+  title        String
+  description  String
+  prize        String
+  imageFileId  String?
+  startsAt     DateTime
+  endsAt       DateTime
+  status       GiveawayStatus @default(DRAFT)
+  vipOnly      Boolean        @default(false)
+  minStars     Int            @default(0)
+  winnersCount Int            @default(1)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  image        StoredFile?           @relation(fields: [imageFileId], references: [id], onDelete: SetNull)
+  participants GiveawayParticipant[]
+
+  @@index([status, endsAt])
+}
+
+model GiveawayParticipant {
+  giveawayId String
+  userId     String
+  isWinner   Boolean  @default(false)
+  joinedAt   DateTime @default(now())
+
+  giveaway Giveaway @relation(fields: [giveawayId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([giveawayId, userId])
+  @@index([userId])
+}
+
+// ───────────────────────────── Moderation & communication ─────────────────────────────
+
+enum ReportReason {
+  SCAM
+  PROHIBITED_ITEM
+  WRONG_CATEGORY
+  DUPLICATE
+  OFFENSIVE
+  ALREADY_SOLD
+  MISLEADING
+  OTHER
+}
+
+enum ReportStatus {
+  OPEN
+  REVIEWING
+  RESOLVED
+  DISMISSED
+}
+
+model Report {
+  id            String       @id @default(cuid())
+  reporterId    String
+  listingId     String?
+  targetUserId  String?
+  reason        ReportReason
+  details       String?
+  status        ReportStatus @default(OPEN)
+  resolution    String?
+  handledById   String?
+  handledAt     DateTime?
+  createdAt     DateTime     @default(now())
+
+  reporter   User     @relation("ReportReporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  listing    Listing? @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  targetUser User?    @relation("ReportTargetUser", fields: [targetUserId], references: [id], onDelete: Cascade)
+  handledBy  User?    @relation("ReportHandler", fields: [handledById], references: [id], onDelete: SetNull)
+
+  @@index([status, createdAt])
+  @@index([listingId])
+}
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  type      String
+  title     String
+  body      String
+  link      String?
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt, createdAt])
+}
+
+enum TermsType {
+  TERMS
+  PRIVACY
+}
+
+model TermsDocument {
+  id          String    @id @default(cuid())
+  type        TermsType
+  version     Int
+  title       String
+  content     String
+  isCurrent   Boolean   @default(false)
+  publishedAt DateTime  @default(now())
+  createdById String?
+
+  acceptances TermsAcceptance[]
+
+  @@unique([type, version])
+  @@index([type, isCurrent])
+}
+
+model TermsAcceptance {
+  id         String   @id @default(cuid())
+  userId     String
+  documentId String
+  ipHash     String?
+  acceptedAt DateTime @default(now())
+
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  document TermsDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, documentId])
+}
+
+model Banner {
+  id          String    @id @default(cuid())
+  title       String
+  subtitle    String?
+  imageFileId String?
+  linkUrl     String?
+  background  String    @default("#0e7490")
+  sortOrder   Int       @default(0)
+  isActive    Boolean   @default(true)
+  startsAt    DateTime?
+  endsAt      DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  image StoredFile? @relation(fields: [imageFileId], references: [id], onDelete: SetNull)
+
+  @@index([isActive, sortOrder])
+}
+
+// Manually recorded revenue (e.g. advertising) and expenses shown on the revenue dashboard.
+model RevenueEntry {
+  id          String   @id @default(cuid())
+  category    String
+  amount      Int // laari (negative for expenses/refunds outside the payment system)
+  note        String?
+  occurredAt  DateTime
+  createdById String?
+  createdAt   DateTime @default(now())
+
+  @@index([occurredAt])
+}
