@@ -1,0 +1,2 @@
+ALTER TABLE "Banner" ADD COLUMN "label" TEXT;
+ALTER TABLE "Banner" ADD COLUMN "ctaText" TEXT;

@@ -24,7 +24,7 @@ const NAV: { href: string; label: string; Icon: LucideIcon; perm: Permission }[]
   { href: "/admin/locations", label: "Locations", Icon: MapPin, perm: "catalog" },
   { href: "/admin/businesses", label: "Businesses", Icon: Store, perm: "businesses" },
   { href: "/admin/giveaways", label: "Giveaways", Icon: PartyPopper, perm: "giveaways" },
-  { href: "/admin/content", label: "Homepage & terms", Icon: Newspaper, perm: "content" },
+  { href: "/admin/content", label: "Homepage, ads & terms", Icon: Newspaper, perm: "content" },
   { href: "/admin/settings", label: "Settings", Icon: Settings, perm: "settings" },
   { href: "/admin/audit", label: "Audit log", Icon: ScrollText, perm: "audit" },
   { href: "/admin/admins", label: "Admins & roles", Icon: KeyRound, perm: "admins" },

@@ -1083,6 +1083,8 @@ model Banner {
   subtitle    String?
   imageFileId String?
   linkUrl     String?
+  label       String? // e.g. "Sponsored", "Partner"
+  ctaText     String? // button text, e.g. "Shop now"
   background  String    @default("#0e7490")
   sortOrder   Int       @default(0)
   isActive    Boolean   @default(true)

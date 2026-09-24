@@ -82,8 +82,11 @@ export default async function HomePage() {
             subtitle: b.subtitle,
             background: b.background,
             image: b.imageFileId ? fileUrl(b.imageFileId) : null,
-            href: b.linkUrl && b.linkUrl.startsWith("/") ? b.linkUrl : null,
+            href: b.linkUrl && (b.linkUrl.startsWith("/") || /^https?:\/\//.test(b.linkUrl)) ? b.linkUrl : null,
+            label: b.label,
+            ctaText: b.ctaText,
           }))}
+          seconds={settings.homepage.adSlideSeconds}
         />
       ) : (
         <section className="bg-grid relative -mx-4 -mt-4 overflow-hidden bg-slate-950 px-4 py-8 text-white sm:mx-0 sm:mt-0 sm:rounded-2xl sm:px-10 sm:py-14">

@@ -125,6 +125,7 @@ const homepage = z.object({
   showCategories: z.boolean().default(true),
   showFeatured: z.boolean().default(true),
   recentCount: z.number().int().min(4).max(48).default(12),
+  adSlideSeconds: z.number().int().min(2).max(30).default(5),
   introAnimation: z.boolean().default(true),
   showAbout: z.boolean().default(true),
   aboutTitle: z.string().max(120).default("Made in the Maldives, for the Maldives"),

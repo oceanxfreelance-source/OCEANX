@@ -26,6 +26,7 @@ import { adminResolveCancellation } from "@/lib/services/cancellations";
 import { createOrUpdatePool, calculatePool, adjustAllocation, approvePool, recordRewardPayment, setAllocationWithheld } from "@/lib/services/rewards";
 import { adminSetBusinessVerified, adminSetBusinessStatus } from "@/lib/services/business";
 import { drawWinners, deleteGiveaway } from "@/lib/services/giveaways";
+import { normalizeAdLink } from "@/lib/ad-link";
 import { adminSetReferralStatus } from "@/lib/services/referrals";
 
 async function uploadAdminImage(fd: FormData, key: string, purpose: string, ownerId: string, maxSize = 1600): Promise<string | undefined> {
@@ -514,12 +515,13 @@ export async function saveBannerAction(_: ActionState, fd: FormData): Promise<Ac
     const { user } = await requireAdmin("content");
     const id = str(fd, "id");
     const imageFileId = await uploadAdminImage(fd, "image", "banner", user.id, 1600);
-    const link = str(fd, "linkUrl");
-    if (link && !link.startsWith("/")) throw new UserError("Banner links must be internal paths starting with /.");
+    const link = normalizeAdLink(str(fd, "linkUrl"));
     const data = {
       title: cleanText(str(fd, "title"), 100),
-      subtitle: str(fd, "subtitle") || null,
-      linkUrl: link || null,
+      subtitle: cleanText(str(fd, "subtitle"), 200) || null,
+      linkUrl: link,
+      label: cleanText(str(fd, "label"), 30) || null,
+      ctaText: cleanText(str(fd, "ctaText"), 30) || null,
       background: /^#[0-9a-f]{6}$/i.test(str(fd, "background")) ? str(fd, "background") : "#0e7490",
       sortOrder: int(fd, "sortOrder"),
       isActive: bool(fd, "isActive"),
@@ -544,6 +546,7 @@ export async function deleteBannerAction(_: ActionState, fd: FormData): Promise<
     await prisma.banner.delete({ where: { id: str(fd, "id") } });
     await audit({ actorId: user.id, action: "banner.delete", entityType: "Banner", entityId: str(fd, "id"), summary: "Deleted banner" });
     revalidatePath("/admin/content");
+    revalidatePath("/");
     return { message: "Banner deleted." };
   });
 }

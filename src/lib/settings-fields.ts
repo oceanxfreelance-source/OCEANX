@@ -184,6 +184,7 @@ export const SETTINGS_FORMS: { group: SettingsGroup; title: string; description:
     title: "Homepage",
     description: "Hero text, sections, the opening animation and the About us section.",
     fields: [
+      { key: "adSlideSeconds", label: "Ad slider — seconds per ad", type: "int", help: "How long each ad shows before swiping to the next (2–30)." },
       { key: "introAnimation", label: "Play the logo animation when the site opens", type: "bool", help: "Plays on first open and on every refresh. Visitors can tap to skip." },
       { key: "showAbout", label: "Show About us on the home page", type: "bool" },
       { key: "aboutTitle", label: "About us — heading", type: "text" },
