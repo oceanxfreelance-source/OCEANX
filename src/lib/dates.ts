@@ -58,3 +58,10 @@ export function timeAgo(d: Date | string): string {
   if (s < 86400 * 30) return `${Math.floor(s / 86400)}d ago`;
   return formatDate(d);
 }
+
+/** Parses <input type="datetime-local"> / <input type="date"> values as Maldives local time. */
+export function parseMvDateTime(v: string): Date {
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(v)) return new Date(`${v}:00+05:00`);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return new Date(`${v}T00:00:00+05:00`);
+  return new Date(v);
+}

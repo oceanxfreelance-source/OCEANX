@@ -41,7 +41,6 @@ export const emailSchema = z.string().trim().toLowerCase().email("Enter a valid 
 
 /** Removes control characters and trims. React escapes output, so HTML is never rendered from user text. */
 export function cleanText(s: string, max = 5000): string {
-  // eslint-disable-next-line no-control-regex
   return s.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "").trim().slice(0, max);
 }
 

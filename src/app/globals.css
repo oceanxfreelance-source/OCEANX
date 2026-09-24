@@ -1,0 +1,106 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ocean-50: #ecfeff;
+  --color-ocean-100: #cffafe;
+  --color-ocean-200: #a5f3fc;
+  --color-ocean-300: #67e8f9;
+  --color-ocean-400: #22d3ee;
+  --color-ocean-500: #06b6d4;
+  --color-ocean-600: #0891b2;
+  --color-ocean-700: #0e7490;
+  --color-ocean-800: #155e75;
+  --color-ocean-900: #164e63;
+  --color-coral-500: #f97362;
+  --color-coral-600: #e85a48;
+  --color-sand-50: #fdfbf6;
+  --color-gold-400: #fbbf24;
+  --color-gold-500: #f59e0b;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-sand-50);
+  color: #0f172a;
+}
+
+@utility btn {
+  @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60;
+}
+
+@utility btn-primary {
+  @apply btn bg-ocean-700 text-white hover:bg-ocean-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ocean-600;
+}
+
+@utility btn-accent {
+  @apply btn bg-coral-500 text-white hover:bg-coral-600;
+}
+
+@utility btn-secondary {
+  @apply btn border border-slate-300 bg-white text-slate-800 hover:bg-slate-50;
+}
+
+@utility btn-danger {
+  @apply btn bg-red-600 text-white hover:bg-red-700;
+}
+
+@utility btn-ghost {
+  @apply btn text-slate-700 hover:bg-slate-100;
+}
+
+@utility btn-sm {
+  @apply min-h-9 rounded-lg px-3 py-1.5 text-xs;
+}
+
+@utility input {
+  @apply block w-full min-h-11 rounded-xl border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 placeholder:text-slate-400 focus:border-ocean-600 focus:outline-none focus:ring-2 focus:ring-ocean-200 sm:text-sm;
+}
+
+@utility label {
+  @apply mb-1 block text-sm font-medium text-slate-700;
+}
+
+@utility card {
+  @apply rounded-2xl border border-slate-200 bg-white shadow-sm;
+}
+
+@utility chip {
+  @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold;
+}
+
+@utility table {
+  @apply w-full text-left text-sm;
+}
+
+@layer components {
+  .table th {
+    @apply whitespace-nowrap border-b border-slate-200 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-500;
+  }
+  .table td {
+    @apply border-b border-slate-100 px-3 py-2 align-top;
+  }
+  .prose-lite h1 {
+    @apply mb-4 text-2xl font-bold;
+  }
+  .prose-lite h2 {
+    @apply mb-2 mt-6 text-lg font-semibold;
+  }
+  .prose-lite p {
+    @apply mb-3 leading-relaxed text-slate-700;
+  }
+  .prose-lite ul {
+    @apply mb-3 list-disc space-y-1 pl-6 text-slate-700;
+  }
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
