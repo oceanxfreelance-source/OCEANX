@@ -36,7 +36,8 @@ export async function testImage(color = "#0e7490", size = 400): Promise<Buffer> 
 
 /** Unique, visually distinct image (used for payment slips so perceptual hashes differ). */
 export async function noisyImage(seed: number): Promise<Buffer> {
-  const w = 6, h = 5;
+  // 9x8 random cells line up with the 64-bit difference hash, so every test slip is visually distinct.
+  const w = 9, h = 8;
   const raw = Buffer.alloc(w * h * 3);
   let x = seed * 9301 + 49297;
   for (let i = 0; i < raw.length; i++) {
