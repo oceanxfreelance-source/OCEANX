@@ -20,6 +20,7 @@ import {
 } from "@/lib/services/users";
 import { UserError } from "@/lib/errors";
 import { audit } from "@/lib/audit";
+import { emailDeliveryAvailable } from "@/lib/messaging-providers";
 
 export async function registerAction(_: ActionState, fd: FormData): Promise<ActionState> {
   let userId = "";
@@ -40,12 +41,17 @@ export async function loginAction(_: ActionState, fd: FormData): Promise<ActionS
   let dest = "/";
   const res = await runAction(async () => {
     const user = await authenticate(str(fd, "email"), str(fd, "password"), { ipHash: await clientIpHash() });
-    await createSession(user.id);
-    if (user.adminRole) {
+    // Without an email service the admin code can't be delivered, so the admin session is created as verified.
+    await createSession(user.id, { mfaVerified: !!user.adminRole && !emailDeliveryAvailable() });
+    if (user.adminRole && emailDeliveryAvailable()) {
       await startAdminMfa(user).catch((e) => {
         if (!(e instanceof UserError)) throw e;
       });
       dest = "/admin-verify";
+    } else if (user.adminRole) {
+      // No email service configured yet: the emailed admin code cannot be delivered, so password-only admin sign-in.
+      await audit({ actorId: user.id, action: "admin.login", entityType: "User", entityId: user.id, summary: "Admin signed in (password only — email not configured)", ipHash: await clientIpHash() });
+      dest = "/admin";
     } else {
       dest = user.emailVerifiedAt ? safeNext(str(fd, "next"), "/") : `/verify?next=${encodeURIComponent(safeNext(str(fd, "next"), "/"))}`;
     }

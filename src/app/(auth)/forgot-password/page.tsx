@@ -1,9 +1,17 @@
 import { ActionForm, Field, SubmitButton } from "@/components/ui/form";
 import { forgotPasswordAction } from "@/app/actions/auth";
+import { emailDeliveryAvailable } from "@/lib/messaging-providers";
 
 export const metadata = { title: "Reset password" };
 
 export default function ForgotPasswordPage() {
+  if (!emailDeliveryAvailable())
+    return (
+      <div className="card p-6">
+        <h1 className="text-2xl font-bold">Forgot your password?</h1>
+        <p className="mt-2 text-sm text-slate-600">Password reset by email isn&apos;t available yet. Please contact MV Markets support to reset your password.</p>
+      </div>
+    );
   return (
     <div className="card p-6">
       <h1 className="text-2xl font-bold">Forgot your password?</h1>

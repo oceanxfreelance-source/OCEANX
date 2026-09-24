@@ -93,3 +93,13 @@ export async function sendSms(to: string, body: string): Promise<boolean> {
 export function smsConfigured() {
   return process.env.SMS_PROVIDER === "twilio" || (process.env.SMS_PROVIDER === "webhook" && !!process.env.SMS_WEBHOOK_URL);
 }
+
+/**
+ * True when emails can actually be delivered. When false, email-code steps (sign-up verification,
+ * admin sign-in code) are skipped so the marketplace still works; they switch on automatically
+ * once RESEND_API_KEY is configured. Tests always behave as if email is available.
+ */
+export function emailDeliveryAvailable() {
+  if (process.env.NODE_ENV === "test") return process.env.TEST_DISABLE_EMAIL !== "1";
+  return !!process.env.RESEND_API_KEY;
+}

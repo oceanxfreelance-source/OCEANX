@@ -83,26 +83,31 @@ async function main() {
     await prisma.banner.create({ data: { title: "List once. Sell across 20 atolls.", subtitle: "Only MVR 20 per listing — VIP sellers pay just MVR 10.", linkUrl: "/sell", background: "#0e7490" } });
   }
 
-  // Super admin (from environment)
-  const email = process.env.ADMIN_EMAIL?.toLowerCase().trim();
+  // Super admin (from environment). Log in with ADMIN_USERNAME or ADMIN_EMAIL.
+  const username = process.env.ADMIN_USERNAME?.trim().toLowerCase() || null;
+  const email = process.env.ADMIN_EMAIL?.toLowerCase().trim() || (username ? `${username}@admin.mvmarkets.local` : null);
   const password = process.env.ADMIN_PASSWORD;
   if (email && password) {
-    const existing = await prisma.user.findUnique({ where: { email } });
+    const existing = await prisma.user.findFirst({ where: { OR: [{ email }, ...(username ? [{ username }] : [])] } });
     if (!existing) {
+      const name = process.env.ADMIN_NAME || "OceanX Admin";
       await prisma.user.create({
         data: {
           email,
-          name: process.env.ADMIN_NAME || "OceanX Admin",
+          username,
+          name,
           passwordHash: await bcrypt.hash(password, 12),
           emailVerifiedAt: new Date(),
           referralCode: code(),
           adminRoleId: superRole.id,
-          profile: { create: { displayName: process.env.ADMIN_NAME || "OceanX Admin" } },
+          profile: { create: { displayName: name } },
           sellerStats: { create: {} },
           vipStatus: { create: {} },
         },
       });
-      console.log(`Created super admin ${email}`);
+      console.log(`Created super admin ${username ?? email}`);
+    } else if (username && !existing.username) {
+      await prisma.user.update({ where: { id: existing.id }, data: { username } });
     }
   }
   console.log("Seed complete.");

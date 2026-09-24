@@ -95,3 +95,25 @@ describe("registration, OTP and login", () => {
     expect(r2.reason).toMatch(/admin review/);
   });
 });
+
+describe("username login and no-email mode", () => {
+  it("logs in with a username (case-insensitive)", async () => {
+    const { hashPassword } = await import("@/lib/auth/password");
+    await prisma.user.create({
+      data: { email: "admin@admin.mvmarkets.local", username: "admin", name: "Admin", passwordHash: await hashPassword("Admin@24#"), referralCode: "ADMINTST", emailVerifiedAt: new Date() },
+    });
+    await expect(authenticate("Admin", "Admin@24#", { ipHash: "ip-u" })).resolves.toMatchObject({ username: "admin" });
+    await expect(authenticate("admin", "wrong", { ipHash: "ip-u" })).rejects.toThrow("Incorrect email or password.");
+  });
+
+  it("auto-verifies new accounts when no email service is configured", async () => {
+    process.env.TEST_DISABLE_EMAIL = "1";
+    try {
+      const u = await registerUser({ name: "No Mail", email: "nomail@example.mv", password: "secret123", acceptTerms: true }, { ipHash: "ip-n" });
+      expect(u.emailVerifiedAt).not.toBeNull();
+      expect(await prisma.otpCode.count({ where: { target: "nomail@example.mv" } })).toBe(0);
+    } finally {
+      delete process.env.TEST_DISABLE_EMAIL;
+    }
+  });
+});

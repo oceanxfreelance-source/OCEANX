@@ -6,6 +6,7 @@ import { UserError } from "../errors";
 import { dummyVerify, hashPassword, passwordProblem, verifyPassword } from "../auth/password";
 import { issueOtp, verifyOtp } from "../otp";
 import { enforceRateLimit } from "../rate-limit";
+import { emailDeliveryAvailable } from "../messaging-providers";
 import { emailSchema, optionalPhone, textField } from "../validation";
 import { audit } from "../audit";
 import { evaluateReferral } from "./referrals";
@@ -62,6 +63,7 @@ export async function registerUser(input: z.input<typeof registerSchema>, ctx: {
           passwordHash,
           referralCode: await uniqueReferralCode(),
           referredById: referrer?.id ?? null,
+          emailVerifiedAt: emailDeliveryAvailable() ? null : new Date(),
           signupIpHash: ctx.ipHash,
           profile: { create: { displayName: data.name } },
           sellerStats: { create: {} },
@@ -90,7 +92,7 @@ export async function registerUser(input: z.input<typeof registerSchema>, ctx: {
     throw e;
   }
 
-  await issueOtp({ userId: user.id, target: user.email, channel: "EMAIL", purpose: "VERIFY_EMAIL" });
+  if (emailDeliveryAvailable()) await issueOtp({ userId: user.id, target: user.email, channel: "EMAIL", purpose: "VERIFY_EMAIL" });
   await audit({ actorId: user.id, action: "user.register", entityType: "User", entityId: user.id, summary: `New account ${user.email}`, ipHash: ctx.ipHash });
   return user;
 }
@@ -127,13 +129,16 @@ export async function verifyPhone(userId: string, code: string) {
 
 const GENERIC_LOGIN_ERROR = "Incorrect email or password.";
 
-export async function authenticate(emailRaw: string, password: string, ctx: { ipHash: string | null }) {
-  const email = emailSchema.safeParse(emailRaw);
-  if (!email.success || !password) throw new UserError(GENERIC_LOGIN_ERROR);
+/** Accepts an email address or a username (e.g. the "Admin" account). */
+export async function authenticate(identifierRaw: string, password: string, ctx: { ipHash: string | null }) {
+  const identifier = identifierRaw.trim().toLowerCase();
+  if (!identifier || identifier.length > 254 || !password) throw new UserError(GENERIC_LOGIN_ERROR);
   await enforceRateLimit(`login:ip:${ctx.ipHash ?? "unknown"}`, 30, 900);
-  await enforceRateLimit(`login:email:${email.data}`, 10, 900);
+  await enforceRateLimit(`login:id:${identifier}`, 10, 900);
 
-  const user = await prisma.user.findUnique({ where: { email: email.data }, include: { adminRole: true } });
+  const user = identifier.includes("@")
+    ? await prisma.user.findUnique({ where: { email: identifier }, include: { adminRole: true } })
+    : await prisma.user.findUnique({ where: { username: identifier }, include: { adminRole: true } });
   if (!user) {
     await dummyVerify(password);
     throw new UserError(GENERIC_LOGIN_ERROR);

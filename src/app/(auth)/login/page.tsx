@@ -17,8 +17,8 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
       {sp.reset && <p className="mb-3 rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-800">Password updated. Please log in.</p>}
       <ActionForm action={loginAction}>
         <input type="hidden" name="next" value={sp.next ?? ""} />
-        <Field label="Email" name="email">
-          <input id="email" name="email" type="email" autoComplete="email" required className="input" />
+        <Field label="Email or username" name="email">
+          <input id="email" name="email" type="text" autoComplete="username" autoCapitalize="none" required className="input" />
         </Field>
         <Field label="Password" name="password">
           <input id="password" name="password" type="password" autoComplete="current-password" required className="input" />
