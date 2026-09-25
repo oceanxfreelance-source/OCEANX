@@ -28,6 +28,7 @@ import { adminSetBusinessVerified, adminSetBusinessStatus } from "@/lib/services
 import { drawWinners, deleteGiveaway } from "@/lib/services/giveaways";
 import { normalizeAdLink } from "@/lib/ad-link";
 import { sendAnnouncement } from "@/lib/services/push";
+import { startChatWithUser } from "@/lib/services/support";
 import { adminSetReferralStatus } from "@/lib/services/referrals";
 
 async function uploadAdminImage(fd: FormData, key: string, purpose: string, ownerId: string, maxSize = 1600): Promise<string | undefined> {
@@ -507,6 +508,20 @@ export async function drawGiveawayAction(_: ActionState, fd: FormData): Promise<
     revalidatePath("/admin/giveaways");
     return { message: `Drew ${winners.length} winner(s).` };
   });
+}
+
+export async function contactWinnerAction(_: ActionState, fd: FormData): Promise<ActionState> {
+  const { user } = await requireAdmin("giveaways");
+  const res = await runAction(async () => {
+    const giveawayId = str(fd, "giveawayId");
+    const winnerId = str(fd, "userId");
+    const won = await prisma.giveawayParticipant.findUnique({ where: { giveawayId_userId: { giveawayId, userId: winnerId } }, include: { giveaway: { select: { title: true } } } });
+    if (!won?.isWinner) throw new UserError("This person is not a winner of this giveaway.");
+    const threadId = await startChatWithUser(user.id, winnerId, str(fd, "message"), `Giveaway prize: ${won.giveaway.title}`);
+    return { message: threadId };
+  });
+  if (res?.error || !res?.message) return res;
+  redirect(`/admin/support/${res.message}`);
 }
 
 export async function deleteGiveawayAction(_: ActionState, fd: FormData): Promise<ActionState> {

@@ -4,7 +4,7 @@ import { formatDateTime } from "@/lib/dates";
 import { StatusBadge } from "@/components/ui/badges";
 import { ActionForm, SubmitButton } from "@/components/ui/form";
 import { PageTitle, Section } from "@/components/admin/ui";
-import { saveGiveawayAction, drawGiveawayAction, deleteGiveawayAction } from "@/app/actions/admin";
+import { saveGiveawayAction, drawGiveawayAction, deleteGiveawayAction, contactWinnerAction } from "@/app/actions/admin";
 
 type G = { id: string; title: string; description: string; prize: string; startsAt: Date; endsAt: Date; status: string; vipOnly: boolean; minStars: number; winnersCount: number };
 const dt = (d?: Date) => (d ? new Date(d.getTime() + 5 * 3600000).toISOString().slice(0, 16) : "");
@@ -45,10 +45,34 @@ export default async function AdminGiveawaysPage() {
       <PageTitle title="Giveaways" />
       <Section title="New giveaway"><GiveawayForm /></Section>
       {list.map((g) => (
-        <Section key={g.id} title={`${g.title} · ${g._count.participants} participants`} actions={<StatusBadge status={g.status === "DRAWN" ? "VERIFIED" : g.status} labels={{ VERIFIED: "Drawn" }} />}>
+        <div key={g.id} id={`g-${g.id}`} className="scroll-mt-24">
+        <Section title={`${g.title} · ${g._count.participants} participants`} actions={<StatusBadge status={g.status === "DRAWN" ? "VERIFIED" : g.status} labels={{ VERIFIED: "Drawn" }} />}>
           <p className="mb-2 text-xs text-slate-500">{formatDateTime(g.startsAt)} → {formatDateTime(g.endsAt)}</p>
           {g.participants.length > 0 && (
-            <ul className="mb-2 text-sm">{g.participants.map((p) => <li key={p.userId}>Winner: {p.user.name} · {p.user.email} {p.user.phone ?? ""}</li>)}</ul>
+            <div className="mb-3 space-y-3">
+              {g.participants.map((p) => {
+                const digits = p.user.phone?.replace(/\D/g, "") ?? "";
+                const first = p.user.name.split(" ")[0];
+                return (
+                  <div key={p.userId} className="rounded-xl border border-amber-200 bg-amber-50 p-3">
+                    <p className="font-semibold">🏆 Winner: {p.user.name}</p>
+                    <p className="text-sm text-slate-600">{p.user.email}{p.user.phone ? ` · ${p.user.phone}` : " · no phone number on file"}</p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {digits && <a href={`tel:+${digits}`} className="btn-secondary btn-sm">Call</a>}
+                      {digits && <a href={`https://wa.me/${digits}`} target="_blank" rel="noreferrer" className="btn-secondary btn-sm">WhatsApp</a>}
+                      <a href={`mailto:${p.user.email}`} className="btn-secondary btn-sm">Email</a>
+                    </div>
+                    <ActionForm action={contactWinnerAction} className="mt-3 space-y-2">
+                      <input type="hidden" name="giveawayId" value={g.id} />
+                      <input type="hidden" name="userId" value={p.userId} />
+                      <textarea name="message" rows={3} className="input" defaultValue={`Congratulations ${first}! 🎉 You won ${g.prize} in our giveaway “${g.title}”. Please reply here so we can arrange your prize.`} />
+                      <SubmitButton className="btn-accent btn-sm" pendingText="Opening chat…">Message in app</SubmitButton>
+                      <p className="text-xs text-slate-500">Opens a chat that appears in the winner&apos;s help chat on the website and app, with a notification.</p>
+                    </ActionForm>
+                  </div>
+                );
+              })}
+            </div>
           )}
           {g.status !== "DRAWN" && g.endsAt < new Date() && (
             <ActionForm action={drawGiveawayAction} className="mb-3">
@@ -64,6 +88,7 @@ export default async function AdminGiveawaysPage() {
             </ActionForm>
           </div>
         </Section>
+        </div>
       ))}
     </>
   );

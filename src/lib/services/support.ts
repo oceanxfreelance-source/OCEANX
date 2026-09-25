@@ -138,3 +138,19 @@ export async function unansweredCount() {
   const rows = await prisma.supportThread.findMany({ where: { status: { not: "CLOSED" } }, select: { status: true, lastMessageAt: true, agentReadAt: true } });
   return rows.filter((r) => r.status === "WAITING" || !r.agentReadAt || r.lastMessageAt > r.agentReadAt).length;
 }
+
+/** Admin starts (or continues) a chat with a customer, e.g. to contact a giveaway winner. The customer sees it in their help chat. */
+export async function startChatWithUser(adminId: string, userId: string, message: string, subject?: string) {
+  const text = clean(message);
+  const existing = await prisma.supportThread.findFirst({ where: { userId, status: { not: "CLOSED" } }, orderBy: { createdAt: "desc" } });
+  const threadId =
+    existing?.id ??
+    (
+      await prisma.supportThread.create({
+        data: { userId, status: "OPEN", subject: subject?.slice(0, 120) ?? "Message from MV Markets", agentReadAt: new Date(), messages: { create: [{ sender: "SYSTEM", body: "The MV Markets team started this chat." }] } },
+      })
+    ).id;
+  await prisma.supportThread.update({ where: { id: threadId }, data: { lastUserNotify: null } }); // always notify the first admin message
+  await sendAsAgent(adminId, threadId, text);
+  return threadId;
+}

@@ -66,3 +66,28 @@ describe("giveaway draw machine", () => {
     expect(drawName({ name: "Ali", username: "ali_mv" })).toBe("ali_mv");
   });
 });
+
+describe("admin is told who won and can contact them", () => {
+  it("notifies giveaway admins with the winner's contact details, and 'Message in app' reaches the winner", async () => {
+    const { startChatWithUser, currentThread } = await import("@/lib/services/support");
+    const admin = await makeUser({ admin: true });
+    const g = await liveGiveaway({ title: "Winner contact test", prize: "Speaker" });
+    const winner = await makeUser({ name: "Nashid Ahmed" });
+    await prisma.user.update({ where: { id: winner.id }, data: { phone: "+9607771234" } });
+    await joinGiveaway(g.id, winner.id);
+    await prisma.giveaway.update({ where: { id: g.id }, data: { endsAt: new Date(Date.now() - 1000) } });
+    await giveawayLiveState(g.id, null); // automatic draw
+
+    const n = await prisma.notification.findFirstOrThrow({ where: { userId: admin.id, type: "giveaway", link: `/admin/giveaways#g-${g.id}` } });
+    expect(n.title).toContain("Nashid Ahmed");
+    expect(n.body).toContain("+9607771234");
+    expect(n.body).toContain("Speaker");
+
+    const threadId = await startChatWithUser(admin.id, winner.id, "Congratulations Nashid! Reply here to arrange your prize.", "Giveaway prize");
+    const t = await currentThread(winner.id);
+    expect(t!.id).toBe(threadId);
+    expect(t!.status).toBe("OPEN");
+    expect(t!.messages.at(-1)!.sender).toBe("AGENT");
+    expect(await prisma.notification.count({ where: { userId: winner.id, type: "support", title: "MV Markets team replied" } })).toBe(1);
+  });
+});

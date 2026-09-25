@@ -4,6 +4,8 @@ import { UserError, NotFoundError } from "../errors";
 import { audit } from "../audit";
 import { notify } from "../notify";
 import { isVipActiveRecord } from "./vip";
+import { hasPermission } from "../permissions";
+import { pushToUsers } from "./push";
 
 export async function joinGiveaway(giveawayId: string, userId: string) {
   const g = await prisma.giveaway.findUnique({ where: { id: giveawayId } });
@@ -48,7 +50,22 @@ export async function drawWinners(giveawayId: string, adminId: string | null) {
     metadata: { winners },
   });
   for (const w of winners) await notify(w, { type: "giveaway", title: "You won a giveaway 🎉", body: `Congratulations — you won "${g.title}" (${g.prize}). OceanX will contact you.`, link: "/giveaways" });
+  await notifyAdminsOfWinners(g, winners);
   return winners;
+}
+
+/** Tell every admin who manages giveaways who won, with contact details, so they can reach the winner. */
+async function notifyAdminsOfWinners(g: { id: string; title: string; prize: string }, winnerIds: string[]) {
+  const admins = await prisma.user.findMany({ where: { adminRoleId: { not: null }, status: "ACTIVE" }, select: { id: true, adminRole: { select: { permissions: true } } } });
+  const ids = admins.filter((a) => hasPermission(a.adminRole?.permissions, "giveaways")).map((a) => a.id);
+  if (!ids.length) return;
+  const people = await prisma.user.findMany({ where: { id: { in: winnerIds } }, select: { name: true, email: true, phone: true } });
+  const who = people.length ? people.map((p) => `${p.name} (${[p.phone, p.email].filter(Boolean).join(", ")})`).join("; ") : "no participants — nobody won";
+  const title = people.length ? `Giveaway winner: ${people.map((p) => p.name).join(", ")}` : `Giveaway ended without participants`;
+  const body = `"${g.title}" (${g.prize}) — ${who}. Contact them from Admin → Giveaways.`;
+  const link = `/admin/giveaways#g-${g.id}`;
+  for (const id of ids) await notify(id, { type: "giveaway", title, body, link });
+  await pushToUsers(ids, { title, body: body.slice(0, 200), url: link, tag: `winner-${g.id}` }).catch(() => undefined);
 }
 
 /** Draw automatically once the end time has passed (called by the live view and the daily job). Returns true if it drew now. */
