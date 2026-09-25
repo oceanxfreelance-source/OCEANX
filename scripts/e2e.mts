@@ -326,6 +326,28 @@ try {
   await expectText(a, "payment.verify");
   log("Audit log records admin actions");
 
+  // Help chat: assistant answers, then "Talk to a person" reaches the admin, who replies live.
+  await b.goto(`${BASE}/`);
+  await b.click('button[aria-label="Help and support chat"]');
+  await b.click('button:has-text("How do I sell?")');
+  await b.locator('[role="dialog"][aria-label="Help chat"]').getByText(/\+ button/).first().waitFor({ timeout: 15000 });
+  await b.click('button:has-text("Talk to a person")');
+  await expectText(b, "Waiting for someone from our team");
+  await b.fill('textarea[aria-label="Message"]', "Hi, I need help with my listing");
+  await b.keyboard.press("Enter");
+  await expectText(b, "I need help with my listing");
+  await shot(b, "17-help-chat-mobile");
+  const thread = await prisma.supportThread.findFirstOrThrow({ where: { user: { email: buyer.email }, status: { not: "CLOSED" } } });
+  await a.goto(`${BASE}/admin/support`);
+  await expectText(a, buyer.name);
+  await a.goto(`${BASE}/admin/support/${thread.id}`);
+  await a.fill('textarea[placeholder^="Reply to"]', "Hello! Happy to help — what would you like to change?");
+  await a.click('button:has-text("Send")');
+  await expectText(a, "Happy to help");
+  await shot(a, "18-admin-support-chat");
+  await b.locator('[role="dialog"][aria-label="Help chat"]').getByText("Happy to help", { exact: false }).first().waitFor({ timeout: 15000 }); // arrives in the customer's open chat within a few seconds
+  log("Help chat: assistant answered; customer reached a person; admin replied live");
+
   // Desktop pages
   const desk = await browser.newPage({ viewport: { width: 1366, height: 900 } });
   await desk.goto(BASE);

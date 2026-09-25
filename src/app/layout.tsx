@@ -7,6 +7,7 @@ import { themeInitScript } from "@/components/ThemeToggle";
 import { PwaSetup } from "@/components/pwa";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import { NotificationPrompt } from "@/components/NotificationPrompt";
+import { HelpChat } from "@/components/HelpChat";
 import { fileUrl } from "@/lib/storage";
 import { getSiteSettings } from "@/lib/site";
 import { env } from "@/lib/env";
@@ -59,6 +60,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <Header />
         <main className="mx-auto min-h-[70vh] max-w-6xl px-4 pb-28 pt-4 md:pb-12">{children}</main>
         <Footer />
+        <HelpChat />
       </body>
     </html>
   );

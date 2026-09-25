@@ -37,7 +37,23 @@ export function InstallPrompt() {
     };
   }, [ready, installed, platform]);
 
-  if (!show || installed || path.startsWith("/admin") || path === "/app" || path.startsWith("/sell")) return null;
+  const visible = show && !installed && !path.startsWith("/admin") && path !== "/app" && !path.startsWith("/sell");
+  return <InstallCard visible={visible} platform={platform} onClose={() => setShow(false)} />;
+}
+
+function InstallCard({ visible, onClose }: { visible: boolean; platform: string; onClose: () => void }) {
+  // Tell other floating buttons (help chat) to step aside while this card is showing.
+  useEffect(() => {
+    if (!visible) return;
+    document.body.dataset.installPrompt = "1";
+    return () => {
+      delete document.body.dataset.installPrompt;
+    };
+  }, [visible]);
+  const setShow = (v: boolean) => {
+    if (!v) onClose();
+  };
+  if (!visible) return null;
 
   const dismiss = () => {
     setShow(false);

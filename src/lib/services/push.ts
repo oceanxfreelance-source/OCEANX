@@ -73,11 +73,11 @@ export function setPushSenderForTests(fn: typeof sender) {
   sender = fn;
 }
 
-async function deliver(payload: Payload, excludeUserId: string | null) {
+async function deliver(payload: Payload, excludeUserId: string | null, onlyUserIds?: string[]) {
   const { publicKey, privateKey } = await getVapidKeys();
   const subject = process.env.VAPID_SUBJECT || `mailto:${(await getSettings()).general.supportEmail || "support@mvmarkets.mv"}`;
   const subs = await prisma.pushSubscription.findMany({
-    where: excludeUserId ? { OR: [{ userId: null }, { userId: { not: excludeUserId } }] } : {},
+    where: onlyUserIds ? { userId: { in: onlyUserIds } } : excludeUserId ? { OR: [{ userId: null }, { userId: { not: excludeUserId } }] } : {},
     select: { id: true, endpoint: true, p256dh: true, auth: true },
   });
   const body = JSON.stringify(payload);
@@ -114,6 +114,12 @@ async function deliver(payload: Payload, excludeUserId: string | null) {
     await prisma.pushSubscription.deleteMany({ where: { failures: { gte: 5 } } });
   }
   return { sent, failed };
+}
+
+/** Push to specific people's phones/browsers (e.g. a support reply). Not recorded as a broadcast. */
+export async function pushToUsers(userIds: string[], payload: { title: string; body: string; url: string; tag?: string }) {
+  if (!userIds.length) return { sent: 0, failed: 0 };
+  return deliver({ ...payload, tag: payload.tag ?? "personal" }, null, userIds);
 }
 
 /** Records the broadcast (for the Android app feed) and pushes it to every subscribed phone/browser. */

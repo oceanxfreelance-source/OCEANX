@@ -1,4 +1,5 @@
 import { prisma } from "../db";
+import { autoDrawIfDue } from "./giveaways";
 import { purgeExpiredRateLimits } from "../rate-limit";
 import { daysAgo } from "../dates";
 import { runVipMaintenance } from "./vip";
@@ -11,7 +12,9 @@ export async function runDailyMaintenance() {
   const autoConfirmed = await autoConfirmDeals(now);
   const subscriptionsExpired = await expireSubscriptions(now);
   const vip = await runVipMaintenance(now);
-  await prisma.giveaway.updateMany({ where: { status: "ACTIVE", endsAt: { lt: now } }, data: { status: "ENDED" } });
+  // Giveaways past their end time are drawn automatically (normally the live view already did it at the end time).
+  const dueGiveaways = await prisma.giveaway.findMany({ where: { status: { in: ["ACTIVE", "ENDED"] }, endsAt: { lt: now } }, select: { id: true } });
+  for (const g of dueGiveaways) await autoDrawIfDue(g.id, now);
   await prisma.session.deleteMany({ where: { expiresAt: { lt: now } } });
   await prisma.otpCode.deleteMany({ where: { createdAt: { lt: daysAgo(7, now) } } });
   await purgeExpiredRateLimits();

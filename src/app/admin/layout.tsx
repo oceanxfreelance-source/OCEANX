@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { Award, BellRing, CreditCard, Crown, Flag, FolderTree, Gift, Handshake, KeyRound, LayoutDashboard, Link2, MapPin, Newspaper, Package, PartyPopper, ScrollText, Settings, Store, Undo2, Users, type LucideIcon } from "lucide-react";
+import { Award, BellRing, Headset, CreditCard, Crown, Flag, FolderTree, Gift, Handshake, KeyRound, LayoutDashboard, Link2, MapPin, Newspaper, Package, PartyPopper, ScrollText, Settings, Store, Undo2, Users, type LucideIcon } from "lucide-react";
 import type { Metadata } from "next";
 import { requireAdminPage } from "@/lib/auth/guards";
 import { hasPermission, type Permission } from "@/lib/permissions";
 import { prisma } from "@/lib/db";
+import { unansweredCount } from "@/lib/services/support";
 
 export const metadata: Metadata = { title: "OceanX Admin", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
@@ -26,6 +27,7 @@ const NAV: { href: string; label: string; Icon: LucideIcon; perm: Permission }[]
   { href: "/admin/giveaways", label: "Giveaways", Icon: PartyPopper, perm: "giveaways" },
   { href: "/admin/content", label: "Homepage, ads & terms", Icon: Newspaper, perm: "content" },
   { href: "/admin/notifications", label: "Notifications", Icon: BellRing, perm: "content" },
+  { href: "/admin/support", label: "Support chats", Icon: Headset, perm: "support" },
   { href: "/admin/settings", label: "Settings", Icon: Settings, perm: "settings" },
   { href: "/admin/audit", label: "Audit log", Icon: ScrollText, perm: "audit" },
   { href: "/admin/admins", label: "Admins & roles", Icon: KeyRound, perm: "admins" },
@@ -33,12 +35,13 @@ const NAV: { href: string; label: string; Icon: LucideIcon; perm: Permission }[]
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, permissions } = await requireAdminPage();
-  const [pendingPayments, openReports, soldRequests] = await Promise.all([
+  const [pendingPayments, openReports, soldRequests, supportWaiting] = await Promise.all([
     hasPermission(permissions, "payments") ? prisma.payment.count({ where: { status: { in: ["PENDING", "NEEDS_REVIEW", "AI_CHECKING"] } } }) : 0,
     hasPermission(permissions, "reports") ? prisma.report.count({ where: { status: { in: ["OPEN", "REVIEWING"] } } }) : 0,
     hasPermission(permissions, "vip") ? prisma.successfulDeal.count({ where: { proofStatus: "PENDING" } }) : 0,
+    hasPermission(permissions, "support") ? unansweredCount() : 0,
   ]);
-  const badge: Record<string, number> = { "/admin/payments": pendingPayments, "/admin/reports": openReports, "/admin/deals": soldRequests };
+  const badge: Record<string, number> = { "/admin/payments": pendingPayments, "/admin/reports": openReports, "/admin/deals": soldRequests, "/admin/support": supportWaiting };
   return (
     <div className="grid gap-6 lg:grid-cols-[232px_1fr]">
       <aside className="lg:sticky lg:top-20 lg:self-start">

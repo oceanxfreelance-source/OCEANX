@@ -12,6 +12,7 @@ export const PERMISSIONS = {
   businesses: "Manage businesses & subscription plans",
   giveaways: "Manage giveaways",
   content: "Manage homepage, banners, terms & privacy",
+  support: "Answer customer help chats",
   settings: "Change marketplace settings",
   audit: "View audit logs",
   admins: "Manage admin users & roles",

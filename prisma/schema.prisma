@@ -82,6 +82,7 @@ model User {
   @@index([createdAt])
   @@index([adminRoleId])
   pushSubscriptions PushSubscription[]
+  supportThreads SupportThread[]
 }
 
 model Profile {
@@ -1180,4 +1181,52 @@ model Broadcast {
   createdAt  DateTime      @default(now())
 
   @@index([createdAt])
+}
+
+// ───────────────────────────── Help & live support ─────────────────────────────
+
+enum SupportStatus {
+  WAITING // customer asked for a person; nobody has answered yet
+  OPEN    // an admin has replied
+  CLOSED
+}
+
+enum SupportSender {
+  USER
+  BOT
+  AGENT
+  SYSTEM
+}
+
+model SupportThread {
+  id              String        @id @default(cuid())
+  userId          String
+  status          SupportStatus @default(WAITING)
+  subject         String?
+  lastMessageAt   DateTime      @default(now())
+  userReadAt      DateTime      @default(now())
+  agentReadAt     DateTime?
+  lastAgentNotify DateTime?
+  lastUserNotify  DateTime?
+  closedAt        DateTime?
+  createdAt       DateTime      @default(now())
+
+  user     User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages SupportMessage[]
+
+  @@index([status, lastMessageAt])
+  @@index([userId])
+}
+
+model SupportMessage {
+  id        String        @id @default(cuid())
+  threadId  String
+  sender    SupportSender
+  agentId   String?
+  body      String
+  createdAt DateTime      @default(now())
+
+  thread SupportThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  @@index([threadId, createdAt])
 }
